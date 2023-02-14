@@ -18,6 +18,7 @@ install.packages("remotes")
 remotes::install_github("emlab-ucsb/startR")
 # Build directories
 startR::create_local_dirs(other_dirs = c("data", "data/raw", "data/processed", "data/output"))
+some new code here
 
 
 ## PROCESSING ##################################################################

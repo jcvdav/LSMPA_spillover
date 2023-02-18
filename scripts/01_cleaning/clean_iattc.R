@@ -70,7 +70,7 @@ ps_tuna_clean <- ps_tuna %>%
     yft_mt = yft
   ) %>%
   mutate(
-    tot_mt = alb_mt + bet_mt + bkj_mt + bzx_mt + pbf_mt + skj_mt + tun_mt + yft_mt,
+    tot_mt = alb_mt + bet_mt + pbf_mt + skj_mt + yft_mt,
     cpue_alb = alb_mt / num_sets,
     cpue_bet = bet_mt / num_sets,
     cpue_bkj = bkj_mt / num_sets,
@@ -89,7 +89,6 @@ ps_tuna_clean <- ps_tuna %>%
 # Clean longline data ----------------------------------------------------------
 ll_tuna_clean <- ll_tuna %>%
   rename(lat = lat_c5, lon = lon_c5) %>%
-  filter(hooks > 0) %>%
   select(year, month, flag, lat, lon, hooks, contains("mt")) %>%
   rename(
     alb_mt = al_bmt,
@@ -107,7 +106,7 @@ ll_tuna_clean <- ll_tuna %>%
     swo_mt = sw_omt
   ) %>%
   mutate(
-    tot_mt = alb_mt + bet_mt + pbf_mt + skj_mt + tun_mt + yft_mt + bil_mt + blm_mt + bum_mt + mls_mt + sfa_mt + ssp_mt + swo_mt,
+    tot_mt = alb_mt + bet_mt + pbf_mt + skj_mt + yft_mt,
     cpue_alb = alb_mt / hooks,
     cpue_bet = bet_mt / hooks,
     cpue_pbf = pbf_mt / hooks,
@@ -143,7 +142,7 @@ pl_tuna_clean <- pl_tuna %>%
     yft_mt = yft
   ) %>%
   mutate(
-    tot_mt = alb_mt + bet_mt + bkj_mt + bzx_mt + pbf_mt + skj_mt + tun_mt + yft_mt,
+    tot_mt = alb_mt + bet_mt + pbf_mt + skj_mt + yft_mt,
     cpue_alb = alb_mt / num_sets,
     cpue_bet = bet_mt / num_sets,
     cpue_bkj = bkj_mt / num_sets,
@@ -179,12 +178,12 @@ iattc_tuna <-
 ## VISUALIZE ###################################################################
 
 # Quick time series to check ---------------------------------------------------
-iattc_tuna %>%
-  group_by(gear) %>%
-  mutate(norm_cpue_tot = (cpue_tot - mean(cpue_tot, na.rm = T)) / sd(cpue_tot, na.rm = T)) %>%
-  ungroup() %>%
-  ggplot(aes(x = year, y = norm_cpue_tot, color = gear)) +
-  geom_smooth()
+# iattc_tuna %>%
+#   group_by(gear) %>%
+#   mutate(norm_cpue_tot = (cpue_tot - mean(cpue_tot, na.rm = T)) / sd(cpue_tot, na.rm = T)) %>%
+#   ungroup() %>%
+#   ggplot(aes(x = year, y = norm_cpue_tot, color = gear)) +
+#   geom_smooth()
 
 ## EXPORT ######################################################################
 

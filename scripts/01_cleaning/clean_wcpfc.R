@@ -80,7 +80,7 @@ ps_tuna_clean <- ps_tuna %>%
     oth_mt = oth_c_una + oth_c_log + oth_c_dfad + oth_c_afad + oth_c_oth
   ) %>%
   select(year, qtr, flag_id, lat, lon, num_sets, contains("_mt")) %>%
-  mutate(tot_mt = skj_mt + yft_mt + bet_mt + oth_mt) %>%
+  mutate(tot_mt = skj_mt + yft_mt + bet_mt) %>%
   mutate(
     cpue_skj = skj_mt / num_sets,
     cpue_yft = yft_mt / num_sets,
@@ -110,7 +110,7 @@ ll_tuna_clean <- ll_tuna %>%
   ) %>%
   select(year, qtr, flag_id, lat, lon, hooks, contains("_mt")) %>%
   rename() %>%
-  mutate(tot_mt = alb_mt + yft_mt + bet_mt + mls_mt + blm_mt + bum_mt + swo_mt + oth_mt) %>%
+  mutate(tot_mt = alb_mt + yft_mt + bet_mt) %>%
   mutate(
     cpue_alb = alb_mt / hooks,
     cpue_yft = yft_mt / hooks,
@@ -136,7 +136,7 @@ pl_tuna_clean <- pl_tuna %>%
     yft_mt = yft_c,
     bet_mt = bet_c,
     oth_mt = oth_c) %>%
-  mutate(tot_mt = skj_mt + yft_mt + bet_mt + oth_mt) %>%
+  mutate(tot_mt = skj_mt + yft_mt + bet_mt) %>%
   mutate(
     cpue_skj = skj_mt / days,
     cpue_yft = yft_mt / days,
@@ -166,20 +166,26 @@ wcpfc_tuna <-
     contains("cpue_")
   ) %>%
   mutate(
-    lat = as.numeric(str_remove_all(lat, "[:alpha:]")),
-    lon = as.numeric(str_remove_all(lon, "[:alpha:]")),
-    flag = ifelse(is.na(flag), "Other", flag)
+    lat_mult = ifelse(str_detect(lat, "N"), 1, -1),
+    lon_mult = ifelse(str_detect(lon, "E"), 1, -1)) %>%
+  mutate(
+    lat = lat_mult * as.numeric(str_remove_all(lat, "[:alpha:]")),
+    lon = lon_mult * as.numeric(str_remove_all(lon, "[:alpha:]"))
+  ) %>%
+  mutate(
+    lat = ifelse(gear == "longline", lat + 2.5, lat + 0.5),
+    lon = ifelse(gear == "longline", lon + 2.5, lon + 0.5)
   )
 
 ## VISUALIZE ###################################################################
 
 # Quick time series to check ---------------------------------------------------
-wcpfc_tuna %>%
-  group_by(gear) %>%
-  mutate(norm_cpue_tot = (cpue_tot - mean(cpue_tot, na.rm = T)) / sd(cpue_tot, na.rm = T)) %>%
-  ungroup() %>%
-  ggplot(aes(x = year, y = norm_cpue_tot, color = gear)) +
-  geom_smooth()
+# wcpfc_tuna %>%
+#   group_by(gear) %>%
+#   mutate(norm_cpue_tot = (cpue_tot - mean(cpue_tot, na.rm = T)) / sd(cpue_tot, na.rm = T)) %>%
+#   ungroup() %>%
+#   ggplot(aes(x = year, y = norm_cpue_tot, color = gear)) +
+#   geom_smooth()
 
 
 ## EXPORT ######################################################################

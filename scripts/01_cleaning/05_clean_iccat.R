@@ -15,14 +15,13 @@
 # Load packages ----------------------------------------------------------------
 pacman::p_load(
   here,
-  Hmisc,
   janitor,
   tidyverse
 )
 
 # Load data --------------------------------------------------------------------
 # Read the Microsoft access database
-con <- mdb.get(file = here("data", "raw", "RFMO_data", "ICCAT", "t2ce_20230131web.mdb"))
+con <- readRDS(file = here("data", "raw", "RFMO_data", "ICCAT", "ICCAT_database.rds"))
 
 # Extract the data
 data <- con$t2ce %>%

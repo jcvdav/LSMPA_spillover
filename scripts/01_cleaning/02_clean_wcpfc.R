@@ -50,21 +50,6 @@ ll_tuna <-
   ) %>%
   clean_names()
 
-
-pl_tuna <-
-  read_csv(
-    file = here(
-      "data",
-      "raw",
-      "RFMO_data",
-      "WCPFC",
-      "WCPFC_P_PUBLIC_BY_1x1_QTR_FLAG_1",
-      "WCPFC_P_PUBLIC_BY_1x1_QTR_FLAG.csv"
-    )
-  ) %>%
-  clean_names()
-
-
 ## PROCESSING ##################################################################
 
 # X ----------------------------------------------------------------------------
@@ -81,6 +66,8 @@ ps_tuna_clean <- ps_tuna %>%
   ) %>%
   select(year, qtr, flag_id, lat, lon, num_sets, contains("_mt")) %>%
   mutate(tot_mt = skj_mt + yft_mt + bet_mt) %>%
+  filter(num_sets > 0,
+         tot_mt > 0) %>%
   mutate(
     cpue_skj = skj_mt / num_sets,
     cpue_yft = yft_mt / num_sets,
@@ -109,8 +96,9 @@ ll_tuna_clean <- ll_tuna %>%
     oth_mt = oth_c
   ) %>%
   select(year, qtr, flag_id, lat, lon, hooks, contains("_mt")) %>%
-  rename() %>%
   mutate(tot_mt = alb_mt + yft_mt + bet_mt) %>%
+  filter(hooks > 0,
+         tot_mt > 0) %>%
   mutate(
     cpue_alb = alb_mt / hooks,
     cpue_yft = yft_mt / hooks,
@@ -127,30 +115,8 @@ ll_tuna_clean <- ll_tuna %>%
          gear = "longline",
          rfmo = "wcpfc")
 
-pl_tuna_clean <- pl_tuna %>%
-  rename(
-    year = yy,
-    lat = lat_short,
-    lon = lon_short,
-    skj_mt = skj_c,
-    yft_mt = yft_c,
-    bet_mt = bet_c,
-    oth_mt = oth_c) %>%
-  mutate(tot_mt = skj_mt + yft_mt + bet_mt) %>%
-  mutate(
-    cpue_skj = skj_mt / days,
-    cpue_yft = yft_mt / days,
-    cpue_bet = bet_mt / days,
-    cpue_oth = oth_mt / days,
-    cpue_tot = tot_mt / days
-  ) %>%
-  rename(effort = days) %>%
-  mutate(effort_measure = "days",
-         gear = "pole_and_line",
-         rfmo = "wcpfc")
-
 wcpfc_tuna <-
-  bind_rows(ps_tuna_clean, ll_tuna_clean, pl_tuna_clean) %>%
+  bind_rows(ps_tuna_clean, ll_tuna_clean) %>%
   left_join(iso_codes, by = c("flag_id" = "iso2c")) %>%
   select(
     rfmo,

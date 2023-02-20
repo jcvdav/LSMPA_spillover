@@ -1,19 +1,41 @@
-# replicating broeder et al: https://www.int-res.com/articles/feature/m585p001.pdf
+################################################################################
+# title
+################################################################################
+#
+# Juan Carlos Villaseñor-Derbez
+# juancvd@stanford.edu
+# date
+#
+# # replicating broeder et al: https://www.int-res.com/articles/feature/m585p001.pdf
+#
+################################################################################
 
-mpas <- st_read(dsn = "/Users/juancarlosvillasenorderbez/Library/CloudStorage/GoogleDrive-juancarlos@ucsb.edu/Shared drives/emlab/data/mpa-atlas/mpatlas_20201223_clean",
-                layer = "mpatlas_20201223_clean")
+## SET UP ######################################################################
 
-gal <- mpas %>%
-  filter(mpa_id == "7700028") %>%
-  select(mpa_id)
+# Load packages ----------------------------------------------------------------
+pacman::p_load(
+  here,
+  sf,
+  units,
+  tidyverse,
+  fixest
+)
 
-data <- readRDS(here("data", "processed", "quarterly_all_rfmos.rds")) %>%
-  filter(rfmo == "iattc",
-         flag == "ECU",
-         gear == "purse_seine",
-         between(lat, -6, 6),
-         between(lon, -97, -85))
+theme_set(theme_minimal())
 
+# Load data --------------------------------------------------------------------
+# LMPAs
+mpas <- st_read(dsn = here("data", "processed", "clean_lmpas.gpkg"))
+
+# CPUE data
+data <- readRDS(here("data", "processed", "quarterly_all_rfmos.rds"))
+
+grid <- readRDS(here("data", "processed", "distance_grid.rds")) %>%
+  mutate(year_enforced = ifelse(wdpaid == "11753", 1998, year_enforced)) %>%
+  filter(year_enforced <= 2018) %>%
+  drop_na(year_enforced)
+
+# Build a hotspot gtid matching Fig 1 of Broeder et al (hashed blue squares)
 hotspot_grid_cells <- tibble(
   lat = c(1.5, 1.5, 1.5,
           0.5, 0.5, 0.5, 0.5, 0.5,
@@ -29,7 +51,24 @@ hotspot_grid_cells <- tibble(
   n_cel = 21
 )
 
-replication_data <- data %>%
+## PROCESSING ##################################################################
+
+# Galapagos boundary -----------------------------------------------------------
+gal <- mpas %>%
+  filter(wdpaid == "11753") %>%
+  select(wdpaid) %>%
+  st_union()
+
+
+# Galapagos CPUE data ----------------------------------------------------------
+gal_data <- data %>%
+  filter(rfmo == "iattc",
+         flag == "ECU",
+         gear == "purse_seine",
+         between(lat, -6, 6),
+         between(lon, -97, -85))
+
+replication_data <- gal_data %>%
   left_join(hotspot_grid_cells, by = c("lat", "lon")) %>%
   replace_na(replace = list(group = "others",
                             n_cel = (12 * 12) - 21))
@@ -124,7 +163,8 @@ panel <- replication_data %>%
   mutate(norm_cpue = (cpue - mean(cpue[year < year_imp])) / sd(cpue[year < year_imp])) %>%
   ungroup() %>%
   inner_join(pts, by = c("lon", "lat")) %>%
-  filter(dist <= 200) %>%
+  filter(dist <= 200,
+         dist > 0) %>%
   mutate(dist = -1 * (dist / 100),
          post = 1 *(year >= year_imp),
          treated = 1 * (dist_bin == "0-100"),
@@ -138,7 +178,38 @@ list(feols(norm_cpue ~ treated + post + post:treated, data = panel, cluster = ~i
                                              "dist" = "Treated"))
 
 
+### Now properly
 
+range <- 10
+
+our_data <- data %>%
+  filter(rfmo == "iattc",
+         flag == "ECU",
+         gear == "purse_seine") %>%
+  select(year, qtr, lat, lon, cpue_tot) %>%
+  left_join(grid, by = c("lat", "lon")) %>%
+  # filter(dist <= 200) %>%
+  filter(wdpaid == "11753") %>%
+  filter(year >= (year_enforced - range)) %>%
+  group_by(lat, lon) %>%
+  mutate(norm_cpue = (cpue_tot - mean(cpue_tot[year < year_enforced])) / sd(cpue_tot[year < year_enforced])) %>%
+  ungroup() %>%
+  mutate(dist = -1 * (dist / 100),
+         dist_bin = as.character(trunc(dist) - 1),
+         dist_bin = fct_reorder(dist_bin, dist),
+         post = 1 *(year >= year_enforced),
+         id = paste(lat, lon, sep = "_"),
+         event = year - year_enforced) %>%
+  drop_na(norm_cpue)
+
+
+feols(norm_cpue ~ treatment_100*post | qtr, data = our_data, cluster = ~id, subset = ~!is.na(treatment_100)) %>%
+  broom::tidy() %>%
+  filter(str_detect(term, ":post")) %>%
+  ggplot(aes(x = term, y = estimate)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_pointrange(aes(ymin = estimate - std.error, ymax = estimate + std.error)) +
+  coord_flip()
 
 
 

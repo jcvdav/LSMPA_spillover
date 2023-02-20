@@ -15,6 +15,7 @@
 # Load packages ----------------------------------------------------------------
 pacman::p_load(
   here,
+  nngeo,
   sf,
   readxl,
   janitor,
@@ -24,7 +25,7 @@ pacman::p_load(
 sf_use_s2(F)
 
 # Load data --------------------------------------------------------------------
-mpas <- list.files(path = "data/raw/WDPA_WDOECM_Feb2023_Public_marine_shp/",
+mpas <- list.files(path =  here("data", "raw", "WDPA_WDOECM_Feb2023_Public_marine_shp"),
                    pattern = "polygons.shp",
                    full.names = T,
                    recursive = T) %>%
@@ -53,7 +54,8 @@ clean_lmpas <- mpas %>%
   group_by(wdpaid, name, ocean, year_enforced, month_enforced) %>%
   summarize(a = 1) %>%
   ungroup() %>%
-  select(-a)
+  select(-a) %>%
+  st_remove_holes()
 
 ## EXPORT ######################################################################
 

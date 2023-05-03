@@ -291,6 +291,7 @@ iotc_longline_clean <- iotc_longline %>%
 
 iotc_tuna <- bind_rows(iotc_surface_clean,
                        iotc_longline_clean) %>%
+  mutate(gear = ifelse(gear == "LL", "longline", gear)) %>%
   select(
     rfmo,
     year,

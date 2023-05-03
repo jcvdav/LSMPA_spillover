@@ -102,6 +102,9 @@ iccat_tuna <- data %>%
          cpue_skj = skj_mt / effort,
          cpue_tot = tot_mt / effort,
          rfmo = "iccat") %>%
+  mutate(gear_grp_code = case_when(
+    gear_grp_code == "LL" ~ "longline",
+    gear_grp_code == "PS" ~ "purse_seine")) %>%
   select(rfmo,
          year = year_c,
          month = time_period_id,
@@ -132,3 +135,5 @@ saveRDS(
   object = iccat_tuna,
   file = here("data", "processed", "iccat_tuna_monthly_gear_flag.rds")
 )
+
+

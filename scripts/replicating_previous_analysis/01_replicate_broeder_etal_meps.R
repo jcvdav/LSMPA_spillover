@@ -29,6 +29,8 @@ mpas <- st_read(dsn = here("data", "processed", "clean_lmpas.gpkg"))
 
 # CPUE data
 data <- readRDS(here("data", "processed", "quarterly_all_rfmos.rds"))
+annual_data <- readRDS(here("data", "processed", "annual_all_rfmos.rds"))
+
 
 grid <- readRDS(here("data", "processed", "distance_grid.rds")) %>%
   mutate(year_enforced = ifelse(wdpaid == "11753", 1998, year_enforced)) %>%
@@ -129,7 +131,7 @@ f <- ggplot(data = ts, aes(x = year, y = log(cpue), color = group)) +
 
 cowplot::plot_grid(d, e, f, ncol = 1)
 
-# Noe extend it
+# Now extend it
 pts <- replication_data %>%
   select(lat, lon) %>%
   distinct() %>%
@@ -176,40 +178,3 @@ list(feols(norm_cpue ~ treated + post + post:treated, data = panel, cluster = ~i
                              coef_rename = c("post" = "Post",
                                              "treated" = "Treated",
                                              "dist" = "Treated"))
-
-
-### Now properly
-
-range <- 10
-
-our_data <- data %>%
-  filter(rfmo == "iattc",
-         flag == "ECU",
-         gear == "purse_seine") %>%
-  select(year, qtr, lat, lon, cpue_tot) %>%
-  left_join(grid, by = c("lat", "lon")) %>%
-  # filter(dist <= 200) %>%
-  filter(wdpaid == "11753") %>%
-  filter(year >= (year_enforced - range)) %>%
-  group_by(lat, lon) %>%
-  mutate(norm_cpue = (cpue_tot - mean(cpue_tot[year < year_enforced])) / sd(cpue_tot[year < year_enforced])) %>%
-  ungroup() %>%
-  mutate(dist = -1 * (dist / 100),
-         dist_bin = as.character(trunc(dist) - 1),
-         dist_bin = fct_reorder(dist_bin, dist),
-         post = 1 *(year >= year_enforced),
-         id = paste(lat, lon, sep = "_"),
-         event = year - year_enforced) %>%
-  drop_na(norm_cpue)
-
-
-feols(norm_cpue ~ treatment_100*post | qtr, data = our_data, cluster = ~id, subset = ~!is.na(treatment_100)) %>%
-  broom::tidy() %>%
-  filter(str_detect(term, ":post")) %>%
-  ggplot(aes(x = term, y = estimate)) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_pointrange(aes(ymin = estimate - std.error, ymax = estimate + std.error)) +
-  coord_flip()
-
-
-

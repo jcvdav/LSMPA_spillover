@@ -1,12 +1,18 @@
 all: panels dag
-panels: data/processed/quarterly_panel.rds data/processed/annual_panel.rds
+panels: data/processed/quarterly_panel.rds data/processed/restricted_quarterly_panel.rds data/processed/annual_panel.rds data/processed/restricted_annual_panel.rds
 dag: workflow.png
 
 # Panels
 data/processed/quarterly_panel.rds: scripts/02_make_data/04_build_quarterly_panels.R data/processed/distance_grid.rds data/processed/quarterly_all_rfmos.rds
 		cd $(<D);Rscript $(<F)
 
+data/processed/restricted_quarterly_panel.rds: scripts/02_make_data/04_build_quarterly_panels.R data/processed/distance_grid.rds data/processed/quarterly_all_rfmos.rds
+		cd $(<D);Rscript $(<F)
+
 data/processed/annual_panel.rds: scripts/02_make_data/05_build_annual_panels.R data/processed/distance_grid.rds data/processed/annual_all_rfmos.rds
+		cd $(<D);Rscript $(<F)
+
+data/processed/restricted_annual_panel.rds: scripts/02_make_data/05_build_annual_panels.R data/processed/distance_grid.rds data/processed/annual_all_rfmos.rds
 		cd $(<D);Rscript $(<F)
 
 # Main targets

@@ -13,6 +13,10 @@
 ## SET UP ######################################################################
 
 # Load packages ----------------------------------------------------------------
+pacman::p_load(
+  here,
+  tidyverse
+)
 
 # Load data --------------------------------------------------------------------
 quarterly_all_rfmos <- readRDS(file = here("data", "processed", "quarterly_all_rfmos.rds"))

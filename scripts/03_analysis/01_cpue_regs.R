@@ -42,7 +42,8 @@ mixed <- annual_panel %>%
   filter(cpue_tot > 0) %>%
   filter(event >= -10,
          event < 10) %>%
-  mutate(group = paste(name, gear))
+  mutate(group = paste(name, gear),
+         group = fct_reorder(group, id, function(x){-1 * n_distinct(x)}))
 
 
 feols(log(cpue_tot) ~ i(post, near_100, 0) | id + year,
@@ -65,16 +66,18 @@ feols(log(cpue_tot) ~ i(post, near_100, 0) | id + year,
 fit <- function(data, title) {
   if(length(unique(data$effort_measure)) > 1) {warning("More than one effort measure!")}
   n_flags <- length(unique(data$flag))
+
   n_years <- length(unique(data$event))
   n_years_pre <- sum(between(unique(data$event), -10, -1), na.rm = T)
   n_years_post <- sum(between(unique(data$event), 1, 10), na.rm = T)
   notes <- paste("Total years:", n_years, "; Pre-years in window = ", n_years_pre, ": Post-years in window:", n_years_post)
-  fml <- ifelse(n_flags > 1,
-                "c(log(cpue), cpue) ~ i(post, near_100, 0) | id + event + flag",
-                "c(log(cpue), cpue) ~ i(post, near_100, 0) | id + event")
+
+  # Build formula
+  fml <- "c(log(cpue), cpue) ~ i(post, near_100, 0) | id + event"
+  if(n_flags > 1) fml <- paste(fml, "+ flag")
 
   feols(as.formula(fml),
-        panel.id = ~id + event,
+        panel.id = ~id + year,
         data = data,
         vcov = function(x)vcov_conley_hac(x,
                                           id = ~id,
@@ -206,10 +209,13 @@ chagos_ll <- annual_panel %>%
   filter(!is.na(treatment_100),
          !is.na(flag)) %>%
   mutate(cpue = cpue_bet, # But YFT is a close second
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other"))
+         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(cpue > 0)
 
 fit(data = chagos_ll,
     title = "MPA: Chagos; Flag(s): Many, gear: longline, spp: Bigeye")
+
+john_plot(chagos_ll)
 
 chagos_ps <- annual_panel %>%
   filter(wdpaid == "555512151",
@@ -242,39 +248,131 @@ john_plot(data = pitcairn)
 
 
 # Ilhas de Trinidade
-annual_panel %>%
+trinidade <- annual_panel %>%
   filter(wdpaid == "555635929",
          gear == "longline") %>%
   filter(!is.na(treatment_100),
          !is.na(flag)) %>%
   mutate(cpue = cpue_alb,
          window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
-  filter(cpue > 0) %>%
-  fit(title = "MPA: Ilhas de Trinidade; Flag(s): Mmany, gear: longline, spp: Albacore")
+  filter(cpue > 0)
+
+
+fit(trinidade, title = "MPA: Ilhas de Trinidade; Flag(s): Mmany, gear: longline, spp: Albacore")
+
+john_plot(trinidade)
 
 # Arquipelago de Sao Pedro e Sao Paulo
-annual_panel %>%
+sao_pedro <- annual_panel %>%
   filter(wdpaid == "555635928",
          gear == "longline") %>%
   filter(!is.na(treatment_100),
          !is.na(flag)) %>%
   mutate(cpue = cpue_skj + cpue_yft,
          window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
-  filter(cpue > 0) %>%
-  fit(title = "MPA: Arquipelago de Sao Pedro; Flag(s): Mmany, gear: purse seine, spp: Yellowfin and Skipjack")
+  filter(cpue > 0)
 
+fit(sao_pedro, title = "MPA: Arquipelago de Sao Pedro; Flag(s): Mmany, gear: purse seine, spp: Yellowfin and Skipjack")
+
+john_plot(sao_pedro)
 
 # Papahanaomokakea
-annual_panel %>%
+papa <- annual_panel %>%
   filter(wdpaid == "220201",
          gear == "longline") %>%
   filter(!is.na(treatment_100),
          !is.na(flag)) %>%
   mutate(cpue = cpue_bet + cpue_yft,
          window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
-  filter(cpue > 0) %>%
-  fit(title = "MPA: Ilhas de Trinidade; Flag(s): Mmany, gear: longline, spp: Albacore")
+  filter(cpue > 0)
 
+fit(papa, title = "MPA: Ilhas de Trinidade; Flag(s): Mmany, gear: longline, spp: Albacore")
+
+john_plot(papa)
+
+
+# Niue
+niue <- annual_panel %>%
+  filter(wdpaid == "555705568",
+         gear == "longline") %>%
+  filter(!is.na(treatment_100),
+         !is.na(flag)) %>%
+  mutate(cpue = cpue_alb + cpue_bet + cpue_yft,
+         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(cpue > 0)
+
+fit(niue, title = "MPA: Niue; Flag(s): Mmany, gear: longline, spp: Albacore, Bigeye, Yellowfin")
+
+john_plot(niue)
+
+# Marianas
+marianas <- annual_panel %>%
+  filter(wdpaid == "400010",
+         gear == "longline") %>%
+  filter(!is.na(treatment_100),
+         !is.na(flag)) %>%
+  mutate(cpue = cpue_alb + cpue_bet + cpue_yft,
+         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(cpue > 0)
+
+fit(marianas, title = "MPA: Marianas; Flag(s): Mmany, gear: longline, spp: Albacore, Bigeye, Yellowfin")
+
+john_plot(marianas)
+
+# Coral sea
+coral<- annual_panel %>%
+  filter(wdpaid == "555556875",
+         gear == "longline") %>%
+  filter(!is.na(treatment_100),
+         !is.na(flag)) %>%
+  mutate(cpue = cpue_alb + cpue_bet + cpue_yft,
+         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(cpue > 0)
+
+fit(coral, title = "MPA: Coral sea, Flag(s): Mmany, gear: longline, spp: Albacore, Bigeye, Yellowfin")
+
+john_plot(coral)
+
+# Plau
+palau <- annual_panel %>%
+  filter(wdpaid == "555622118",
+         gear == "longline") %>%
+  filter(!is.na(treatment_100),
+         !is.na(flag)) %>%
+  mutate(cpue = cpue_alb + cpue_bet + cpue_yft,
+         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(cpue > 0)
+
+fit(palau, title = "MPA: Palau Flag(s): Mmany, gear: longline, spp: Albacore, Bigeye, Yellowfin")
+
+john_plot(palau)
+
+
+# Cordillera de Coiba
+coiba <- annual_panel %>%
+  filter(wdpaid == "555705293",
+         gear == "purse_seine") %>%
+  filter(!is.na(treatment_100),
+         !is.na(flag)) %>%
+  mutate(cpue = cpue_yft,
+         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(cpue > 0)
+
+fit(coiba, title = "MPA: Cordilleras d Coiba, Flag(s): Mmany, gear: longline, spp: Yellowfin")
+
+john_plot(coiba)
+
+# Combined ---------------------------------------------------------------------
+all_ps <- bind_rows(gal, revilla, pipa_ps, nazca, chagos_ps, coiba) %>%
+  drop_na()
+fit(all_ps, title = "All PS")
+john_plot(all_ps)
+
+all_ll <- bind_rows(pipa_ll, chagos_ll, pitcairn, trinidade, sao_pedro, papa, niue, marianas, palau, coral) %>%
+  drop_na()
+
+fit(all_ll, title = "All LL")
+john_plot(all_ll)
 
 ## EXPORT ######################################################################
 

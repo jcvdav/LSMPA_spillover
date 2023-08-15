@@ -26,8 +26,9 @@ quarterly_all_rfmos <- readRDS(file = here("data", "processed", "quarterly_all_r
 # X ----------------------------------------------------------------------------
 annual_all_rfmos <- quarterly_all_rfmos %>%
   select(-contains("cpue_")) %>%
-  group_by(rfmo, year, gear, flag, lat, lon, effort_measure, effort) %>%
-  summarize(alb_mt = sum(alb_mt, na.rm = T),
+  group_by(rfmo, year, gear, flag, lat, lon, effort_measure) %>%
+  summarize(effort = sum(effort, na.rm = T),
+            alb_mt = sum(alb_mt, na.rm = T),
             bet_mt = sum(bet_mt, na.rm = T),
             bft_mt = sum(bft_mt, na.rm = T),
             lot_mt = sum(lot_mt, na.rm = T),

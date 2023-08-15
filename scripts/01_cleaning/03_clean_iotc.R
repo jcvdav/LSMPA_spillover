@@ -291,7 +291,8 @@ iotc_longline_clean <- iotc_longline %>%
 
 iotc_tuna <- bind_rows(iotc_surface_clean,
                        iotc_longline_clean) %>%
-  mutate(gear = ifelse(gear == "LL", "longline", gear)) %>%
+  mutate(gear = ifelse(gear == "LL", "longline", gear),
+         effort_units = str_to_lower(effort_units)) %>%
   select(
     rfmo,
     year,
@@ -305,14 +306,6 @@ iotc_tuna <- bind_rows(iotc_surface_clean,
     contains("_mt"),
     contains("cpue_")
   )
-
-## VISUALIZE ###################################################################
-iotc_tuna %>%
-  group_by(gear) %>%
-  mutate(norm_cpue_tot = (cpue_tot - mean(cpue_tot, na.rm = T)) / sd(cpue_tot, na.rm = T)) %>%
-  ungroup() %>%
-  ggplot(aes(x = year, y = norm_cpue_tot, color = gear)) +
-  geom_smooth()
 
 ## EXPORT ######################################################################
 

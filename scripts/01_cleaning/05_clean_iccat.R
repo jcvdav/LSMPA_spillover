@@ -104,7 +104,12 @@ iccat_tuna <- data %>%
          rfmo = "iccat") %>%
   mutate(gear_grp_code = case_when(
     gear_grp_code == "LL" ~ "longline",
-    gear_grp_code == "PS" ~ "purse_seine")) %>%
+    gear_grp_code == "PS" ~ "purse_seine"),
+    eff1type = case_when(eff1type == "NO.HOOKS" ~ "hooks",
+                         eff1type == "NO.SETS" ~ "sets",
+                         eff1type == "NO.TRIPS" ~ "trips",
+                         T ~ eff1type),
+    eff1type = str_to_lower(eff1type)) %>%
   select(rfmo,
          year = year_c,
          month = time_period_id,

@@ -25,7 +25,8 @@ pacman::p_load(
 annual_panel <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
   mutate(event = ifelse(wdpaid == "11753", year - 2002, event),
          post = 1 * (event >= 0)) %>%
-  filter(effort_measure %in% c("sets", "hooks"))
+  filter(effort_measure %in% c("sets", "hooks"),
+         gear %in% c("longline", "purse_seine"))
 
 ## MPA-level analysis ----------------------------------------------------------
 

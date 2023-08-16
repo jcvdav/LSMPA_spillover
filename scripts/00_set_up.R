@@ -8,13 +8,14 @@ vcov_conley_hac <- function(x, id, time, lat, lon, cutoff, lag) {
       x = x,
       lat = lat,
       lon = lon,
-      cutoff = cutoff)
+      cutoff = cutoff,
+      distance = "spherical")
 
   # Panel portion
   vcov_hac <-
-    fixest::vcov_DK(
+    fixest::vcov_NW(
       x = x,
-      # unit = id,
+      unit = id,
       time = time,
       lag = lag)
   # Heteroskedasticity
@@ -24,7 +25,9 @@ vcov_conley_hac <- function(x, id, time, lat, lon, cutoff, lag) {
       cluster = id)
 
 
-  vcov_conley_hac <- vcov_conley #+ vcov_hac - vcov_robust
+  vcov_conley_hac <- vcov_conley +
+    vcov_hac -
+    vcov_robust
 
   return(vcov_conley_hac)
 }

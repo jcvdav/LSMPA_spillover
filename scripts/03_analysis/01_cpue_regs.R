@@ -35,8 +35,6 @@ fit <- function(data, window = T) {
     data <- filter(data, between(event, -10, 10))
   }
 
-  if(length(unique(data$effort_measure)) > 1) {warning("More than one effort measure!")}
-
   # Build formula
   fml <- "log(cpue) ~ i(post, near_100, 0) | id + event"
 
@@ -106,17 +104,6 @@ gal <- annual_panel %>%
          flag == "ECU",
          gear == "purse_seine") %>%
   filter(!is.na(treatment_100)) %>%
-  mutate(cpue = cpue_yft + cpue_bet + cpue_skj,
-         tot_mt = yft_mt, skj_mt, bet_mt,
-         tot_effort = effort) %>%
-  filter(cpue > 0) %>%
-  select(wdpaid, name, id, lat, lon, year, event, post, near_100, tot_mt, tot_effort, cpue)
-
-gal_alt <- annual_panel %>%
-  filter(wdpaid == "11753",
-         flag == "ECU",
-         gear == "purse_seine") %>%
-  filter(!is.na(treatment_100)) %>%
   mutate(tot_mt = yft_mt + skj_mt + bet_mt) %>%
   filter(tot_mt > 0) %>%
   group_by(wdpaid, name, id, lat, lon, year, event, post, near_100) %>%
@@ -133,13 +120,6 @@ revilla <- annual_panel %>%
          gear == "purse_seine") %>%
   filter(!is.na(treatment_100)) %>%
   mutate(cpue = cpue_yft) %>%
-  filter(cpue > 0)
-
-revilla_alt <- annual_panel %>%
-  filter(wdpaid == "555629385",
-         flag == "MEX",
-         gear == "purse_seine") %>%
-  filter(!is.na(treatment_100)) %>%
   mutate(tot_mt = yft_mt) %>%
   filter(tot_mt > 0) %>%
   group_by(wdpaid, name, id, lat, lon, year, event, post, near_100) %>%
@@ -153,13 +133,6 @@ revilla_alt <- annual_panel %>%
 # Purse seines
 # Species: Skipjack (Katwonus pelamis)
 pipa_ps <- annual_panel %>%
-  filter(wdpaid == "309888",
-         gear == "purse_seine") %>%
-  filter(!is.na(treatment_100)) %>%
-  mutate(cpue = cpue_skj) %>%
-  filter(cpue > 0)
-
-pipa_ps_alt <- annual_panel %>%
   filter(wdpaid == "309888",
          gear == "purse_seine") %>%
   filter(!is.na(treatment_100)) %>%
@@ -177,10 +150,14 @@ pipa_ps_alt <- annual_panel %>%
 nazca <- annual_panel %>%
   filter(wdpaid == "555624169",
          gear == "purse_seine") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_skj,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = skj_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 
@@ -189,18 +166,27 @@ chagos_ps <- annual_panel %>%
   filter(wdpaid == "555512151",
          gear == "purse_seine") %>%
   filter(!is.na(treatment_100)) %>%
-  mutate(cpue = cpue_skj + cpue_yft,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  mutate(tot_mt = yft_mt + skj_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 # Cordillera de Coiba ----------------------------------------------------------
 coiba <- annual_panel %>%
   filter(wdpaid == "555705293",
          gear == "purse_seine") %>%
-  filter(!is.na(treatment_100),ß
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_yft,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = yft_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 # Now longline =================================================================
@@ -208,20 +194,28 @@ coiba <- annual_panel %>%
 pipa_ll <- annual_panel %>%
   filter(wdpaid == "309888",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_yft + cpue_bet,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = yft_mt + bet_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 # Chagos -----------------------------------------------------------------------
 chagos_ll <- annual_panel %>%
   filter(wdpaid == "555512151",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_bet, # But YFT is a close second
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = bet_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 
@@ -229,30 +223,42 @@ chagos_ll <- annual_panel %>%
 pitcairn <- annual_panel %>%
   filter(wdpaid == "555624172",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_alb,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = alb_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 # Ilhas de Trinidade -----------------------------------------------------------
 trinidade <- annual_panel %>%
   filter(wdpaid == "555635929",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_alb,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = alb_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 # Arquipelago de Sao Pedro e Sao Paulo -----------------------------------------
 sao_pedro <- annual_panel %>%
   filter(wdpaid == "555635928",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_skj + cpue_yft,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = yft_mt + skj_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 
@@ -260,52 +266,70 @@ sao_pedro <- annual_panel %>%
 papa <- annual_panel %>%
   filter(wdpaid == "220201",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_bet + cpue_yft,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = yft_mt + bet_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
-
 
 # Niue -------------------------------------------------------------------------
 niue <- annual_panel %>%
   filter(wdpaid == "555705568",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_alb + cpue_bet + cpue_yft,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = alb_mt, bet_mt, yft_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 # Marianas ---------------------------------------------------------------------
 marianas <- annual_panel %>%
   filter(wdpaid == "400010",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_alb + cpue_bet + cpue_yft,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = alb_mt, bet_mt, yft_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
-
 
 # Coral sea --------------------------------------------------------------------
 coral<- annual_panel %>%
   filter(wdpaid == "555556875",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_alb + cpue_bet + cpue_yft,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = alb_mt, bet_mt, yft_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 # Plau -------------------------------------------------------------------------
 palau <- annual_panel %>%
   filter(wdpaid == "555622118",
          gear == "longline") %>%
-  filter(!is.na(treatment_100),
-         !is.na(flag)) %>%
-  mutate(cpue = cpue_alb + cpue_bet + cpue_yft,
-         window10 = ifelse((event >= -10 &  event < 10), "Within 10", "other")) %>%
+  filter(!is.na(treatment_100)) %>%
+  mutate(tot_mt = alb_mt, bet_mt, yft_mt) %>%
+  filter(tot_mt > 0) %>%
+  group_by(wdpaid,  name, id, lat, lon, year, event, post, near_100) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T),
+            tot_effort = sum(effort, na.rm = T)) %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / tot_effort) %>%
   filter(cpue > 0)
 
 # Now we cmbine the panels -----------------------------------------------------
@@ -314,17 +338,13 @@ all_ps <- bind_rows(
   revilla,
   pipa_ps,
   nazca,
-  chagos_ps,
-  coiba
-  ) %>%
-  replace_na(replace = list(flag = "No flag"))
+  chagos_ps
+  )
 
 ps_models <- fit(all_ps, window = T)
-
 ms(ps_models)
 
-all_ll <- bind_rows(pipa_ll, chagos_ll, pitcairn, trinidade, sao_pedro, papa, niue, marianas, coral, palau) %>%
-  replace_na(replace = list(flag = "No flag"))
 
-fit(all_ll, title = "All LL")
-
+all_ll <- bind_rows(pipa_ll, chagos_ll, pitcairn, trinidade, sao_pedro, papa, niue, marianas, coral, palau)
+ll_models <- fit(all_ll)
+ms(ll_models)

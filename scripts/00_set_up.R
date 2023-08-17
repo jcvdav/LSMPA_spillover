@@ -32,7 +32,7 @@ vcov_conley_hac <- function(x, id, time, lat, lon, cutoff, lag) {
   return(vcov_conley_hac)
 }
 
-s# Formula for an inverse-hiperbolic sinte ransformation ------------------------
+# Formula for an inverse-hiperbolic sinte ransformation ------------------------
 ihs <- function(x){
   log(x + sqrt((x ^ 2) + 1))
 }

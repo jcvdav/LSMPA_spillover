@@ -75,10 +75,6 @@ iccat_tuna <- data %>%
     skj_mt = skj / 1e3,
     tot_mt = bft_mt + alb_mt + yft_mt + bet_mt + skj_mt) %>%
   filter(tot_mt > 0) %>%
-  # mutate(pref_eff =
-           # case_when(
-             # (gear_grp_code == "LL" & !eff1type == "NO.HOOKS" & eff2type == "NO.HOOKS") ~ eff2,
-             # (gear_grp_code == "PS" & !eff1type == "NO.HOOKS" & eff2type == "NO.HOOKS"))) %>%
   mutate(lat_mult = ifelse(quad_id %in% c(1, 4), 1, -1),
          lon_mult = ifelse(quad_id %in% c(1, 2), 1, -1),
          centering = ifelse(square_type_code == "1x1", 0.5, 2.5),
@@ -87,13 +83,13 @@ iccat_tuna <- data %>%
   select(-contains("mult")) %>%
   left_join(fleet_flag, by = "fleet_id") %>%
   group_by(year_c, lat, lon, time_period_id, flag, gear_grp_code, eff1type) %>%
-  summarize(effort = sum(eff1),
-            bft_mt = sum(bft_mt),
-            alb_mt = sum(alb_mt),
-            yft_mt = sum(yft_mt),
-            bet_mt = sum(bet_mt),
-            skj_mt = sum(skj_mt),
-            tot_mt = sum(tot_mt)) %>%
+  summarize(effort = sum(eff1, na.rm = T),
+            bft_mt = sum(bft_mt, na.rm = T),
+            alb_mt = sum(alb_mt, na.rm = T),
+            yft_mt = sum(yft_mt, na.rm = T),
+            bet_mt = sum(bet_mt, na.rm = T),
+            skj_mt = sum(skj_mt, na.rm = T),
+            tot_mt = sum(tot_mt, na.rm = T)) %>%
   ungroup() %>%
   mutate(cpue_bft = bft_mt / effort,
          cpue_alb = alb_mt / effort,
@@ -120,7 +116,9 @@ iccat_tuna <- data %>%
          effort,
          effort_measure = eff1type,
          contains("_mt"),
-         contains("cpue_"))
+         contains("cpue_")) %>%
+  filter(!(effort_measure == "hooks" & effort < 600))
+
 
 
 ## VISUALIZE ###################################################################

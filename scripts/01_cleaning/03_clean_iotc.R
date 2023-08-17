@@ -179,7 +179,8 @@ unique_coords <- tibble(grid = unique(c(iotc_surface$grid, iotc_longline$grid)))
 
 iotc_surface_clean <- iotc_surface %>%
   filter(gear %in% c("PS"),
-         !is.na(catch_units)) %>%
+         !is.na(catch_units),
+         quality_code >= 2) %>%
   left_join(unique_coords, by = "grid") %>%
   replace_na(replace = list(
     yft_ls = 0, yft_fs = 0, yft_uncl = 0,
@@ -234,7 +235,8 @@ iotc_surface_clean <- iotc_surface %>%
 
 
 iotc_longline_clean <- iotc_longline %>%
-  filter(gear %in% c("LL", "FLL")) %>%
+  filter(gear %in% c("LL", "FLL"),
+         quality_code >= 2) %>%
   left_join(unique_coords, by = "grid") %>%
   select(year, month = month_start, flag = fleet, gear, lat, lon, effort, effort_units, contains("_mt")) %>%
   replace_na(replace = list(
@@ -287,7 +289,8 @@ iotc_longline_clean <- iotc_longline %>%
     cpue_skh_mt = skh_mt / effort,
     cpue_ntad_mt = ntad_mt/ effort,
     cpue_tot = tot_mt / effort) %>%
-  mutate(rfmo = "iotc")
+  mutate(rfmo = "iotc") %>%
+  filter(!(effort_units == "HOOKS" & effort < 200))
 
 iotc_tuna <- bind_rows(iotc_surface_clean,
                        iotc_longline_clean) %>%

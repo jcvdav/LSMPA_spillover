@@ -13,9 +13,9 @@ vcov_conley_hac <- function(x, id, time, lat, lon, cutoff, lag) {
 
   # Panel portion
   vcov_hac <-
-    fixest::vcov_NW(
+    fixest::vcov_DK(
       x = x,
-      unit = id,
+      # unit = id,
       time = time,
       lag = lag)
   # Heteroskedasticity
@@ -53,3 +53,13 @@ ggplot2::theme_update(
   text = ggplot2::element_text(size = 8),
   axis.text.y = ggplot2::element_text(size = 5)
 )
+
+
+# Testing function -------------------------------------------------------------
+test <- function(data) {
+  c(
+    "cpue_na" = sum(is.na(data$cpue_tot)),
+    "tot_mt_0" = sum(data$tot_mt == 0),
+    "effort_0" = sum(data$effort == 0)
+  )
+}

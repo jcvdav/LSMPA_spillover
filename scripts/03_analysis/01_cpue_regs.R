@@ -83,19 +83,19 @@ john_plot <- function(data, window = T, col = near_100) {
                 values_from = cpue, names_prefix = "cpue_") %>%
     mutate(delta = cpue_1 - cpue_0) %>%
     drop_na(delta) %>%
-    ggplot(aes(x = 1, y = dist, color = delta > 0)) +
+    ggplot(aes(x = 1, y = dist, fill = delta)) +
     geom_hline(yintercept = 0) +
     geom_hline(yintercept = 100, linetype = "dashed") +
     geom_hline(yintercept = 200, linetype = "dashed") +
     geom_hline(yintercept = 300, linetype = "dashed") +
     geom_hline(yintercept = 400, linetype = "dashed") +
     geom_hline(yintercept = 600, linetype = "dashed") +
-    geom_jitter(height = 0, width = 0.1, size = 4) +
+    geom_jitter(height = 0, width = 0.1, size = 4, shape = 21) +
     # geom_point(size = 4) +
     coord_polar() +
     scale_y_continuous(limits = c(-100, 600)) +
     scale_x_continuous(breaks = NULL) +
-    # scale_fill_binned(type = "viridis") +
+    scale_fill_gradient2() +
     scale_shape_manual(values = c(24, 21)) +
     theme_void()
 }

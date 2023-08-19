@@ -19,10 +19,8 @@ pacman::p_load(
 )
 
 # Load data --------------------------------------------------------------------
-
 annual_panel <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
-  filter(effort_measure %in% c("sets", "hooks"),
-         between(event, -10, 10))
+  filter(between(event, -10, 10))
 
 ###
 ns_per_period_ps <- annual_panel %>%
@@ -92,35 +90,6 @@ annual_panel %>%
   theme(legend.position = c(1, 0),
         legend.justification = c(1, 0))
 
-all_ps %>%
-  filter(between(event, -10, 10),
-         !is.na(near_100)) %>%
-  group_by(id, name, dist, lat, lon, event, near_100, post) %>%
-  summarize(effort = sum(tot_effort),
-            tot_mt = sum(tot_mt)) %>%
-  ungroup() %>%
-  mutate(cpue = tot_mt / effort,
-         dist = round(dist / 10)) %>%
-  group_by(post, dist, near_100) %>%
-  summarize(cpue = mean(cpue, na.rm = T)) %>%
-  ungroup() %>%
-  pivot_wider(names_from = post,
-              values_from = cpue, names_prefix = "cpue_") %>%
-  mutate(delta = cpue_1 - cpue_0) %>%
-  drop_na(delta) %>%
-  ggplot(aes(x = dist, y = delta)) +
-  geom_smooth(method = "loess") +
-  geom_point() +
-  geom_line() +
-  labs(x = "Distance from MPA boundary",
-       y = "Change in CPUE") +
-  theme_bw() +
-  theme(legend.position = c(1, 0),
-        legend.justification = c(1, 0))
-
-
-
-
 annual_panel %>%
   filter(!gear == "purse_seine",
          between(event, -10, 10),
@@ -147,31 +116,6 @@ annual_panel %>%
   theme(legend.position = c(1, 0),
         legend.justification = c(1, 0))
 
-all_ll %>%
-  filter(between(event, -10, 10),
-         !is.na(near_300)) %>%
-  group_by(id, name, dist, lat, lon, event, near_300, post) %>%
-  summarize(effort = sum(tot_effort),
-            tot_mt = sum(tot_mt)) %>%
-  ungroup() %>%
-  mutate(cpue = tot_mt / effort,
-         dist = round(dist / 10) * 10) %>%
-  group_by(post, dist, near_300) %>%
-  summarize(cpue = mean(cpue, na.rm = T)) %>%
-  ungroup() %>%
-  pivot_wider(names_from = post,
-              values_from = cpue, names_prefix = "cpue_") %>%
-  mutate(delta = cpue_1 - cpue_0) %>%
-  drop_na(delta) %>%
-  ggplot(aes(x = dist, y = delta)) +
-  geom_smooth(method = "loess") +
-  geom_point() +
-  labs(x = "Distance from MPA boundary",
-       y = "Change in CPUE") +
-  theme_bw() +
-  theme(legend.position = c(1, 0),
-        legend.justification = c(1, 0))
-
 
 
 
@@ -181,6 +125,7 @@ cpue_dist_plot <- function(mpa, spp, data, gear) {
 
   cpue <- parse(text = paste0("cpue_", spp))
   near <- ifelse(gear == "purse_seine", "near_100", "near_300")
+  max <- ifelse(gear == "purse_seine", 200, 600)
 
   plot <- NULL
 
@@ -215,8 +160,9 @@ cpue_dist_plot <- function(mpa, spp, data, gear) {
       plot <- ggplot(data = plot_data,
                      aes(x = dist, y = delta)) +
         geom_point() +
-        geom_smooth() +
-        ggtitle(label = paste(name, spp, gear))
+        geom_smooth(span = 1) +
+        ggtitle(label = paste(name, spp, gear)) +
+        scale_x_continuous(limits = c(0, max))
     }
 
   }
@@ -248,6 +194,10 @@ mpa_spp_plots <- mpa_spp_pairs %>%
 mpa_spp_plots %>%
   mutate(title = paste0("results/img/cpue_dist_plots/", wdpaid, "_", gear, "_", spp, ".png")) %$%
   walk2(title, cpue_dist_plot, ~ggsave(plot = .y$result, filename = .x, width = 5, height = 5))
+
+# Great:
+# Gal, YFT, PS and LL
+# Gal TOT LL and PS
 
 
 # gal YFT; gal TOT;

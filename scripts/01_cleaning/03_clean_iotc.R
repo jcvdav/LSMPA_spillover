@@ -24,8 +24,8 @@ iotc_surface <- read_csv(
     "raw",
     "RFMO_data",
     "IOTC",
-    "IOTC-DATASETS-2023-01-23-CE-ALL_1950-2021",
-    "IOTC-DATASETS-2023-01-23-CE-Surface_1950-2021.csv"
+    "IOTC-DATASETS-2023-04-24-CE-ALL_1950-2021",
+    "IOTC-DATASETS-2023-04-24-CE-Surface_1950-2021.csv"
   ),
   col_types = cols(
     Fleet = col_character(),
@@ -92,8 +92,8 @@ iotc_longline <- read_csv(
     "raw",
     "RFMO_data",
     "IOTC",
-    "IOTC-DATASETS-2023-01-23-CE-ALL_1950-2021",
-    "IOTC-DATASETS-2023-01-23-CE-Longline_1950-2021.csv"
+    "IOTC-DATASETS-2023-04-24-CE-ALL_1950-2021",
+    "IOTC-DATASETS-2023-04-24-CE-Longline_1950-2021.csv"
   ),
   col_types = cols(
     Fleet = col_character(),
@@ -159,21 +159,45 @@ iotc_longline <- read_csv(
 
 ## PROCESSING ##################################################################
 
-# Define a function
+# Define a function to make grid codes into coordinates
 grid_to_coords <- function(x) {
-  size <- as.numeric(str_sub(x, start = 0, end = 1))
+  # Extract pieces of the grid codes
+  # Size of the rectangle (5 indicates 1 degree and 6 indicates 5 degree)
+  size <- str_sub(x, start = 0, end = 1)
+  size <- case_when(size == 5 ~ 1,
+                    size == 6 ~ 5)
+  # Quadrant indicate shemispere
   quadrant <- as.numeric(str_sub(x, start = 2, end = 2))
+
+  # Now extract the lat and long
   lat <- as.numeric(str_sub(x, start = 3, end = 4))
   lon <- as.numeric(str_sub(x, start = 5, end = 7))
 
+  # Position in the hemisphere
   lat <- ifelse(quadrant %in% c(1, 4), lat, -1 * lat)
   lon <- ifelse(quadrant %in% c(1, 2), lon, -1 * lon)
 
-  data.frame(lat, lon)
+  # Adjust the coordinate to be in the center of the cell
+  # The IOTC grids are assumed to occur in the Indicate the corner of the square
+  # closest to 0o latitude and 0o longitude, which is annoying...
+  lat <- case_when(quadrant == 1 ~ lat + (size / 2),
+                   quadrant == 2 ~ lat - (size / 2),
+                   quadrant == 3 ~ lat - (size / 2),
+                   quadrant == 4 ~ lat + (size / 2))
+
+  lon <- case_when(quadrant == 1 ~ lon + (size / 2),
+                   quadrant == 2 ~ lon + (size / 2),
+                   quadrant == 3 ~ lon - (size / 2),
+                   quadrant == 4 ~ lon - (size / 2))
+
+
+  return(data.frame(lat, lon))
 }
+
 
 # Get lat and long -------------------------------------------------------------
 unique_coords <- tibble(grid = unique(c(iotc_surface$grid, iotc_longline$grid))) %>%
+  filter(str_sub(grid, 1, 1) %in% c("5", "6")) %>%
   mutate(coords = map(grid, grid_to_coords)) %>%
   unnest(coords)
 
@@ -202,33 +226,18 @@ iotc_surface_clean <- iotc_surface %>%
          bet_mt = bet_fs + bet_ls + bet_uncl,
          skj_mt = skj_fs + skj_ls + skj_uncl,
          alb_mt = alb_fs + alb_ls + alb_uncl,
-         sbf_mt = sbf_fs + sbf_ls + sbf_uncl,
-         lot_mt = lot_fs + lot_ls + lot_uncl,
-         frz_mt = frz_fs + frz_ls + frz_uncl,
-         kaw_mt = kaw_fs + kaw_ls + kaw_uncl,
-         com_mt = com_fs + com_ls + com_uncl,
-         tux_mt = tux_fs + tux_ls + tux_uncl,
-         fal_mt = fal_fs + fal_ls + fal_uncl,
-         ocs_mt = ocs_fs + ocs_ls + ocs_uncl,
-         skh_mt = skh_fs + skh_ls + skh_uncl,
-         ntad_mt = ntad_fs + ntad_ls + ntad_uncl) %>%
+         sbf_mt = sbf_fs + sbf_ls + sbf_uncl
+         ) %>%
   select(year, month = month_start, fleet, gear, lat, lon, effort, effort_units, contains("_mt")) %>%
-  mutate(tot_mt = yft_mt + bet_mt + skj_mt + alb_mt + sbf_mt + lot_mt) %>%
+  mutate(tot_mt = yft_mt + bet_mt + skj_mt + alb_mt + sbf_mt) %>%
+  filter(tot_mt > 0,
+         effort > 0) %>%
   mutate(
     cpue_yft_mt = yft_mt / effort,
     cpue_bet_mt = bet_mt / effort,
     cpue_skj_mt = skj_mt / effort,
     cpue_alb_mt = alb_mt / effort,
     cpue_sbf_mt = sbf_mt / effort,
-    cpue_lot_mt = lot_mt / effort,
-    cpue_frz_mt = frz_mt / effort,
-    cpue_kaw_mt = kaw_mt / effort,
-    cpue_com_mt = com_mt / effort,
-    cpue_tux_mt = tux_mt / effort,
-    cpue_fal_mt = fal_mt / effort,
-    cpue_ocs_mt = ocs_mt / effort,
-    cpue_skh_mt = skh_mt / effort,
-    cpue_ntad_mt = ntad_mt/ effort,
     cpue_tot = tot_mt / effort) %>%
   mutate(gear = "purse_seine",
          rfmo = "iotc")
@@ -236,6 +245,7 @@ iotc_surface_clean <- iotc_surface %>%
 
 iotc_longline_clean <- iotc_longline %>%
   filter(gear %in% c("LL", "FLL"),
+         effort_units == "HOOKS",
          quality_code >= 2) %>%
   left_join(unique_coords, by = "grid") %>%
   select(year, month = month_start, flag = fleet, gear, lat, lon, effort, effort_units, contains("_mt")) %>%
@@ -244,53 +254,20 @@ iotc_longline_clean <- iotc_longline %>%
     bet_mt = 0,
     skj_mt = 0,
     alb_mt = 0,
-    sbf_mt = 0,
-    swo_mt = 0,
-    blm_mt = 0,
-    bum_mt = 0,
-    mls_mt = 0,
-    sfa_mt = 0,
-    ssp_mt = 0,
-    bill_mt = 0,
-    tux_mt = 0,
-    bsh_mt = 0,
-    fal_mt = 0,
-    msk_mt = 0,
-    ocs_mt = 0,
-    por_mt = 0,
-    rsk_mt = 0,
-    spy_mt = 0,
-    thr_mt = 0,
-    skh_mt = 0,
-    ntad_mt = 0)) %>%
+    sbf_mt = 0)) %>%
   mutate(tot_mt = yft_mt + bet_mt + skj_mt + alb_mt + sbf_mt) %>%
+  filter(tot_mt > 0,
+         effort > 0) %>%
   mutate(
     cpue_yft_mt = yft_mt / effort,
     cpue_bet_mt = bet_mt / effort,
     cpue_skj_mt = skj_mt / effort,
     cpue_alb_mt = alb_mt / effort,
     cpue_sbf_mt = sbf_mt / effort,
-    cpue_swo_mt = swo_mt / effort,
-    cpue_blm_mt = blm_mt / effort,
-    cpue_bum_mt = bum_mt / effort,
-    cpue_mls_mt = mls_mt / effort,
-    cpue_sfa_mt = sfa_mt / effort,
-    cpue_ssp_mt = ssp_mt / effort,
-    cpue_bill_mt = bill_mt / effort,
-    cpue_tux_mt = tux_mt / effort,
-    cpue_bsh_mt = bsh_mt / effort,
-    cpue_fal_mt = fal_mt / effort,
-    cpue_msk_mt = msk_mt / effort,
-    cpue_ocs_mt = ocs_mt / effort,
-    cpue_por_mt = por_mt / effort,
-    cpue_rsk_mt = rsk_mt / effort,
-    cpue_spy_mt = spy_mt / effort,
-    cpue_thr_mt = thr_mt / effort,
-    cpue_skh_mt = skh_mt / effort,
-    cpue_ntad_mt = ntad_mt/ effort,
     cpue_tot = tot_mt / effort) %>%
   mutate(rfmo = "iotc") %>%
-  filter(!(effort_units == "HOOKS" & effort < 200))
+  # We filter records where they indicate that less than 200 hooks were used because these are unlikely
+  filter(!effort < 200)
 
 iotc_tuna <- bind_rows(iotc_surface_clean,
                        iotc_longline_clean) %>%
@@ -315,5 +292,5 @@ iotc_tuna <- bind_rows(iotc_surface_clean,
 # X ----------------------------------------------------------------------------
 saveRDS(
   object = iotc_tuna,
-  file = here("data", "processed", "iotc_tuna_monthly_gear_flag.rds")
+  file = here("data", "processed", "rfmo_iotc_tuna_monthly_gear_flag.rds")
 )

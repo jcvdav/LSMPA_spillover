@@ -61,29 +61,61 @@ iccat_tuna <- data %>%
     "PSM",     #Purse seine: Medium scale (between 50 and 200 MT capacity)
     "PSS"     #Purse seine: Small scale (less than 50 MT capacity)
   )) %>%
-  filter(d_set_type_id == ".w",
-         catch_unit == "kg",
+  filter(d_set_type_id == ".w", # Keep data reported as weight
+         catch_unit == "kg",    #
          eff1 > 0,
-         time_period_id <= 12,
+         quad_id > 0,
+         eff1type %in% c("NO.HOOKS", "NO.SETS") | eff2type %in% c("NO.HOOKS", "NO.SETS"),
+         # time_period_id <= 12, #This would keep only data that are reported monthly, but we're using it all to keep up to annual
          !(eff1 == 0 & eff1type == "-none-"),
          square_type_code %in% c("1x1", "5x5")) %>%
+  mutate(effort_units = case_when(gear_grp_code == "LL" & eff1type == "NO.HOOKS" ~ eff1type,
+                                  gear_grp_code == "LL" & eff2type == "NO.HOOKS" ~ eff2type,
+                                  gear_grp_code == "PS" & eff1type == "NO.SETS" ~ eff1type,
+                                  gear_grp_code == "PS" & eff2type == "NO.SETS" ~ eff2type,
+                                  T ~ NA_character_),
+         effort = case_when(gear_grp_code == "LL" & eff1type == "NO.HOOKS" ~ eff1,
+                            gear_grp_code == "LL" & eff2type == "NO.HOOKS" ~ eff2,
+                            gear_grp_code == "PS" & eff1type == "NO.SETS" ~ eff1,
+                            gear_grp_code == "PS" & eff2type == "NO.SETS" ~ eff2,
+                            T ~ NA)) %>%
+  # Drops 27 observations that had only been kept because "Sets" appeard as
+  # effort unit on longline data, but that are not available in hooks
+  drop_na(effort_units) %>%
+  drop_na(effort) %>%
+  select(-c(eff1, eff1type, eff2, eff2type)) %>%
   mutate(
+    # Data are reported in Kg so we convert to MT
     bft_mt = bft / 1e3,
     alb_mt = alb / 1e3,
     yft_mt = yft / 1e3,
     bet_mt = bet / 1e3,
     skj_mt = skj / 1e3,
     tot_mt = bft_mt + alb_mt + yft_mt + bet_mt + skj_mt) %>%
-  filter(tot_mt > 0) %>%
+  filter(tot_mt > 0,
+         effort > 0) %>%
+  #This PDF has information on how to handle ICCAT's geographical data
+  # https://www.iccat.int/Data/ICCAT_maps.pdf
+  # It also uses "of corner of the Rectangle closest to the equator"
   mutate(lat_mult = ifelse(quad_id %in% c(1, 4), 1, -1),
          lon_mult = ifelse(quad_id %in% c(1, 2), 1, -1),
-         centering = ifelse(square_type_code == "1x1", 0.5, 2.5),
-         lat = (lat * lat_mult) + centering,
-         lon = (lon * lon_mult) + centering) %>%
+         size = as.numeric(str_extract(square_type_code, "[:digit:]")),
+         # Assign sign to proper hemisphere
+         lat = (lat * lat_mult),
+         lon = (lon * lon_mult),
+         # Move the coordinate to the center of the grid
+         lat = case_when(quad_id == 1 ~ lat + (size / 2),
+                         quad_id == 2 ~ lat - (size / 2),
+                         quad_id == 3 ~ lat - (size / 2),
+                         quad_id == 4 ~ lat + (size / 2)),
+         lon = case_when(quad_id == 1 ~ lon + (size / 2),
+                         quad_id == 2 ~ lon + (size / 2),
+                         quad_id == 3 ~ lon - (size / 2),
+                         quad_id == 4 ~ lon - (size / 2))) %>%
   select(-contains("mult")) %>%
   left_join(fleet_flag, by = "fleet_id") %>%
-  group_by(year_c, lat, lon, time_period_id, flag, gear_grp_code, eff1type) %>%
-  summarize(effort = sum(eff1, na.rm = T),
+  group_by(year_c, lat, lon, flag, gear_grp_code, effort_units) %>%
+  summarize(effort = sum(effort, na.rm = T),
             bft_mt = sum(bft_mt, na.rm = T),
             alb_mt = sum(alb_mt, na.rm = T),
             yft_mt = sum(yft_mt, na.rm = T),
@@ -101,42 +133,27 @@ iccat_tuna <- data %>%
   mutate(gear_grp_code = case_when(
     gear_grp_code == "LL" ~ "longline",
     gear_grp_code == "PS" ~ "purse_seine"),
-    eff1type = case_when(eff1type == "NO.HOOKS" ~ "hooks",
-                         eff1type == "NO.SETS" ~ "sets",
-                         eff1type == "NO.TRIPS" ~ "trips",
-                         T ~ eff1type),
-    eff1type = str_to_lower(eff1type)) %>%
+    effort_units = case_when(effort_units == "NO.HOOKS" ~ "hooks",
+                             effort_units == "NO.SETS" ~ "sets",
+                             T ~ effort_units)) %>%
   select(rfmo,
          year = year_c,
-         month = time_period_id,
          gear = gear_grp_code,
          flag,
          lat,
          lon,
          effort,
-         effort_measure = eff1type,
+         effort_measure = effort_units,
          contains("_mt"),
          contains("cpue_")) %>%
   filter(!(effort_measure == "hooks" & effort < 600))
-
-
-
-## VISUALIZE ###################################################################
-
-# X ----------------------------------------------------------------------------
-# iccat_tuna %>%
-#   group_by(gear) %>%
-#   mutate(norm_cpue_tot = (cpue_tot - mean(cpue_tot, na.rm = T)) / sd(cpue_tot, na.rm = T)) %>%
-#   ungroup() %>%
-#   ggplot(aes(x = year, y = norm_cpue_tot, color = gear)) +
-#   geom_smooth()
 
 ## EXPORT ######################################################################
 
 # X ----------------------------------------------------------------------------
 saveRDS(
   object = iccat_tuna,
-  file = here("data", "processed", "iccat_tuna_monthly_gear_flag.rds")
+  file = here("data", "processed", "rfmo_iccat_tuna_annual_gear_flag.rds")
 )
 
 

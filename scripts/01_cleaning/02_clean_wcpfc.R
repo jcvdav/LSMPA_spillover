@@ -13,9 +13,11 @@
 ## SET UP ######################################################################
 
 # Load packages ----------------------------------------------------------------
-pacman::p_load(here,
-               janitor,
-               tidyverse)
+pacman::p_load(
+  here,
+  countrycode,
+  janitor,
+  tidyverse)
 
 # Load data --------------------------------------------------------------------
 
@@ -44,8 +46,8 @@ ll_tuna <-
       "raw",
       "RFMO_data",
       "WCPFC",
-      "WCPFC_L_PUBLIC_BY_FLAG_QTR_8",
-      "WCPFC_L_PUBLIC_BY_FLAG_QTR.csv"
+      "WCPFC_L_PUBLIC_BY_FLAG_YR_7",
+      "WCPFC_L_PUBLIC_BY_FLAG_YR.csv"
     )
   ) %>%
   clean_names()
@@ -62,7 +64,6 @@ ps_tuna_clean <- ps_tuna %>%
     skj_mt = skj_c_una + skj_c_log + skj_c_dfad + skj_c_afad + skj_c_oth,
     yft_mt = yft_c_una + yft_c_log + yft_c_dfad + yft_c_afad + yft_c_oth,
     bet_mt = bet_c_una + bet_c_log + bet_c_dfad + bet_c_afad + bet_c_oth,
-    oth_mt = oth_c_una + oth_c_log + oth_c_dfad + oth_c_afad + oth_c_oth
   ) %>%
   select(year, qtr, flag_id, lat, lon, num_sets, contains("_mt")) %>%
   mutate(tot_mt = skj_mt + yft_mt + bet_mt) %>%
@@ -72,7 +73,6 @@ ps_tuna_clean <- ps_tuna %>%
     cpue_skj = skj_mt / num_sets,
     cpue_yft = yft_mt / num_sets,
     cpue_bet = bet_mt / num_sets,
-    cpue_oth = oth_mt / num_sets,
     cpue_tot = tot_mt / num_sets
   ) %>%
   rename(effort = num_sets) %>%
@@ -88,14 +88,9 @@ ll_tuna_clean <- ll_tuna %>%
     lon = lon_short,
     alb_mt = alb_c,
     yft_mt = yft_c,
-    bet_mt = bet_c,
-    mls_mt = mls_c,
-    blm_mt = blm_c,
-    bum_mt = bum_c,
-    swo_mt = swo_c,
-    oth_mt = oth_c
+    bet_mt = bet_c
   ) %>%
-  select(year, qtr, flag_id, lat, lon, hooks, contains("_mt")) %>%
+  select(year, flag_id, lat, lon, hooks, contains("_mt")) %>%
   mutate(tot_mt = alb_mt + yft_mt + bet_mt) %>%
   filter(hooks > 0,
          tot_mt > 0) %>%
@@ -103,11 +98,6 @@ ll_tuna_clean <- ll_tuna %>%
     cpue_alb = alb_mt / hooks,
     cpue_yft = yft_mt / hooks,
     cpue_bet = bet_mt / hooks,
-    cpue_mls = mls_mt / hooks,
-    cpue_blm = blm_mt / hooks,
-    cpue_bum = bum_mt / hooks,
-    cpue_swo = swo_mt / hooks,
-    cpue_oth = oth_mt / hooks,
     cpue_tot = tot_mt / hooks
   ) %>%
   rename(effort = hooks) %>%
@@ -139,23 +129,16 @@ wcpfc_tuna <-
     lon = lon_mult * as.numeric(str_remove_all(lon, "[:alpha:]"))
   ) %>%
   mutate(
+    # WCPFC reports "the latitude of the south-west corner"
     lat = ifelse(gear == "longline", lat + 2.5, lat + 0.5),
     lon = ifelse(gear == "longline", lon + 2.5, lon + 0.5)
-  )
+  ) %>%
+  select(-lat_mult, -lon_mult)
 
-## VISUALIZE ###################################################################
-
-# Quick time series to check ---------------------------------------------------
-# wcpfc_tuna %>%
-#   group_by(gear) %>%
-#   mutate(norm_cpue_tot = (cpue_tot - mean(cpue_tot, na.rm = T)) / sd(cpue_tot, na.rm = T)) %>%
-#   ungroup() %>%
-#   ggplot(aes(x = year, y = norm_cpue_tot, color = gear)) +
-#   geom_smooth()
+test(wcpfc_tuna)
 
 
 ## EXPORT ######################################################################
-
 # X ----------------------------------------------------------------------------
 saveRDS(object = wcpfc_tuna,
-        file = here("data", "processed", "wcpfc_tuna_quarterly_gear_flag.rds"))
+        file = here("data", "processed", "rfmo_wcpfc_tuna_quarterly_gear_flag.rds"))

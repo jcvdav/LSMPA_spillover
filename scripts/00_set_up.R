@@ -63,3 +63,15 @@ test <- function(data) {
     "effort_0" = sum(data$effort == 0)
   )
 }
+
+tuna_palette <- c("YFT" = "#FEBC11",
+                  "BET" = "#003660",
+                  "SKJ" = "#111517",
+                  "ALB" = "#C9BF9D")
+
+check_mt <- function(data) {
+  data %>%
+    select(gear, contains("mt")) %>%
+    group_by(gear) %>%
+    summarize_all(sum, na.rm = T)
+}

@@ -1,20 +1,37 @@
 \begin{table}
+
+\caption{Spillover effects of 13 Larg Marine Protected Areas on catch-per-unit effort of tuna fisheries (Yellowfin tuna, Bigeye tuna, Albacore tuna). Coefficients are difference-in-difference estimates for change in CPUE. The first column combines purse seine and longline data. The second column presents models fit to purse seine data, and the third column presents models fit to longline data only.}
 \centering
-\begin{tabular}[t]{lccccccccccccccc}
+\begin{tabular}[t]{lccc}
 \toprule
-  & Full Sample & Most relevant MPA-gear combinations & sample: Chagos LL & sample: Coral Sea LL & sample: Galápagos PS & sample: Motu Motiro Hiva LL & sample: Nazca-Desventuradas PS & sample: Niue Moana Mahu LL & sample: Palau NMS LL & sample: Papahānaumokuākea LL & sample: PIPA PS & sample: PRI (Jarvis) PS & sample: PRI (Wake) LL & sample: Revillagigedo PS & sample: Tristan da Cunha LL\\
+ & Combined & Purse Seine & Longline\\
 \midrule
-Post X Near & \num{0.089}* & \num{0.106}* & \num{-0.045} & \num{-0.049} & \num{0.116} & \num{-0.136} & \num{0.226} & \num{0.059} & \num{-0.368}*** & \num{0.111} & \num{0.161}+ & \num{-0.061} & \num{0.023} & \num{0.081} & \num{0.204}\\
- & (\num{0.043}) & (\num{0.044}) & (\num{0.066}) & (\num{0.067}) & (\num{0.076}) & (\num{0.255}) & (\num{0.160}) & (\num{0.037}) & (\num{0.005}) & (\num{0.219}) & (\num{0.079}) & (\num{0.191}) & (\num{0.345}) & (\num{0.054}) & (\num{0.392})\\
+\addlinespace[0.3em]
+\multicolumn{4}{l}{Panel A: All data}\\
+\hline
+\hspace{1em}Post x Near & 0.089** & 0.099** & 0.070\\
+\hspace{1em} & (0.044) & (0.048) & (0.067)\\
+\hspace{1em}Num.Obs & 13,293 & 8,898 & 4,395\\
+\hspace{1em}R2 & 0.980 & 0.280 & 0.475\\
+\hspace{1em}R2 Adj & 0.979 & 0.234 & 0.414\\
+\addlinespace[0.5cm]
+\multicolumn{4}{l}{Panel B: Relevant MPA-gear combinations}\\
+\hline
+\hspace{1em}Post x Near & 0.106** & 0.120** & 0.080\\
+\hspace{1em} & (0.045) & (0.047) & (0.072)\\
+\hspace{1em}Num.Obs & 12,157 & 8,539 & 3,618\\
+\hspace{1em}R2 & 0.979 & 0.280 & 0.458\\
+\hspace{1em}R2 Adj & 0.978 & 0.240 & 0.391\\
 \midrule
-Num.Obs. & \num{13293} & \num{11768} & \num{1223} & \num{343} & \num{5055} & \num{317} & \num{229} & \num{232} & \num{129} & \num{438} & \num{1453} & \num{482} & \num{289} & \num{1320} & \num{258}\\
-R2 & \num{0.980} & \num{0.978} & \num{0.390} & \num{0.412} & \num{0.102} & \num{0.310} & \num{0.330} & \num{0.394} & \num{0.766} & \num{0.474} & \num{0.115} & \num{0.380} & \num{0.551} & \num{0.251} & \num{0.394}\\
-R2 Adj. & \num{0.979} & \num{0.976} & \num{0.244} & \num{0.360} & \num{0.083} & \num{0.212} & \num{0.074} & \num{0.318} & \num{0.703} & \num{0.412} & \num{0.033} & \num{0.209} & \num{0.493} & \num{0.185} & \num{0.293}\\
-Std.Errors & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year & by: id \& year\\
-FE: id & X & X & X & X & X & X & X & X & X & X & X & X & X & X & X\\
-FE: year & X & X & X & X & X & X & X & X & X & X & X & X & X & X & X\\
-FE: gear & X & X &  &  &  &  &  &  &  &  &  &  &  &  & \\
+FE: id & X & X & X\\
+FE: year & X & X & X\\
+FE: gear & X &  & \\
+\midrule
 \bottomrule
-\multicolumn{16}{l}{\rule{0pt}{1em}+ p $<$ 0.1, * p $<$ 0.05, ** p $<$ 0.01, *** p $<$ 0.001}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}\textit{Note: }}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}* p < 0.1, ** p < 0.05, *** p < 0.01}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}Numbers in parenthesis are standard errors robust to heteroskedasticity}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}and spatio-temporal autocorrelation (200 km cutoff; 5 yr lag).}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}These preliminary estimates that exclude Pitcairn data.}\\
 \end{tabular}
 \end{table}

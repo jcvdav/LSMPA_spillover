@@ -20,7 +20,9 @@ pacman::p_load(
 
 # Load data --------------------------------------------------------------------
 annual_panel <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
-  filter(between(event, -10, 10))
+  filter(effort_measure %in% c("sets", "hooks"),
+         between(event, -10, 10),
+         !wdpaid == "555624172")
 
 ###
 ns_per_period_ps <- annual_panel %>%
@@ -64,59 +66,119 @@ annual_panel <- annual_panel %>%
 ## PROCESSING ##################################################################
 
 # X ----------------------------------------------------------------------------
-annual_panel %>%
+ps_delta_cpue_dist_data <- annual_panel %>%
   filter(gear == "purse_seine",
          between(event, -10, 10),
          !is.na(near_100)) %>%
-  group_by(id, name, dist, lat, lon, event, near_100, post) %>%
+  group_by(id, wdpaid, name, dist, lat, lon, event, near_100, post) %>%
   summarize(effort = sum(effort),
-            tot_mt = sum(tot_mt)) %>%
+            tot_mt = sum(tot_mt),
+            .groups = "drop") %>%
   ungroup() %>%
   mutate(cpue = tot_mt / effort,
-         dist = round(dist / 10) *10) %>%
-  group_by(post, dist, near_100) %>%
-  summarize(cpue = mean(cpue, na.rm = T)) %>%
+         dist = (floor(dist / 10) *10) + 5,
+         dist_f = as.factor(-1 * dist))
+
+
+ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
+  group_by(post, dist) %>%
+  summarize(cpue = mean(cpue, na.rm = T), .groups = "drop") %>%
   ungroup() %>%
   pivot_wider(names_from = post,
               values_from = cpue, names_prefix = "cpue_") %>%
-  mutate(delta = cpue_1 - cpue_0) %>%
-  drop_na(delta) %>%
+  mutate(delta = cpue_1 - cpue_0,
+         pct_change = delta / cpue_0) %>%
   ggplot(aes(x = dist, y = delta)) +
-  geom_smooth(method = "loess") +
-  geom_point() +
-  labs(x = "Distance from MPA boundary",
-       y = "Change in CPUE") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept = 100, linetype = "dashed") +
+  geom_smooth(method = "loess", span = 1, fill = "#DCE1E5", color = "#003660", linetype = "dashed") +
+  geom_point(shape = 21, size = 2, fill = "#003660") +
+  scale_size_continuous(labels = scales::percent) +
+  labs(x = "Distance from MPA boundary (nautical miles)",
+       y = "Change in CPUE (MT / Set)",
+       title = "LMPA: all | Gear: purse seines | Species: all") +
+  guides(size = guide_legend(ncol = 2)) +
   theme_bw() +
-  theme(legend.position = c(1, 0),
-        legend.justification = c(1, 0))
+  theme(legend.position = c(1, 1),
+        legend.justification = c(1, 1),
+        legend.background = element_blank())
 
-annual_panel %>%
-  filter(!gear == "purse_seine",
+ps_delta_cpue_dist_plot_gal <- annual_panel %>%
+  filter(wdpaid == "11753",
+         gear == "purse_seine",
+         between(event, -10, 10),
+         !is.na(near_100)) %>%
+  group_by(id, wdpaid, name, dist, lat, lon, event, near_100, post) %>%
+  summarize(effort = sum(effort),
+            tot_mt = sum(skj_mt),
+            .groups = "drop") %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / effort,
+         dist = (floor(dist / 10) *10) + 5,
+         dist_f = as.factor(-1 * dist)) %>%
+  group_by(post, dist) %>%
+  summarize(cpue = mean(cpue, na.rm = T), .groups = "drop") %>%
+  ungroup() %>%
+  pivot_wider(names_from = post,
+              values_from = cpue, names_prefix = "cpue_") %>%
+  mutate(delta = cpue_1 - cpue_0,
+         pct_change = delta / cpue_0) %>%
+  ggplot(aes(x = dist, y = delta)) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept = 100, linetype = "dashed") +
+  geom_smooth(method = "loess", span = 1, fill = "#DCE1E5", color = "#003660", linetype = "dashed") +
+  geom_point(shape = 21, size = 2, fill = "#003660") +  scale_size_continuous(labels = scales::percent) +
+  labs(x = "Distance from MPA boundary (nautical miles)",
+       y = "Change in CPUE (MT / Set)",
+       title = "LMPA: Galápagos Marine Reserve | Gear: purse seine | Species: Skipjack") +
+  guides(size = guide_legend(ncol = 2)) +
+  theme_bw() +
+  theme(legend.position = c(1, 1),
+        legend.justification = c(1, 1),
+        legend.background = element_blank())
+
+ll_delta_cpue_dist_plot_pri_wake <- annual_panel %>%
+  filter(wdpaid == "400011_A",
+         gear == "longline",
          between(event, -10, 10),
          !is.na(near_300)) %>%
-  group_by(id, name, dist, lat, lon, event, near_300, post) %>%
-  summarize(effort = sum(effort),
-            tot_mt = sum(tot_mt)) %>%
+  group_by(id, wdpaid, name, dist, lat, lon, event, near_300, post) %>%
+  summarize(effort = sum(effort) / 100,
+            tot_mt = sum(tot_mt),
+            .groups = "drop") %>%
   ungroup() %>%
   mutate(cpue = tot_mt / effort,
-         dist = round(dist / 50) * 50) %>%
-  group_by(post, dist, near_300) %>%
-  summarize(cpue = mean(cpue, na.rm = T)) %>%
+         dist = (floor(dist / 10) *10) + 5,
+         dist_f = as.factor(-1 * dist)) %>%
+  group_by(post, dist) %>%
+  summarize(cpue = mean(cpue, na.rm = T), .groups = "drop") %>%
   ungroup() %>%
   pivot_wider(names_from = post,
               values_from = cpue, names_prefix = "cpue_") %>%
-  mutate(delta = cpue_1 - cpue_0) %>%
-  drop_na(delta) %>%
+  mutate(delta = cpue_1 - cpue_0,
+         pct_change = delta / cpue_0) %>%
   ggplot(aes(x = dist, y = delta)) +
-  geom_smooth(method = "loess") +
-  geom_point() +
-  labs(x = "Distance from MPA boundary",
-       y = "Change in CPUE") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept = 300, linetype = "dashed") +
+  geom_smooth(method = "loess", span = 0.9, fill = "#DCE1E5", color = "#003660", linetype = "dashed") +
+  geom_point(shape = 21, size = 1, fill = "#003660") +  scale_size_continuous(labels = scales::percent) +
+  labs(x = "Distance from MPA boundary (nautical miles)",
+       y = "Change in CPUE (MT / 1000 hooks)",
+       title = "LMPA: PRI (Wake) | Gear: longline | Species: Bigeye, Yellowfin, Albacore") +
+  guides(size = guide_legend(ncol = 2)) +
   theme_bw() +
-  theme(legend.position = c(1, 0),
-        legend.justification = c(1, 0))
+  theme(legend.position = c(1, 1),
+        legend.justification = c(1, 1),
+        legend.background = element_blank())
 
 
+cpue_dist_subplot <- plot_grid(ps_delta_cpue_dist_plot_gal, ll_delta_cpue_dist_plot_pri_wake, ncol = 2)
+
+plot_grid(ps_delta_cpue_dist_plot, ps_delta_cpue_dist_plot,
+          cpue_dist_subplot, cpue_dist_subplot, ncol = 2, rel_heights = c(1.5, 1))
 
 
 
@@ -142,7 +204,7 @@ cpue_dist_plot <- function(mpa, spp, data, gear) {
       select(id, lat, lon, post, wdpaid, event, dist, near, contains(spp)) %>%
       drop_na(near) %>%
       filter(eval(cpue) > 0) %>%
-      mutate(dist = ceiling(dist / 10) * 10) %>%
+      mutate(dist = (floor(dist / 10) *10) + 5) %>%
       group_by(post, dist, eval(near)) %>%
       summarize(cpue = mean(eval(cpue), na.rm = T)) %>%
       ungroup() %>%

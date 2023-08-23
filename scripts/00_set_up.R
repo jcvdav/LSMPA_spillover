@@ -67,11 +67,41 @@ test <- function(data) {
 tuna_palette <- c("YFT" = "#FEBC11",
                   "BET" = "#003660",
                   "SKJ" = "#111517",
-                  "ALB" = "#C9BF9D")
+                  "ALB" = "#DCE1E5",
+                  "All" = "transparent")
 
-check_mt <- function(data) {
+mpa_palette <- c("Chagos" = "#047C91",
+                 "Galápagos" = "#09847A",
+                 "Motu Motiro Hiva" = "#6D7D33",
+                 "Nazca-Desventuradas" = "#9CBEBE",
+                 "Papahānaumokuākea" = "#0A3161",
+                 "PIPA" = "#EF5645",
+                 "PRI (Jarvis)" = "#DCD6CC",
+                 "PRI (Wake)" = "#C9BF9D",
+                 "Revillagigedo" = "#006341",
+                 "All" = "transparent")
+
+gear_palette <- c("PS" = "gray",
+                 "LL" = "black",
+                 "Purse seine" = "gray",
+                 "Longline" = "black",
+                 "All" = "transparent")
+
+gear_shapes <- c("PS" = 21,
+                 "LL" = 22,
+                 "Purse seine" = 21,
+                 "Longline" = 22,
+                 "All" = 24)
+
+check_mt <- function(data, cutoff = 2011) {
   data %>%
-    select(gear, contains("mt")) %>%
+    filter(year >= cutoff) %>%
+    select(gear, contains("mt"), -tot_mt) %>%
     group_by(gear) %>%
     summarize_all(sum, na.rm = T)
+}
+
+check_effort_gear <- function(data) {
+  data %>%
+    count(gear, effort_measure)
 }

@@ -8,6 +8,13 @@
 #
 # Description
 #
+# From website: https://iotc.org/data/datasets
+# This dataset corresponds to the latest version of the ‘best scientific
+# estimates’ of retained catches in live weight equivalent for the 16 IOTC
+# species, aggregated by year, IOTC statistical area, and reporting country
+# flag, and fully disaggregated by species and fishing gear. Data are reported
+# by calendar year and extend back to the 1950s when industrial longlining
+# started in the Indian Ocean.
 ################################################################################
 
 ## SET UP ######################################################################
@@ -202,9 +209,10 @@ unique_coords <- tibble(grid = unique(c(iotc_surface$grid, iotc_longline$grid)))
   unnest(coords)
 
 iotc_surface_clean <- iotc_surface %>%
-  filter(gear %in% c("PS"),
+  filter(gear %in% c("PS", "PSS"),
          !is.na(catch_units),
-         quality_code >= 2) %>%
+         quality_code >= 2,
+         effort_units == "FHOURS") %>%
   left_join(unique_coords, by = "grid") %>%
   replace_na(replace = list(
     yft_ls = 0, yft_fs = 0, yft_uncl = 0,
@@ -225,22 +233,21 @@ iotc_surface_clean <- iotc_surface %>%
   mutate(yft_mt = yft_fs + yft_ls + yft_uncl,
          bet_mt = bet_fs + bet_ls + bet_uncl,
          skj_mt = skj_fs + skj_ls + skj_uncl,
-         alb_mt = alb_fs + alb_ls + alb_uncl,
          sbf_mt = sbf_fs + sbf_ls + sbf_uncl
          ) %>%
-  select(year, month = month_start, fleet, gear, lat, lon, effort, effort_units, contains("_mt")) %>%
-  mutate(tot_mt = yft_mt + bet_mt + skj_mt + alb_mt + sbf_mt) %>%
+  select(year, month = month_start, fleet, gear, lat, lon, effort, effort_units,
+         # Ordere tuna spp by importance to catch, also ignoring SBF and SKJ that account for ~1%
+         skj_mt, yft_mt, bet_mt) %>%
+  mutate(tot_mt = skj_mt + yft_mt + bet_mt ,
+         gear = "purse_seine") %>%
   filter(tot_mt > 0,
          effort > 0) %>%
   mutate(
-    cpue_yft_mt = yft_mt / effort,
-    cpue_bet_mt = bet_mt / effort,
-    cpue_skj_mt = skj_mt / effort,
-    cpue_alb_mt = alb_mt / effort,
-    cpue_sbf_mt = sbf_mt / effort,
+    cpue_skj = skj_mt / effort,
+    cpue_yft = yft_mt / effort,
+    cpue_bet = bet_mt / effort,
     cpue_tot = tot_mt / effort) %>%
-  mutate(gear = "purse_seine",
-         rfmo = "iotc")
+  mutate(rfmo = "iotc")
 
 
 iotc_longline_clean <- iotc_longline %>%
@@ -248,22 +255,23 @@ iotc_longline_clean <- iotc_longline %>%
          effort_units == "HOOKS",
          quality_code >= 2) %>%
   left_join(unique_coords, by = "grid") %>%
-  select(year, month = month_start, flag = fleet, gear, lat, lon, effort, effort_units, contains("_mt")) %>%
+  select(year, month = month_start, flag = fleet, gear, lat, lon, effort, effort_units,
+         # Ignoring SKJ that account for ~1%
+         bet_mt, alb_mt, yft_mt, sbf_mt) %>%
   replace_na(replace = list(
-    yft_mt = 0,
     bet_mt = 0,
-    skj_mt = 0,
     alb_mt = 0,
+    yft_mt = 0,
     sbf_mt = 0)) %>%
-  mutate(tot_mt = yft_mt + bet_mt + skj_mt + alb_mt + sbf_mt) %>%
+  mutate(tot_mt = bet_mt + alb_mt + yft_mt + sbf_mt,
+         gear = "longline") %>%
   filter(tot_mt > 0,
          effort > 0) %>%
   mutate(
-    cpue_yft_mt = yft_mt / effort,
-    cpue_bet_mt = bet_mt / effort,
-    cpue_skj_mt = skj_mt / effort,
-    cpue_alb_mt = alb_mt / effort,
-    cpue_sbf_mt = sbf_mt / effort,
+    cpue_bet = bet_mt / effort,
+    cpue_alb = alb_mt / effort,
+    cpue_yft = yft_mt / effort,
+    cpue_sbf = sbf_mt / effort,
     cpue_tot = tot_mt / effort) %>%
   mutate(rfmo = "iotc") %>%
   # We filter records where they indicate that less than 200 hooks were used because these are unlikely
@@ -271,8 +279,8 @@ iotc_longline_clean <- iotc_longline %>%
 
 iotc_tuna <- bind_rows(iotc_surface_clean,
                        iotc_longline_clean) %>%
-  mutate(gear = ifelse(gear == "LL", "longline", gear),
-         effort_units = str_to_lower(effort_units)) %>%
+  mutate(effort_units = str_to_lower(effort_units),
+         fleet = str_sub(fleet, -3, -1)) %>%
   select(
     rfmo,
     year,
@@ -286,6 +294,13 @@ iotc_tuna <- bind_rows(iotc_surface_clean,
     contains("_mt"),
     contains("cpue_")
   )
+
+
+check_mt(iotc_tuna, cutoff = 2000)
+
+check_effort_gear(iotc_tuna)
+
+test(iotc_tuna)
 
 ## EXPORT ######################################################################
 

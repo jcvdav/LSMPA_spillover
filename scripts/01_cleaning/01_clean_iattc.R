@@ -50,30 +50,29 @@ ps_tuna_clean <- ps_tuna %>%
     lat = lat_c1,
     lon = lon_c1,
     effort = num_sets,
-    # Tunas
-    alb_mt = alb,
-    bet_mt = bet,
-    pbf_mt = pbf,
+    # Tunas - Organized from most to least important
     skj_mt = skj,
-    yft_mt = yft
-    # Not tunas
+    yft_mt = yft,
+    bet_mt = bet,
+    pbf_mt = pbf
+    #
+    # Removing albacore because there were only 22 MT caught since 2011 (~0.0003%)
+    # alb_mt = alb,
+    #
+    #Not tunas
     # bkj_mt = bkj,
     # bzx_mt = bzx,
     # tun_mt = tun,
   ) %>%
-  mutate(tot_mt = alb_mt + bet_mt + pbf_mt + skj_mt + yft_mt) %>%
+  mutate(tot_mt = skj_mt + yft_mt + bet_mt + pbf_mt) %>%
   filter(tot_mt > 0) %>%  # Remove records that had effort and catch data for a species other than tuna
   filter(effort > 0) %>%  # And  records that report effort = 0
   mutate(
-    cpue_alb = alb_mt / effort,
-    cpue_bet = bet_mt / effort,
-    cpue_pbf = pbf_mt / effort,
     cpue_skj = skj_mt / effort,
     cpue_yft = yft_mt / effort,
+    cpue_bet = bet_mt / effort,
+    cpue_pbf = pbf_mt / effort,
     cpue_tot = tot_mt / effort
-    # cpue_bkj = bkj_mt / num_sets,
-    # cpue_bzx = bzx_mt / num_sets,
-    # cpue_tun = tun_mt / num_sets,
   ) %>%
   mutate(effort_measure = "sets",
          gear = "purse_seine",
@@ -85,21 +84,20 @@ ll_tuna_clean <- ll_tuna %>%
   select(year, month, flag, lat, lon, hooks, contains("mt")) %>%
   rename(
     effort = hooks,
-    # Real tunas
+    # Tunas - Organized from most to least important
     alb_mt = al_bmt,
     bet_mt = be_tmt,
-    pbf_mt = pb_fmt,
-    skj_mt = sk_jmt,
     yft_mt = yf_tmt
+    ## Removing PBF and SKJ because 1992 aer neglegible (~<1%)
+    # pbf_mt = pb_fmt
+    # skj_mt = sk_jmt
   ) %>%
-  mutate(tot_mt = alb_mt + bet_mt + pbf_mt + skj_mt + yft_mt) %>%
+  mutate(tot_mt = alb_mt + bet_mt + yft_mt) %>%
   filter(tot_mt > 0) %>%  # Remove records that had effort and catch data for a species other than tuna
   filter(effort > 0) %>%  # And  records that report effort = 0
   mutate(
     cpue_alb = alb_mt / effort,
     cpue_bet = bet_mt / effort,
-    cpue_pbf = pbf_mt / effort,
-    cpue_skj = skj_mt / effort,
     cpue_yft = yft_mt / effort,
     cpue_tot = tot_mt / effort
   ) %>%
@@ -124,6 +122,13 @@ iattc_tuna <-
     contains("cpue_")
   )
 
+# Make sure we have the right species
+check_mt(iattc_tuna, cutoff = 1992)
+
+# Make sure gear-effort untis are correct
+check_effort_gear(iattc_tuna)
+
+# Check for 0s and NAs
 test(iattc_tuna)
 
 ## EXPORT ######################################################################
@@ -133,3 +138,6 @@ saveRDS(
   object = iattc_tuna,
   file = here("data", "processed", "rfmo_iattc_tuna_monthly_gear_flag.rds")
 )
+
+
+

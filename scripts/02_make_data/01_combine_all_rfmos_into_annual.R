@@ -104,6 +104,9 @@ annual_all_rfmos <- bind_rows(iattc_annual,
     cpue_alb, cpue_bet, cpue_bft, cpue_pbf, cpue_sbf, cpue_skj, cpue_tot, cpue_yft
   )
 
+check_mt(annual_all_rfmos, cutoff = 1990)
+
+check_effort_gear(annual_all_rfmos)
 
 test(annual_all_rfmos)
 

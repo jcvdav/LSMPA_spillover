@@ -21,8 +21,7 @@ pacman::p_load(
 
 # Load data --------------------------------------------------------------------
 annual_panel_raw <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
-  filter(between(event, -10, 10),
-         !wdpaid == "555624172")
+  filter(between(event, -10, 10))
 
 ## PROCESSING ##################################################################
 
@@ -31,10 +30,10 @@ annual_panel_raw <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
 # For purse seine
 ns_per_period_ps <- annual_panel_raw %>%
   filter((gear == "purse_seine" & !is.na(near_100))) %>%
-  group_by(wdpaid, rfmo, name, gear, post, near_100) %>%
+  group_by(wdpaid, name, gear, post, near_100) %>%
   summarize(n_pixels = n_distinct(id),
             year = min(year_enforced)) %>%
-  group_by(wdpaid, name, gear, rfmo, year) %>%
+  group_by(wdpaid, name, gear, year) %>%
   summarize(n_baci = n(),
             n_pixels = min(n_pixels)) %>%
   ungroup()
@@ -42,10 +41,10 @@ ns_per_period_ps <- annual_panel_raw %>%
 # For longline
 ns_per_period_ll <- annual_panel_raw %>%
   filter((gear == "longline" & !is.na(near_300))) %>%
-  group_by(wdpaid, rfmo, name, gear, post, near_300) %>%
+  group_by(wdpaid, name, gear, post, near_300) %>%
   summarize(n_pixels = n_distinct(id),
             year = min(year_enforced)) %>%
-  group_by(wdpaid, name, gear, rfmo, year) %>%
+  group_by(wdpaid, name, gear, year) %>%
   summarize(n_baci = n(),
             n_pixels = min(n_pixels)) %>%
   ungroup()
@@ -57,12 +56,12 @@ ns_per_period <- bind_rows(ns_per_period_ps,
 # These dont confiorm
 not_enough <- ns_per_period %>%
   filter(n_baci <= 3 | n_pixels <= 4 | year >= 2020) %>%
-  select(wdpaid, name, gear, rfmo) %>%
+  select(wdpaid, name, gear) %>%
   distinct()
 
 # These do
 enough <- filter(ns_per_period, n_baci == 4, n_pixels >= 5, year <= 2019) %>%
-  select(wdpaid, name, gear, rfmo) %>%
+  select(wdpaid, name, gear) %>%
   distinct()
 
 # Extract the combinations
@@ -95,6 +94,7 @@ gear_with_most_landings_by_mpa <- annual_panel_raw %>%
                            wdpaid == "555624169" ~ "Nazca-Desventuradas",
                            wdpaid == "555705568" ~ "Niue Moana Mahu",
                            wdpaid == "220201" ~ "Papahānaumokuākea",
+                           wdpaid == "555624172" ~ "Pitcairn",
                            T ~ name)) %>%
   select(short_name, wdpaid, gear, tot_mt, pct_mt, n, enough_for_baci) %>%
   arrange(enough_for_baci, n, pct_mt, short_name)

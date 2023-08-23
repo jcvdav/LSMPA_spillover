@@ -32,7 +32,9 @@ combined <- rfmo_data %>%
          post = 1 * (event >= 0)) %>%
   filter(cpue_tot > 0)
 
-check_mt(combined, cutoff = 1992)
+check_mt(combined, cutoff = 0)
+
+check_effort_gear(combined)
 
 test(combined)
 

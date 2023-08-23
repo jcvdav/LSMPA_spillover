@@ -93,6 +93,14 @@ gear_shapes <- c("PS" = 21,
                  "Longline" = 22,
                  "All" = 24)
 
+fe_palette <- c("With FEs" = "black",
+                "Without FEs" = "gray")
+
+dist_palette <- c("Near" = "#F47321",
+                  "Far" = "#257BB1",
+                  "near" = "#F47321",
+                  "far" = "#257BB1")
+
 check_mt <- function(data, cutoff = 2011) {
   data %>%
     filter(year >= cutoff) %>%

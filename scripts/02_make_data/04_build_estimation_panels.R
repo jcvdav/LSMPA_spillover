@@ -100,7 +100,7 @@ gear_with_most_landings_by_mpa <- annual_panel_raw %>%
   arrange(enough_for_baci, n, pct_mt, short_name)
 
 # # Build the panels -----------------------------------------------------------
-# Panel with ALL the data
+# Panel with ALL the data (PS is 0-200, LL is 0-600)
 annual_panel <- annual_panel_raw %>%
   mutate(near = ifelse(gear == "purse_seine", near_100, near_300),
          nice_gear = case_when(gear == "purse_seine" ~ "PS",
@@ -110,8 +110,23 @@ annual_panel <- annual_panel_raw %>%
   filter(cpue_tot > 0) %>%
   replace_na(replace = list(flag = "Missing"))
 
-# Panel with relevant MPA-gear combinations
+# Panel with relevant MPA-gear combinations determined by full data,
+# but restricting PS is 0-200, LL is 0-600
 most_relevant_panel <- annual_panel %>%
+  inner_join(gear_with_most_landings_by_mpa %>%
+               filter(pct_mt > 5,
+                      enough_for_baci) %>%
+               select(short_name, wdpaid, gear),
+             by = join_by(gear, wdpaid))
+
+# This panel is for sensitivity analysis and to test for distance as continuous
+# with relevant MPA-gear combinations determined by the full data set
+most_relevant_panel_multiple_distances <- annual_panel_raw %>%
+  mutate(nice_gear = case_when(gear == "purse_seine" ~ "PS",
+                               gear == "longline" ~ "LL"),
+         nice_gear = fct_relevel(nice_gear, "PS", "LL")) %>%
+  filter(cpue_tot > 0) %>%
+  replace_na(replace = list(flag = "Missing")) %>%
   inner_join(gear_with_most_landings_by_mpa %>%
                filter(pct_mt > 5,
                       enough_for_baci) %>%
@@ -124,6 +139,9 @@ saveRDS(object = annual_panel,
 
 saveRDS(object = most_relevant_panel,
         file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
+
+saveRDS(object = most_relevant_panel_multiple_distances,
+        file = here("data", "processed", "annual_relevant_mpa_gears_and_distances_sensitivity_estimation_panel.rds"))
 
 # Tables for text
 gear_with_most_landings_by_mpa %>%

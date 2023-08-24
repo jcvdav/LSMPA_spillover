@@ -1,0 +1,45 @@
+\begin{table}
+
+\caption{Spillover effects of Large Marine Protected Areas on
+             catch-per-unit effort in the purse seine and longline tuna fleet targetting Skipjack tuna, Yellowfin
+             tuna, Bigeye tuna, and Albacore tuna. Coefficients are
+             difference-in-difference estimates for change in CPUE.
+             Column 1 shows results for purse seine and longline data
+             combined. Column 2 presents models fit to purse seine data
+             only, and column 3 presents models fit to longline data only.}
+\centering
+\begin{tabular}[t]{lccc}
+\toprule
+  & Combined gears & Purse seine & Longline\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{4}{l}{Panel A: All data (23 LMPA-gear combinations; 14 LMPAs)}\\
+\hline
+\hspace{1em}Post x Near & 0.072* & 0.113** & 0.012\\
+\hspace{1em} & (0.040) & (0.048) & (0.050)\\
+\hspace{1em}Num.Obs & 14,734 & 9,321 & 5,413\\
+\hspace{1em}R2 & 0.981 & 0.463 & 0.460\\
+\hspace{1em}R2 Adj & 0.980 & 0.428 & 0.406\\
+\hspace{1em}RMSE & 0.74 & 0.77 & 0.65\\
+\addlinespace[0.5cm]
+\multicolumn{4}{l}{Panel B: Subsample (14 LMPA-gear combinations, 11 LMPAs)}\\
+\hline
+\hspace{1em}Post x Near & 0.087** & 0.112** & 0.036\\
+\hspace{1em} & (0.042) & (0.049) & (0.063)\\
+\hspace{1em}Num.Obs & 13,709 & 9,198 & 4,511\\
+\hspace{1em}R2 & 0.981 & 0.461 & 0.410\\
+\hspace{1em}R2 Adj & 0.980 & 0.429 & 0.355\\
+\hspace{1em}RMSE & 0.71 & 0.78 & 0.55\\
+\midrule
+FE: id & X & X & X\\
+FE: year & X & X & X\\
+\midrule
+\bottomrule
+\multicolumn{4}{l}{\rule{0pt}{1em}\textit{Note: }}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}* p < 0.1, ** p < 0.05, *** p < 0.01}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}Numbers in parenthesis are standard errors robust to heteroskedasticity}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}and spatio-temporal autocorrelation (200 km cutoff; 5 yr lag).}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}When the data used contains more than one effort unit}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}(i.e. days, sets, hooks) we include fixed-effects}\\
+\end{tabular}
+\end{table}

@@ -15,6 +15,7 @@
 # Load packages ----------------------------------------------------------------
 pacman::p_load(
   here,
+  kableExtra,
   panelsummary,
   fixest,
   tidyverse
@@ -149,3 +150,4 @@ panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
                 "combinations, Panel C: 26 LMPA-gear combinations. For columns",
                 "4-5 all panels have 14 LMPA-gear combinations.")) %>%
   cat(file = here("results", "tab", "tabSx_continuous_distance_reg_table.tex"))
+

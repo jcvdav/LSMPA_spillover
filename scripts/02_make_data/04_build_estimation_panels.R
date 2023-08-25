@@ -153,3 +153,4 @@ gear_with_most_landings_by_mpa %>%
         format = "latex") %>%
   kable_styling() %>%
   save_kable(here("results", "tab", "relevant_mpa_gear_combinations.tex"))
+

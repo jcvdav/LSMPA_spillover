@@ -30,20 +30,21 @@ extract_mpa_coefs <- function(model) {
     map_dfr(broom::tidy, .id = "sample") %>%
     filter(str_detect(term, ":")) %>%
     mutate(sample = str_remove(sample, ".+; sample: "),
+           sample = fct_reorder(sample, estimate),
            gear = str_sub(sample, 1, 2),
            mpa = str_remove(sample, "LL |PS "),
            gear = ifelse(gear == "PS", "Purse seine", "Longline"),
            gear = fct_relevel(gear, "Purse seine", "Longline"),
            mpa = fct_relevel(mpa,
-                             "Chagos",
                              "PRI (Jarvis)",
+                             "Chagos",
                              "PRI (Wake)",
                              "Motu Motiro Hiva",
-                             "Nazca-Desventuradas",
+                             "Revillagigedo",
                              "Galápagos",
                              "PIPA",
-                             "Revillagigedo",
-                             "Papahānaumokuākea"),
+                             "Papahānaumokuākea",
+                             "Nazca-Desventuradas"),
            model = has_fes)
 }
 
@@ -58,12 +59,18 @@ extract_spp_coefs <- function(model) {
     map_dfr(broom::tidy, .id = "sample") %>%
     filter(str_detect(term, ":")) %>%
     mutate(sample = str_remove(sample, ".+; sample: "),
+           sample = fct_reorder(sample, estimate),
            gear = str_sub(sample, 1, 2),
            spp = str_extract(sample, "cpue_.+"),
            spp = str_to_upper(str_remove(spp, "cpue_"))) %>%
     mutate(gear = ifelse(gear == "PS", "Purse seine", "Longline"),
            gear = fct_relevel(gear, "Purse seine", "Longline"),
-           spp = fct_relevel(spp, "ALB", "SKJ", "BET", "YFT"),
+           spp = fct_relevel(spp,
+                             "YFT",
+                             "SKJ",
+                             "BET",
+                             "ALB",
+                             ),
            model = has_fes)
 }
 
@@ -93,8 +100,13 @@ gear_spp_df_wo_fe <- extract_spp_coefs(gear_spp_regs_wo_fe)                     
 
 ## VISUALIZE ###################################################################
 # Build panel A) MPA-level coefficients ----------------------------------------
+labeler <- function(x) {
+  str_remove(x, "PS |LL ")
+}
 panel_A <- ggplot(data = relevant_by_mpa_df,
-                  mapping = aes(y = mpa, x = estimate, shape = gear)) +
+                  mapping = aes(y = sample,
+                                x = estimate,
+                                shape = gear)) +
   geom_rect(data = gear_stats,
             mapping = aes(xmin = estimate - std.error,
                           xmax = estimate + std.error,
@@ -114,11 +126,18 @@ panel_A <- ggplot(data = relevant_by_mpa_df,
   facet_wrap(~gear, ncol = 1, scales = "free_y") +
   labs(x = "Effect on CPUE") +
   theme(legend.position = "None",
-        axis.title.y = element_blank())
+        axis.title.y = element_blank()) +
+  scale_y_discrete(labels = labeler)
 
 # Build panel B) Species-level coefficients ------------------------------------
+labeler <- function(x) {
+  str_to_upper(str_remove_all(x, "PS |LL |cpue_"))
+}
 panel_B <- ggplot(data = gear_spp_df,
-                  mapping = aes(x = estimate, y = spp, fill = spp, shape = gear)) +
+                  mapping = aes(x = estimate,
+                                y = sample,
+                                fill = spp,
+                                shape = gear)) +
   geom_rect(data = gear_stats,
             mapping = aes(xmin = estimate - std.error,
                           xmax = estimate + std.error,
@@ -142,11 +161,12 @@ panel_B <- ggplot(data = gear_spp_df,
          fill = guide_legend(title = "Species",
                              order = 2,
                              override.aes = list(shape = 21, size = 1))) +
-  facet_wrap(~gear, ncol = 1) +
+  facet_wrap(~gear, ncol = 1, scales = "free_y") +
   labs(x = "Effect on CPUE") +
   theme(axis.title.y = element_blank(),
         legend.position = "bottom",
-        legend.box = "horizontal")
+        legend.box = "horizontal") +
+  scale_y_discrete(labels = labeler)
 
 # Build the plot ---------------------------------------------------------------
 # Combine both panels
@@ -178,9 +198,10 @@ mpa_compare_models <- bind_rows(relevant_by_mpa_df, relevant_by_mpa_df_wo_fe) %>
   scale_fill_manual(values = fe_palette) +
   guides(fill = guide_legend(override.aes = list(shape = 21))) +
   geom_hline(yintercept = 0) +
-  facet_wrap(~mpa, ncol = 5) +
+  facet_wrap(~mpa, ncol = 4) +
   theme(legend.position = c(1, 0),
-        legend.justification = c(1, 0)) +
+        legend.justification = c(1, 0),
+        egend.box = "horizontal") +
   labs(y = "Effect on CPUE",
        shape = "Gear",
        fill = "Model")
@@ -206,7 +227,7 @@ spp_compare_models <- bind_rows(gear_spp_df, gear_spp_df_wo_fe) %>%
 startR::lazy_ggsave(plot = final_plot,
                     filename = "fig3_effects_by_mpa_and_spp",
                     width = 12,
-                    height = 8)
+                    height = 9)
 # Supplementary figures --------------------------------------------------------
 # Comparing FE and WOFE for MPAs
 startR::lazy_ggsave(plot = mpa_compare_models,

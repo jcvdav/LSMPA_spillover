@@ -39,14 +39,15 @@ extract_mpa_coefs <- function(model) {
            gear = ifelse(gear == "PS", "Purse seine", "Longline"),
            gear = fct_relevel(gear, "Purse seine", "Longline"),
            mpa = fct_relevel(mpa,
-                             "PRI (Jarvis)",
-                             "Chagos",
-                             "PRI (Wake)",
-                             "Motu Motiro Hiva",
                              "Revillagigedo",
                              "Galápagos",
                              "PIPA",
                              "Papahānaumokuākea",
+                             "PRI (Wake)",
+                             "PRI (Jarvis)",
+                             "Chagos",
+                             "Motu Motiro Hiva",
+                             "Coral Sea",
                              "Nazca-Desventuradas"),
            model = has_fes)
 }
@@ -242,3 +243,4 @@ startR::lazy_ggsave(plot = spp_compare_models,
                     filename = "figSX_effects_by_spp_with_and_without_fe",
                     width = 12,
                     height = 8)
+

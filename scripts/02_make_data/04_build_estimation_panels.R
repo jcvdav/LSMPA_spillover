@@ -82,6 +82,7 @@ keep <- enough %>%
 # of each MPA. # This doesn't mean we have enough for a BACI design, so we will
 # filter for that too.
 gear_with_most_landings_by_mpa <- annual_panel_raw %>%
+  filter(dist <= 600) %>%
   group_by(wdpaid, name, gear) %>%
   summarize(tot_mt = sum(tot_mt),
             n = n()) %>%
@@ -171,7 +172,9 @@ saveRDS(object = most_relevant_qtr_panel,
 gear_with_most_landings_by_mpa %>%
   arrange(short_name) %>%
   mutate(gear = str_to_sentence(str_replace(gear, "_", " "))) %>%
-  kable(col.names = c("MPA", "wdpaid", "Gear", "Catch (mt)", "% of total catch", "N. Obs.", "BACI?"),
+  kable(col.names = c("MPA", "wdpaid", "Gear", "Catch (mt)", "% of total catch", "N. Obs.", "BANF?"),
+        caption = "MPA-gear combinations, contribution of each gear's catch to total catch around each MPA, total number of observations, and BANF compliance.",
+        label = "relevant_mpa_gear_combinations",
         digits = 2,
         booktabs = T,
         format = "latex") %>%

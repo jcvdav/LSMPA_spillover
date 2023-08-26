@@ -18,6 +18,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom functions ------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 distance_grid <- read_rds(file = here("data", "processed", "distance_grid.rds"))
 rfmo_data <- readRDS(here("data", "processed", "rfmo_all_annual_gear_flag.rds"))
@@ -26,7 +29,7 @@ rfmo_data <- readRDS(here("data", "processed", "rfmo_all_annual_gear_flag.rds"))
 
 # X ----------------------------------------------------------------------------
 combined <- rfmo_data %>%
-  left_join(distance_grid, by = c("lon", "lat")) %>%
+  left_join(distance_grid, by = c("grid", "lon", "lat")) %>%
   mutate(id = paste(lat, lon, sep = "_"),
          event = year - year_enforced,
          post = 1 * (event >= 0)) %>%

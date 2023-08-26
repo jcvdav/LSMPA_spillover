@@ -19,8 +19,14 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom functions ------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 annual_panel_raw <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
+  filter(between(event, -10, 10))
+
+monthly_ll_panel_raw <- readRDS(file = here("data", "processed", "rfmo_all_ll_monthly_gear_flag.rds")) %>%
   filter(between(event, -10, 10))
 
 ## PROCESSING ##################################################################
@@ -133,6 +139,14 @@ most_relevant_panel_multiple_distances <- annual_panel_raw %>%
                select(short_name, wdpaid, gear),
              by = join_by(gear, wdpaid))
 
+# Monthly LL panel, for sensitivity
+most_relevant_monthly_ll_panel <- monthly_ll_panel_raw %>%
+  inner_join(gear_with_most_landings_by_mpa %>%
+               filter(pct_mt > 5,
+                      enough_for_baci) %>%
+               select(short_name, wdpaid, gear),
+             by = join_by(gear, wdpaid))
+
 ## EXPORT ######################################################################
 saveRDS(object = annual_panel,
         file = here("data", "processed", "annual_full_estimation_panel.rds"))
@@ -142,6 +156,9 @@ saveRDS(object = most_relevant_panel,
 
 saveRDS(object = most_relevant_panel_multiple_distances,
         file = here("data", "processed", "annual_relevant_mpa_gears_and_distances_sensitivity_estimation_panel.rds"))
+
+saveRDS(object = most_relevant_monthly_ll_panel,
+        file = here("data", "processed", "monthly_relevant_mpa_ll_and_distances_sensitivity_estimation_panel.rds"))
 
 # Tables for text
 gear_with_most_landings_by_mpa %>%

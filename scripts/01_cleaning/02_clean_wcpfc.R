@@ -8,74 +8,7 @@
 #
 # Description
 #
-# For PS data
-# ------------------------------------------------------------------------------
-# Field Name  | Picture  | Description
-# YY N( 4 ) Year
-# QTR N( 2 ) Quarter
-# FLAG_ID C( 2 ) Flag – Fishing Nation (ISO 2-letter country code)
-# LAT_short C( 3 ) Latitude. It represents the latitude of the
-# south-west corner of 1° square for these data.
-# LON_short C( 4 ) Longitude. It represents the longitude of
-# the south-west corner of 1° square for these data.
-# CWP_GRID N( 11 ) Coordinating Working Party No
-# DAYS N( 6 ) Days fishing and searching (effort).
-# SETS_UNA N( 6 ) Number of Sets (Unassociated schools).
-# SETS_LOG N( 6 ) Number of Sets (Natural Log/debris).
-# SETS_DFAD N( 6 ) Number of Sets (Drifting FAD).
-# SETS_AFAD N( 6 ) Number of Sets (Anchored FAD).
-# SETS_OTH N( 6 ) Number of Sets (Other set types combined).
-# SKJ_C_UNA N( 8, 3) Skipjack catch in metric tonnes (Unassociated schools).
-# YFT_C_UNA N( 8, 3) Yellowfin catch (metric tonnes) (Unassociated schools).
-# BET_C_UNA N( 8, 3) Bigeye catch (metric tonnes) (Unassociated schools).
-# OTH_C_UNA N( 8, 3) Other species catch (metric tonnes) (Unassociated schools).
-# SKJ_C_LOG N( 8, 3) Skipjack catch in metric tonnes (Natural-Log schools).
-# YFT_C_LOG N( 8, 3) Yellowfin catch (metric tonnes) (Natural-Log schools).
-# BET_C_LOG N( 8, 3) Bigeye catch (metric tonnes) (Natural-Log schools).
-# OTH_C_LOG N( 8, 3) Other species catch (metric tonnes) (Natural-Log schools).
-# SKJ_C_DFAD N( 8, 3) Skipjack catch in metric tonnes (Drifting FAD schools).
-# YFT_C_DFAD N( 8, 3) Yellowfin catch (metric tonnes) (Drifting FAD schools).
-# BET_C_DFAD N( 8, 3) Bigeye catch (metric tonnes) (Drifting FAD schools).
-# OTH_C_DFAD N( 8, 3) Other species catch (metric tonnes) (Drifting FAD schools).
-# SKJ_C_AFAD N( 8, 3) Skipjack catch in metric tonnes (Anchored FAD schools).
-# YFT_C_AFAD N( 8, 3) Yellowfin catch (metric tonnes) (Anchored FAD schools).
-# BET_C_AFAD N( 8, 3) Bigeye catch (metric tonnes) (Anchored FAD schools).
-# OTH_C_AFAD N( 8, 3) Other species catch (metric tonnes) (Anchored FAD schools).
-# SKJ_C_OTH N( 8, 3) Skipjack catch in metric tonnes (Schools from other set types).
-# YFT_C_OTH N( 8, 3) Yellowfin catch (metric tonnes) (Schools from other set types).
-# BET_C_OTH N( 8, 3) Bigeye catch (metric tonnes) (Schools from other set types).
-# OTH_C_OTH N( 8, 3) Other species catch (metric tonnes) (Schools from other set types).
-# ------------------------------------------------------------------------------
 #
-# For LL data
-# ------------------------------------------------------------------------------
-# Field Name  | Picture  | Description
-# YY N( 4 ) Year
-# FLAG_ID C( 2 ) Flag codes (when this field is blank, the record is a cell representing
-#                            activities of less than three vessels and so the EFFORT (hooks)
-#                            and CATCH by SPECIES fields have not been provided.
-# LAT5 C( 3 ) Latitude. It represents the latitude of the
-# south-west corner of 5° square for these data.
-# LON5 C( 4 ) Longitude. It represents the longitude of
-# the south-west corner of 5° square for these data.
-# HHOOKS N( 6 ) Hundreds of hooks (longline effort).
-# ALB_C N( 8, 3) Albacore catch in metric tonnes.
-# ALB_N N( 6 ) Albacore catch in numbers.
-# YFT_C N( 8, 3) Yellowfin catch (metric tonnes)
-# YFT_N N( 6 ) Yellowfin catch in numbers.
-# BET_C N( 8, 3) Bigeye catch (metric tonnes).
-# BET_N N( 6 ) Bigeye catch in numbers.
-# MLS_C N( 8, 3) Striped Marlin catch (metric tonnes).
-# MLS_N N( 6 ) Striped Marlin catch (number).
-# BLM_C N( 8, 3) Black marlin catch (metric tonnes).
-# BLM_N N( 6 ) Black marlin catch (number).
-# BLZ_C N( 8, 3) Blue marlin catch (metric tonnes).
-# BLZ_N N( 6 ) Blue marlin catch (number).
-# SWO_C N( 8, 3) Swordfish catch (metric tonnes).
-# SWO_N N( 6 ) Swordfish catch (number).
-# OTH_C N( 8, 3) Other species catch (metric tonnes)
-# OTH_N N( 6 ) The total of all other species catch (in numbers).
-# ------------------------------------------------------------------------------
 ################################################################################
 
 ## SET UP ######################################################################
@@ -85,7 +18,11 @@ pacman::p_load(
   here,
   countrycode,
   janitor,
-  tidyverse)
+  tidyverse
+  )
+
+# Source custom funcions -------------------------------------------------------
+source(here("scripts/00_set_up.R"))
 
 # Load data --------------------------------------------------------------------
 
@@ -94,6 +31,72 @@ iso_codes <- countrycode::codelist %>%
   select(iso2c, iso3c) %>%
   distinct()
 
+# ps_tuna <-
+#   read_csv(
+#     file = here(
+#       "data",
+#       "raw",
+#       "RFMO_data",
+#       "WCPFC",
+#       "WCPFC_S_PUBLIC_BY_FLAG_YEAR_7",
+#       "WCPFC_S_PUBLIC_BY_FLAG_YEAR.csv"
+#     )
+#   ) %>%
+#   clean_names()
+
+# q_ps_tuna <-
+#   read_csv(
+#     file = here(
+#       "data",
+#       "raw",
+#       "RFMO_data",
+#       "WCPFC",
+#       "WCPFC_S_PUBLIC_BY_1x1_QTR_FLAG_3",
+#       "WCPFC_S_PUBLIC_BY_1x1_QTR_FLAG.csv"
+#     )
+#   ) %>%
+#   clean_names()
+
+# ll_tuna <-
+#   read_csv(
+#     file = here(
+#       "data",
+#       "raw",
+#       "RFMO_data",
+#       "WCPFC",
+#       "WCPFC_L_PUBLIC_BY_FLAG_YR_7",
+#       "WCPFC_L_PUBLIC_BY_FLAG_YR.csv"
+#     )
+#   ) %>%
+#   clean_names()
+
+# q_ll_tuna <-
+#   read_csv(
+#     file = here(
+#       "data",
+#       "raw",
+#       "RFMO_data",
+#       "WCPFC",
+#       "WCPFC_L_PUBLIC_BY_FLAG_QTR_8",
+#       "WCPFC_L_PUBLIC_BY_FLAG_QTR.csv"
+#     )
+#   ) %>%
+#   clean_names()
+#
+# m_ll_tuna <-
+#   read_csv(
+#     file = here(
+#       "data",
+#       "raw",
+#       "RFMO_data",
+#       "WCPFC",
+#       "WCPFC_L_PUBLIC_BY_FLAG_MON_5",
+#       "WCPFC_L_PUBLIC_BY_FLAG_MON.csv"
+#     )
+#   ) %>%
+#   clean_names()
+
+# FROM GH
 ps_tuna <-
   read_csv(
     file = here(
@@ -120,6 +123,8 @@ ll_tuna <-
   ) %>%
   clean_names()
 
+### END FROM GH
+
 ## PROCESSING ##################################################################
 
 # X ----------------------------------------------------------------------------
@@ -133,7 +138,9 @@ ps_tuna_clean <- ps_tuna %>%
     yft_mt = yft_c_una + yft_c_log + yft_c_dfad + yft_c_afad + yft_c_oth,
     bet_mt = bet_c_una + bet_c_log + bet_c_dfad + bet_c_afad + bet_c_oth,
   ) %>%
-  select(year, qtr, flag_id, lat, lon, num_sets, contains("_mt")) %>%
+  select(year,
+         # qtr,
+         flag_id, lat, lon, num_sets, contains("_mt")) %>%
   mutate(tot_mt = skj_mt + yft_mt + bet_mt) %>%
   filter(num_sets > 0,
          tot_mt > 0) %>%
@@ -146,8 +153,10 @@ ps_tuna_clean <- ps_tuna %>%
   rename(effort = num_sets) %>%
   mutate(effort_measure = "sets",
          gear = "purse_seine",
+         grid = "1x1",
          rfmo = "wcpfc")
 
+# Pipeline for annual LL data --------------------------------------------------
 ll_tuna_clean <- ll_tuna %>%
   # Since "(when this field is blank, the record is a cell representing
   # activities of less than three vessels and so the EFFORT (hooks)
@@ -175,17 +184,20 @@ ll_tuna_clean <- ll_tuna %>%
   rename(effort = hooks) %>%
   mutate(effort_measure = "hooks",
          gear = "longline",
+         grid = "5x5",
          rfmo = "wcpfc")
 
+# Combine PS and LL ------------------------------------------------------------
 wcpfc_tuna <-
   bind_rows(ps_tuna_clean, ll_tuna_clean) %>%
   left_join(iso_codes, by = c("flag_id" = "iso2c")) %>%
   select(
     rfmo,
     year,
-    qtr,
+    # qtr,
     gear,
     flag = iso3c,
+    grid,
     lat,
     lon,
     effort,
@@ -221,3 +233,4 @@ test(wcpfc_tuna)
 # X ----------------------------------------------------------------------------
 saveRDS(object = wcpfc_tuna,
         file = here("data", "processed", "rfmo_wcpfc_tuna_quarterly_gear_flag.rds"))
+

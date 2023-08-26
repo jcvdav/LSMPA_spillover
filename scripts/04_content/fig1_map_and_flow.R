@@ -16,6 +16,7 @@
 pacman::p_load(
   here,
   cowplot,
+  tidyterra,
   terra,
   rnaturalearth,
   sf,
@@ -85,6 +86,8 @@ interpolated_catch <- rasterize(x = vect(map_data),
 map <- ggplot() +
   geom_spatraster(data = log(interpolated_catch),
                   aes(fill = mean)) +
+  geom_spatraster_contour(data = log(interpolated_catch),
+                          aes(z = mean), color = "black") +
   geom_sf(data = coast,
           fill = "#DCE1E5",
           color = "#DCE1E5",
@@ -110,7 +113,7 @@ map <- ggplot() +
 
 map
 
-# alluvial <- ggplot(data = alluvial_data,
+
 #        mapping = aes(y = pct_mt,
 #                      axis1 = name,
 #                      axis2 = spp,

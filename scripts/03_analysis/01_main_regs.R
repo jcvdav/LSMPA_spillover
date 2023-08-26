@@ -19,6 +19,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom functions ------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 annual_panel <- readRDS(file = here("data", "processed", "annual_full_estimation_panel.rds"))
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
@@ -109,3 +112,4 @@ saveRDS(object = relevant_mpa_gear_reg_wo_fe,
 # Export table of MPA and gears ------------------------------------------------
 saveRDS(object = gear_stats,
         file = here("data", "output", "relevant_mpa_gear_combination_model_coefs.rds"))
+

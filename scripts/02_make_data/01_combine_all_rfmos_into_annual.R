@@ -20,6 +20,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom functions ------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 iattc <- readRDS(file = here("data", "processed", "rfmo_iattc_tuna_monthly_gear_flag.rds"))
 iotc <- readRDS(file = here("data", "processed", "rfmo_iotc_tuna_monthly_gear_flag.rds"))
@@ -36,6 +39,7 @@ iattc_annual <- iattc %>%
     year,
     gear,
     flag,
+    grid,
     lat,
     lon,
     effort_measure) %>%
@@ -56,6 +60,7 @@ iotc_annual <- iotc %>%
     year,
     gear,
     flag,
+    grid,
     lat,
     lon,
     effort_measure) %>%
@@ -76,6 +81,7 @@ wcpfc_annual <- wcpfc %>%
     year,
     gear,
     flag,
+    grid,
     lat,
     lon,
     effort_measure) %>%
@@ -98,6 +104,7 @@ annual_all_rfmos <- bind_rows(iattc_annual,
     year,
     gear,
     flag,
+    grid,
     lat,
     lon,
     effort_measure,
@@ -114,7 +121,6 @@ annual_all_rfmos <- bind_rows(iattc_annual,
                              yft_mt = 0))
 
 ## BREIF PARENTHRESES TO LOOK AT DUPLICATE DATA ################################
-
 cells_with_dupes <- annual_all_rfmos %>%
   group_by(lat, lon) %>%
   mutate(n = n_distinct(rfmo)) %>%
@@ -195,10 +201,6 @@ unique_cells <- annual_all_rfmos %>%
   group_by(lat, lon) %>%
   summarize(n = n_distinct(rfmo),
             .groups = "drop")
-
-ggplot(unique_cells, aes(x = lon, y = lat, fill = n)) +
-  geom_tile() +
-  coord_equal()
 
 unique_cells %>%
   filter(n > 1) %>%
@@ -291,7 +293,7 @@ annual_all_rfmos_without_overlaps <- annual_all_rfmos %>%
     !(rfmo == "iattc" & lon == -78.5 & lat == 7.5),
     !(rfmo == "iattc" & lon == -77.5 & lat == 7.5)
   ) %>%
-  group_by(year, gear, flag, lat, lon, effort_measure) %>%
+  group_by(year, gear, flag, grid, lat, lon, effort_measure) %>%
   summarize(effort = max(effort),
             alb_mt = max(alb_mt),
             bet_mt = max(bet_mt),
@@ -314,10 +316,11 @@ annual_all_rfmos_without_overlaps <- annual_all_rfmos %>%
 
 # How many records did we remove?
 dim(annual_all_rfmos)[1] - dim(annual_all_rfmos_without_overlaps)[1]
+((dim(annual_all_rfmos)[1] - dim(annual_all_rfmos_without_overlaps)[1]) / dim(annual_all_rfmos)[1]) * 100
 
 
 ## CHECKS ######################################################################
-check_mt(annual_all_rfmos_without_overlaps, cutoff = 0)
+check_mt(annual_all_rfmos_without_overlaps)
 
 check_effort_gear(annual_all_rfmos_without_overlaps)
 

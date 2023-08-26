@@ -19,6 +19,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom functions ------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # User-defined functions -------------------------------------------------------
 # A function to extract moedl info for gear-mpa models
 extract_mpa_coefs <- function(model) {
@@ -201,7 +204,7 @@ mpa_compare_models <- bind_rows(relevant_by_mpa_df, relevant_by_mpa_df_wo_fe) %>
   facet_wrap(~mpa, ncol = 4) +
   theme(legend.position = c(1, 0),
         legend.justification = c(1, 0),
-        egend.box = "horizontal") +
+        legend.box = "horizontal") +
   labs(y = "Effect on CPUE",
        shape = "Gear",
        fill = "Model")

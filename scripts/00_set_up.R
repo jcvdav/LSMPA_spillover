@@ -101,10 +101,18 @@ dist_palette <- c("Near" = "#F47321",
                   "near" = "#F47321",
                   "far" = "#257BB1")
 
-check_mt <- function(data, cutoff = 2011) {
+check_mt <- function(data, cutoff = 0) {
   data %>%
     filter(year >= cutoff) %>%
     select(gear, contains("mt"), -tot_mt) %>%
+    group_by(gear) %>%
+    summarize_all(sum, na.rm = T)
+}
+
+check_mt_e <- function(data, cutoff = 0) {
+  data %>%
+    filter(year >= cutoff) %>%
+    select(gear, contains("mt"), effort) %>%
     group_by(gear) %>%
     summarize_all(sum, na.rm = T)
 }

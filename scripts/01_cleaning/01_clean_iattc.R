@@ -6,8 +6,59 @@
 # juancvd@stanford.edu
 # date
 #
-# Description
+# Description - From PDF that came with the data
 #
+# For PS Tuna ------------------------------------------------------------------
+# Data fields / Campos de datos
+# Year year / año
+# Month month / mes
+# <Flag> country / pabellón
+# <SetType> set type / tipo de lance
+# DEL: dolphin set / lance sobre delfines
+# NOA: unassociated tuna set / lance sobre atunes no asociados
+# OBJ: floating-object set / lance sobre objeto flotante
+# LatC1 latitude of the center of a 1°x1° cell, negative values south of the equator / latitud del centro de una celda de 1°x1°, valores negativos al sur del ecuador
+# LonC1 longitude of the center of a 1°x1° cell / longitud del centro de una celda de 1°x1°
+# NumSets number of sets / número de lances
+# Col 7-14 retained catch of the indicated species, in metric tons / captura retenida de la especie indicada, en toneladas
+#
+#FAO ASFIS species codes / Códigos de especies FAO ASFIS
+# English Español Scientific/Científico
+# ALB Albacore Albacora (atún blanco) Thunnus alalunga
+# BET Bigeye Patudo (ojo grande) Thunnus obesus
+# BKJ Black skipjack Barrilete negro Euthynnus lineatus
+# BZX E. Pacific/striped bonito Bonito Sarda chiliensis, S. orientalis
+# PBF Pacific bluefin Aleta azul del Pacífico Thunnus orientalis
+# SKJ Skipjack Barrilete Katsuwonus pelamis
+# TUN Tunas, nei* Atunes, nep* Thunnini
+# YFT Yellowfin Aleta amarilla Thunnus albacares
+#
+# For LL -----------------------------------------------------------------------
+# Data fields / Campos de datos
+# Year year / año
+# Month month / mes
+# Flag country / pabellón
+# LatC5 latitude of the center of the 5°x5° cell, negative values south of the equator / latitud del centro de una celda de 5°x5°, valores negativos al sur de la línea ecuatorial
+# LonC5 longitude of the center of 5°x5° cell / longitud del centro de una celda de 5°x5°
+# Hooks number of hooks / número de anzuelos
+# <Spp>n number of individuals of the indicated species / número de ejemplares de la especie indicada
+# <Spp>mt weight of the indicated species, in metric tons / peso de la especie indicada, en toneladas
+#
+# FAO ASFIS species codes / Códigos de especies FAO ASFIS
+# English Español Scientific/Científico
+# ALB Albacore Albacora Thunnus alalunga
+# BET Bigeye Patudo (ojo grande) Thunnus obesus
+# PBF Pacific bluefin Aleta azul del Pacífico Thunnus orientalis
+# SKJ Skipjack Barrilete Katsuwonus pelamis
+# TUN1 Tunas, nei* Atunes, nep* Thunnini
+# YFT Yellowfin Aleta amarilla Thunnus albacares
+# BIL Marlin, sailfish, spearfish Aguja, marlín, pez vela Istiophoridae, Xiphiidae
+# BLM Black marlin Marlín aguja negra Istiompax indica
+# BUM Blue marlin Marlín aguja azul Makaira nigricans
+# MLS Striped marlin Marlín rayado Kajikia audax
+# SFA Indo-Pacific sailfish Pez vela Istiophorus platypterus
+# SSP Shortbill spearfish Marlín trompa corta Tetrapturus angustirostris
+# SWO Swordfish Pez espada Xiphias gladius
 ################################################################################
 
 ## SET UP ######################################################################
@@ -16,6 +67,9 @@
 pacman::p_load(here,
                janitor,
                tidyverse)
+
+# Source custom funcions -------------------------------------------------------
+source(here("scripts/00_set_up.R"))
 
 # Load data --------------------------------------------------------------------
 ps_tuna <-
@@ -76,6 +130,7 @@ ps_tuna_clean <- ps_tuna %>%
   ) %>%
   mutate(effort_measure = "sets",
          gear = "purse_seine",
+         grid = "1x1",
          rfmo = "iattc")
 
 # Clean longline data ----------------------------------------------------------
@@ -103,6 +158,7 @@ ll_tuna_clean <- ll_tuna %>%
   ) %>%
   mutate(effort_measure = "hooks",
          gear = "longline",
+         grid = "5x5",
          rfmo = "iattc")
 
 # Combine ----------------------------------------------------------------------
@@ -114,6 +170,7 @@ iattc_tuna <-
     month,
     gear,
     flag,
+    grid,
     lat,
     lon,
     effort,

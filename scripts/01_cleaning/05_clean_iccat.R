@@ -19,6 +19,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom functions ------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 # Read the Microsoft access database
 con <- readRDS(file = here("data", "raw", "RFMO_data", "ICCAT", "ICCAT_database.rds"))
@@ -114,11 +117,14 @@ iccat_tuna <- data %>%
 
 iccat_ps_clean <- iccat_tuna %>%
   filter(gear_grp_code == "PS") %>%
-  select(year = year_c, gear = gear_grp_code, flag, lat, lon, effort, effort_measure,
+  select(year = year_c,
+         gear = gear_grp_code,
+         flag, grid = square_type_code,
+         lat, lon, effort, effort_measure,
          # Ignoring albacore because its les than 0.2%
          skj_mt, yft_mt, bet_mt, bft_mt) %>%
   mutate(tot_mt = skj_mt + yft_mt + bet_mt + bft_mt) %>%
-  group_by(year, lat, lon, flag, gear, effort_measure) %>%
+  group_by(year, lat, lon, flag, grid, gear, effort_measure) %>%
   summarize(skj_mt = sum(skj_mt, na.rm = T),
             yft_mt = sum(yft_mt, na.rm = T),
             bet_mt = sum(bet_mt, na.rm = T),
@@ -138,11 +144,15 @@ iccat_ps_clean <- iccat_tuna %>%
 
 iccat_ll_clean <- iccat_tuna %>%
   filter(gear_grp_code == "LL") %>%
-  select(year = year_c, gear = gear_grp_code, flag, lat, lon, effort, effort_measure,
+  select(year = year_c,
+         gear = gear_grp_code,
+         flag,
+         grid = square_type_code,
+         lat, lon, effort, effort_measure,
          # Ignoring skipjack because its les than 0.5%
          bet_mt, alb_mt, yft_mt, bft_mt) %>%
   mutate(tot_mt = bet_mt + alb_mt + yft_mt + bft_mt) %>%
-  group_by(year, lat, lon, flag, gear, effort_measure) %>%
+  group_by(year, lat, lon, flag, grid, gear, effort_measure) %>%
   summarize(
     bet_mt = sum(bet_mt, na.rm = T),
     alb_mt = sum(alb_mt, na.rm = T),
@@ -164,12 +174,12 @@ iccat_ll_clean <- iccat_tuna %>%
   filter(!(effort_measure == "hooks" & effort < 600))
 
 
-
 iccat_tuna_clean <- bind_rows(iccat_ps_clean, iccat_ll_clean) %>%
   select(rfmo,
          year,
          gear,
          flag,
+         grid,
          lat,
          lon,
          effort,

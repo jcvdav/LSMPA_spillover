@@ -20,9 +20,14 @@
 ## SET UP ######################################################################
 
 # Load packages ----------------------------------------------------------------
-pacman::p_load(here,
-               janitor,
-               tidyverse)
+pacman::p_load(
+  here,
+  janitor,
+  tidyverse
+)
+
+# Source custom funcions -------------------------------------------------------
+source(here("scripts/00_set_up.R"))
 
 # Load data --------------------------------------------------------------------
 iotc_surface <- read_csv(
@@ -91,7 +96,8 @@ iotc_surface <- read_csv(
     `NTAD-UNCL` = col_double()
   )
 ) %>%
-  clean_names()
+  clean_names() %>%
+  rename(grid_code = grid)
 
 iotc_longline <- read_csv(
   here(
@@ -162,7 +168,8 @@ iotc_longline <- read_csv(
     `NTAD-MT` = col_double()
   )
 ) %>%
-  clean_names()
+  clean_names() %>%
+  rename(grid_code = grid)
 
 ## PROCESSING ##################################################################
 
@@ -197,15 +204,18 @@ grid_to_coords <- function(x) {
                    quadrant == 3 ~ lon - (size / 2),
                    quadrant == 4 ~ lon - (size / 2))
 
+  grid <- paste0(size, "x", size)
 
-  return(data.frame(lat, lon))
+
+  return(data.frame(lat, lon, grid))
 }
 
 
 # Get lat and long -------------------------------------------------------------
-unique_coords <- tibble(grid = unique(c(iotc_surface$grid, iotc_longline$grid))) %>%
-  filter(str_sub(grid, 1, 1) %in% c("5", "6")) %>%
-  mutate(coords = map(grid, grid_to_coords)) %>%
+unique_coords <- tibble(grid_code = unique(c(iotc_surface$grid_code,
+                                             iotc_longline$grid_code))) %>%
+  filter(str_sub(grid_code, 1, 1) %in% c("5", "6")) %>%
+  mutate(coords = map(grid_code, grid_to_coords)) %>%
   unnest(coords)
 
 iotc_surface_clean <- iotc_surface %>%
@@ -213,7 +223,7 @@ iotc_surface_clean <- iotc_surface %>%
          !is.na(catch_units),
          quality_code >= 2,
          effort_units == "FHOURS") %>%
-  left_join(unique_coords, by = "grid") %>%
+  left_join(unique_coords, by = "grid_code") %>%
   replace_na(replace = list(
     yft_ls = 0, yft_fs = 0, yft_uncl = 0,
     bet_ls = 0, bet_fs = 0, bet_uncl = 0,
@@ -235,13 +245,20 @@ iotc_surface_clean <- iotc_surface %>%
          skj_mt = skj_fs + skj_ls + skj_uncl,
          sbf_mt = sbf_fs + sbf_ls + sbf_uncl
          ) %>%
-  select(year, month = month_start, fleet, gear, lat, lon, effort, effort_units,
+  select(year, month = month_start, flag = fleet, gear, grid, lat, lon, effort, effort_units,
          # Ordere tuna spp by importance to catch, also ignoring SBF and SKJ that account for ~1%
          skj_mt, yft_mt, bet_mt) %>%
-  mutate(tot_mt = skj_mt + yft_mt + bet_mt ,
+  mutate(tot_mt = skj_mt + yft_mt + bet_mt,
          gear = "purse_seine") %>%
   filter(tot_mt > 0,
          effort > 0) %>%
+  group_by(year, month, gear, flag, grid, lat, lon, effort_units) %>%
+  summarize(skj_mt = sum(skj_mt),
+            yft_mt = sum(yft_mt),
+            bet_mt = sum(bet_mt),
+            tot_mt = sum(tot_mt),
+            effort = sum(effort)) %>%
+  ungroup() %>%
   mutate(
     cpue_skj = skj_mt / effort,
     cpue_yft = yft_mt / effort,
@@ -254,8 +271,8 @@ iotc_longline_clean <- iotc_longline %>%
   filter(gear %in% c("LL", "FLL"),
          effort_units == "HOOKS",
          quality_code >= 2) %>%
-  left_join(unique_coords, by = "grid") %>%
-  select(year, month = month_start, flag = fleet, gear, lat, lon, effort, effort_units,
+  left_join(unique_coords, by = "grid_code") %>%
+  select(year, month = month_start, flag = fleet, gear, grid, lat, lon, effort, effort_units,
          # Ignoring SKJ that account for ~1%
          bet_mt, alb_mt, yft_mt, sbf_mt) %>%
   replace_na(replace = list(
@@ -267,26 +284,35 @@ iotc_longline_clean <- iotc_longline %>%
          gear = "longline") %>%
   filter(tot_mt > 0,
          effort > 0) %>%
+  # We filter records where they indicate that less than 200 hooks were used because these are unlikely
+  filter(!effort < 200) %>%
+  group_by(year, month, gear, flag, grid, lat, lon, effort_units) %>%
+  summarize(bet_mt = sum(bet_mt),
+            alb_mt = sum(alb_mt),
+            yft_mt = sum(yft_mt),
+            sbf_mt = sum(sbf_mt),
+            tot_mt = sum(tot_mt),
+            effort = sum(effort)) %>%
+  ungroup() %>%
   mutate(
     cpue_bet = bet_mt / effort,
     cpue_alb = alb_mt / effort,
     cpue_yft = yft_mt / effort,
     cpue_sbf = sbf_mt / effort,
     cpue_tot = tot_mt / effort) %>%
-  mutate(rfmo = "iotc") %>%
-  # We filter records where they indicate that less than 200 hooks were used because these are unlikely
-  filter(!effort < 200)
+  mutate(rfmo = "iotc")
 
 iotc_tuna <- bind_rows(iotc_surface_clean,
                        iotc_longline_clean) %>%
   mutate(effort_units = str_to_lower(effort_units),
-         fleet = str_sub(fleet, -3, -1)) %>%
+         flag = str_sub(flag, -3, -1)) %>%
   select(
     rfmo,
     year,
     month,
     gear,
     flag,
+    grid,
     lat,
     lon,
     effort,

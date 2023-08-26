@@ -5,9 +5,9 @@ WCPFC,PS,annual,5°,Yes,,Too low spatial resolution
 WCPFC,PS,month,1°,No,,"We would lose flag, which is reported in all other data sets"
 WCPFC,PS,quarter,1°,Yes,X,Highest spatio-temporal resolution that still retains flag
 WCPFC,LL,month,5°,No,,Worst resolution and no flag
-WCPFC,LL,quarter,5°,Yes,X,I am 50/50 on using this one: 1) Matches temporal resolution of PS data from WCPFC and 2) Good balance between monthly (we lose lots of data due to privacy) and annual (would be the only annual-level data set)
-WCPFC,LL,annual,5°,Yes,,"Alternatively, we use this one because we get as much data as possible (there is less data loss due to privacy concerns), we don't lose any spatial resolution, and we don't lose any flag info. However, it would be the only raw annual data set."
-WCPFC,LL,month,5°,Yes,,"I think this gets us a false sense of precission. Yes, we might have 8 times more observations, but we are actualy loosing about 20% of the catch and effort data relative to annual."
+WCPFC,LL,quarter,5°,Yes,X,"I am 50/50 on using this one, but the main allure is that it matches temporal resolution of PS data from WCPFC. Their metadata also say they report a bit more than the annual."
+WCPFC,LL,annual,5°,Yes,,"Alternatively, we can use this one because we get as much data as possible (there is less data loss due to privacy concerns), we don't lose any spatial resolution, and we don't lose any flag info. However, it would be the only raw annual data set. Their metadata also says they report slighlty less than the quarterly."
+WCPFC,LL,month,5°,Yes,,"The metadata says they reporte more than 100% of effort, which I find weird."
 IATTC,PS,month,1°,Yes,X,Only one available
 IATTC,LL,month,5°,Yes,X,Only one available
 IOTC,PS,month,1°,Yes,X,"Data are aggregated ""preferably to monthly"", but might not be reported as such. PS effort data is mostly reported in fishing days, even though the say sets is a better measure."

@@ -14,7 +14,7 @@ data/processed/rfmo_iattc_tuna_monthly_gear_flag.rds: scripts/01_cleaning/01_cle
 		cd $(<D);Rscript $(<F)
 
 # Clean WCPFC
-data/processed/rfmo_wcpfc_tuna_quarterly_gear_flag.rds: scripts/01_cleaning/02_clean_wcpfc.R data/raw/RFMO_data/WCPFC/WCPFC_S_PUBLIC_BY_1x1_QTR_FLAG_3/WCPFC_S_PUBLIC_BY_1x1_QTR_FLAG.csv data/raw/RFMO_data/WCPFC/WCPFC_L_PUBLIC_BY_FLAG_YR_7/WCPFC_L_PUBLIC_BY_FLAG_YR.csv
+data/processed/rfmo_wcpfc_tuna_quarterly_gear_flag.rds: scripts/01_cleaning/02_clean_wcpfc.R data/raw/RFMO_data/WCPFC/WCPFC_S_PUBLIC_BY_1x1_QTR_FLAG_3/WCPFC_S_PUBLIC_BY_1x1_QTR_FLAG.csv data/raw/RFMO_data/WCPFC/WCPFC_L_PUBLIC_BY_FLAG_QTR_8/WCPFC_L_PUBLIC_BY_FLAG_QTR.csv
 		cd $(<D);Rscript $(<F)
 
 # Clean IOTC

@@ -117,8 +117,8 @@ ll_tuna <-
       "raw",
       "RFMO_data",
       "WCPFC",
-      "WCPFC_L_PUBLIC_BY_FLAG_YR_7",
-      "WCPFC_L_PUBLIC_BY_FLAG_YR.csv"
+      "WCPFC_L_PUBLIC_BY_FLAG_QTR_8",
+      "WCPFC_L_PUBLIC_BY_FLAG_QTR.csv"
     )
   ) %>%
   clean_names()
@@ -139,7 +139,7 @@ ps_tuna_clean <- ps_tuna %>%
     bet_mt = bet_c_una + bet_c_log + bet_c_dfad + bet_c_afad + bet_c_oth,
   ) %>%
   select(year,
-         # qtr,
+         qtr,
          flag_id, lat, lon, num_sets, contains("_mt")) %>%
   mutate(tot_mt = skj_mt + yft_mt + bet_mt) %>%
   filter(num_sets > 0,
@@ -171,7 +171,7 @@ ll_tuna_clean <- ll_tuna %>%
     yft_mt = yft_c,
     bet_mt = bet_c
   ) %>%
-  select(year, flag_id, lat, lon, hooks, contains("_mt")) %>%
+  select(year, qtr, flag_id, lat, lon, hooks, contains("_mt")) %>%
   mutate(tot_mt = alb_mt + yft_mt + bet_mt) %>%
   filter(hooks > 0,
          tot_mt > 0) %>%
@@ -194,7 +194,7 @@ wcpfc_tuna <-
   select(
     rfmo,
     year,
-    # qtr,
+    qtr,
     gear,
     flag = iso3c,
     grid,

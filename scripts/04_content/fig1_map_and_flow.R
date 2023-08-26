@@ -24,8 +24,7 @@ pacman::p_load(
 )
 
 # Load data --------------------------------------------------------------------
-annual_panel <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
-  filter(gear %in% c("purse_seine", "longline"))
+annual_panel <- readRDS(here("data", "processed", "annual_panel.rds"))
 
 coast <- ne_countries(returnclass = "sf")
 
@@ -37,26 +36,60 @@ mpas <- st_read("data/processed/clean_lmpas.gpkg")
 ## PROCESSING ##################################################################
 
 # X ----------------------------------------------------------------------------
-map_data <- annual_panel %>%
+map_data_1x1 <- annual_panel %>%
+  filter(grid == "1x1") %>%
   filter(between(year, 2011, 2021)) %>%
   group_by(year, lat, lon) %>%
-  summarize(tot_mt = sum(tot_mt, na.rm = T)) %>%
+  summarize(grid, tot_mt = sum(tot_mt, na.rm = T)) %>%
   ungroup() %>%
-  group_by(lat, lon) %>%
+  group_by(grid, lat, lon) %>%
   summarize(tot_mt = mean(tot_mt, na.rm = T)) %>%
   ungroup() %>%
   st_as_sf(coords = c("lon", "lat"),
            crs = "EPSG:4326")
 
-r <- rast(nrows = 180, ncols = 360, nlyrs = 1,
-          xmin = -180, xmax = 180,
-          ymin = -90, ymax = 90,
-          crs = "EPSG:4326")
+map_data_5x5 <- annual_panel %>%
+  filter(grid == "5x5") %>%
+  filter(between(year, 2011, 2021)) %>%
+  group_by(grid, year, lat, lon) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T)) %>%
+  ungroup() %>%
+  group_by(grid, lat, lon) %>%
+  summarize(tot_mt = mean(tot_mt, na.rm = T)) %>%
+  ungroup() %>%
+  st_as_sf(coords = c("lon", "lat"),
+           crs = "EPSG:4326")
 
-interpolated_catch <- rasterize(x = vect(map_data),
-                                y = r,
-                                field = "tot_mt",
-                                fun = "mean")
+map_data <- bind_rows(map_data_1x1, map_data_5x5)
+
+r1 <- rast(nrows = 180, ncols = 360, nlyrs = 1,
+           xmin = -180, xmax = 180,
+           ymin = -90, ymax = 90, res = 1,
+           crs = "EPSG:4326")
+
+r5 <- rast(nrows = 180, ncols = 360, nlyrs = 1,
+           xmin = -180, xmax = 180,
+           ymin = -90, ymax = 90, res = 5,
+           crs = "EPSG:4326")
+
+rast_1x1 <- rasterize(x = vect(map_data_1x1),
+                      y = r1,
+                      field = "tot_mt",
+                      fun = "mean")
+
+rast_5x5 <- rasterize(x = vect(map_data_5x5),
+                      y = r5,
+                      field = "tot_mt",
+                      fun = "mean")
+
+rast_5x5 <- (rast_5x5 / cellSize(rast_5x5))
+rast_5x5 <- resample(rast_5x5, r1, method = "cubicspline") * cellSize(r1)
+
+interpolated_catch <- c(rast_1x1, rast_5x5) %>%
+  sum(na.rm = T)
+
+
+
 
 # # X ----------------------------------------------------------------------------
 # alluvial_data <- annual_panel %>%
@@ -85,9 +118,9 @@ interpolated_catch <- rasterize(x = vect(map_data),
 
 map <- ggplot() +
   geom_spatraster(data = log(interpolated_catch),
-                  aes(fill = mean)) +
+                  aes(fill = sum)) +
   geom_spatraster_contour(data = log(interpolated_catch),
-                          aes(z = mean), color = "black") +
+                          aes(z = sum), color = "black") +
   geom_sf(data = coast,
           fill = "#DCE1E5",
           color = "#DCE1E5",
@@ -103,7 +136,8 @@ map <- ggplot() +
           fill = "#F47321",
           color = "transparent") +
   scale_fill_gradient(low = "#DCE1E5",
-                      high = "#003660", na.value = "transparent") +
+                      high = "#003660",
+                      na.value = "transparent") +
   labs(fill = "log(mt)") +
   guides(fill = guide_colorbar(ticks.colour = "black",
                                frame.colour = "black")) +

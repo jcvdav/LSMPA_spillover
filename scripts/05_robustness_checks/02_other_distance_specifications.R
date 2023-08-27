@@ -69,6 +69,7 @@ near_300 <- feols(log(cpue_tot) ~ i(post, near_300, 0) | id + year + effort_meas
 panelsummary(near_100,
              near_200,
              near_300,
+             caption = "\\label{tab:other_near_far}Testig for spillover effects using other deffinitions of near and far from an MPA boundary.",
              colnames = c("", "Combined", "Purse Seine", "Longline"),
              panel_labels = c("Panel A: 0:100 - 100:200 nautical miles",
                               "Panel B: 0:200 - 100:400 nautical miles",

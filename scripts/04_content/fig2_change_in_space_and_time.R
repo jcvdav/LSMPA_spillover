@@ -19,6 +19,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom funcions -------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
 
@@ -84,7 +87,10 @@ ps_delta_cpue_dist_data <- most_relevant_panel %>%
          dist = (floor(dist / 10) *10) + 5,
          dist_f = as.factor(-1 * dist))
 
+## VISUALIZE ###################################################################
 
+# CPUE plots (Panelas A - C) ---------------------------------------------------
+# Panel A - All purse seine data within 200 NM
 all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
   group_by(post, dist) %>%
   summarize(cpue = mean(cpue, na.rm = T), .groups = "drop") %>%
@@ -108,6 +114,7 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
        y = "Change in CPUE (MT / Set)",
        title = "All purse seine")
 
+# Panel B - Example of specific PS data
 ps_delta_cpue_dist_plot <- most_relevant_panel %>%
   filter(wdpaid %in% c(
     "11753", #Galapagos
@@ -150,8 +157,7 @@ ps_delta_cpue_dist_plot <- most_relevant_panel %>%
   theme(legend.position = "top",
         legend.title = element_blank())
 
-ps_delta_cpue_dist_plot
-
+# Panel B- Example of specific longline data
 ll_delta_cpue_dist_plot <- most_relevant_panel %>%
   filter(wdpaid %in% c(
     "220201", # Papahanaumokuakea
@@ -195,9 +201,8 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
   theme(legend.position = "top",
         legend.title = element_blank())
 
-ll_delta_cpue_dist_plot
-
-# BACI PLOTS -------------------------------------------------------------------
+# BACI plots (Panels D-F) ------------------------------------------------------
+# Panel D - All LL data
 ll_baci_plot <- most_relevant_panel %>%
   filter(gear == "longline") %>%
   rename(cpue = cpue_tot) %>%
@@ -206,6 +211,7 @@ ll_baci_plot <- most_relevant_panel %>%
   labs(y = "CPUE (MT / 1000 hooks)",
        title = "All longine")
 
+# Motu motira relevan example
 ll_baci_motu <- most_relevant_panel %>%
   filter(gear == "longline",
          wdpaid == "555543712") %>%
@@ -219,6 +225,7 @@ ll_baci_motu <- most_relevant_panel %>%
        fill = "Distance",
        color = "Distance")
 
+# Purse seine example
 ps_baci_pipa <- most_relevant_panel %>%
   filter(gear == "purse_seine",
          wdpaid == "309888") %>%
@@ -232,12 +239,13 @@ ps_baci_pipa <- most_relevant_panel %>%
        fill = "Distance",
        color = "Distance")
 
-
+# Combine all panels -----------------------------------------------------------
+# bottom left side of plot (B-C)
 cpue_dist_subplot <- plot_grid(ps_delta_cpue_dist_plot,
                                ll_delta_cpue_dist_plot,
                                ncol = 2,
                                labels = c("B", "C"))
-
+# bottom ight side of plot (E-F)
 cpue_time_subplot <- plot_grid(ps_baci_pipa, ll_baci_motu,
                                ncol = 2,
                                labels = c("E", "F"))
@@ -246,162 +254,11 @@ cpue_time_subplot <- plot_grid(ps_baci_pipa, ll_baci_motu,
 
 p <- plot_grid(all_ps_delta_cpue_dist_plot, ll_baci_plot,
                cpue_dist_subplot, cpue_time_subplot, ncol = 2,
-               # rel_heights = c(1.5, 1),
                labels = c("A", "D"))
 
 startR::lazy_ggsave(
   plot = p,
-  filename = "fig_2_visual_change",
+  filename = "fig2_visual_change",
   width = 18,
   height = 16
 )
-
-
-
-
-
-a <- 1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#################
-cpue_dist_plot <- function(mpa, spp, data, gear) {
-  # browser()
-
-  cpue <- parse(text = paste0("cpue_", spp))
-  max <- ifelse(gear == "purse_seine", 200, 600)
-
-  plot <- NULL
-
-  check <- data %>%
-    filter(wdpaid == mpa) %>%
-    select(id, lat, lon, post, wdpaid, event, dist, near, contains(spp)) %>%
-    drop_na(near) %>%
-    count(near, post)
-
-  if(dim(check)[1] == 4) {
-
-    plot_data <- data %>%
-      filter(wdpaid == mpa) %>%
-      select(id, lat, lon, post, wdpaid, event, dist, near, contains(spp)) %>%
-      drop_na(near) %>%
-      filter(eval(cpue) > 0) %>%
-      mutate(dist = (floor(dist / 10) *10) + 5) %>%
-      group_by(post, dist, eval(near)) %>%
-      summarize(cpue = mean(eval(cpue), na.rm = T)) %>%
-      ungroup() %>%
-      pivot_wider(names_from = post,
-                  values_from = cpue, names_prefix = "cpue_") %>%
-      mutate(delta = cpue_1 - cpue_0) %>%
-      drop_na(delta)
-
-    if(dim(plot_data)[1] > 4) {
-      name <- data %>%
-        filter(wdpaid == mpa) %>%
-        pull(name) %>%
-        unique()
-
-      plot <- ggplot(data = plot_data,
-                     aes(x = dist, y = delta)) +
-        geom_point() +
-        geom_smooth(span = 1) +
-        ggtitle(label = paste(name, spp, gear)) +
-        scale_x_continuous(limits = c(0, max))
-    }
-
-  }
-
-
-  return(plot)
-}
-
-safe <- safely(cpue_dist_plot)
-
-mpa_spp_pairs <- annual_panel %>%
-  select(wdpaid, gear, contains("mt")) %>%
-  pivot_longer(cols = contains("mt"), names_to = "spp", values_to = "mt") %>%
-  mutate(spp = str_remove(spp, "_mt")) %>%
-  filter(mt > 0) %>%
-  group_by(wdpaid, gear, spp) %>%
-  summarize(n = n(),
-            mt = sum(mt))
-
-mpa_spp_plots <- mpa_spp_pairs %>%
-  mutate(cpue_dist_plot = pmap(list(mpa = wdpaid, spp = spp, gear = gear),
-                               safe,
-                               data = annual_panel)) %>%
-  filter(map_lgl(cpue_dist_plot, function(x){!is.null(x$result)}))
-
-
-mpa_spp_plots %>%
-  mutate(title = paste0("results/img/cpue_dist_plots/", wdpaid, "_", gear, "_", spp, ".png")) %$%
-  walk2(title, cpue_dist_plot, ~ggsave(plot = .y$result, filename = .x, width = 5, height = 5))
-
-# Great:
-# Gal, YFT, PS and LL
-# Gal TOT LL and PS
-
-
-# gal YFT; gal TOT;
-# PIPA SKJ; PIPA tot;
-
-# Flats
-# PIPA YFT;
-# Marianas trench
-
-
-## VISUALIZE ###################################################################
-
-# X ----------------------------------------------------------------------------
-
-## EXPORT ######################################################################
-
-# X ----------------------------------------------------------------------------
-
-
-
-
-most_relevant_panel %>%
-  filter(gear == "longline") %>%
-  select(wdpaid, event, near, effort, tot_mt) %>%
-  group_by(wdpaid, event, near) %>%
-  summarize(effort = sum(effort),
-            tot_mt = sum(tot_mt)) %>%
-  ungroup() %>%
-  mutate(cpue = tot_mt / effort) %>%
-  select(wdpaid, event, near, cpue) %>%
-  pivot_wider(names_from = near,
-              values_from = cpue,
-              names_prefix = "cpue_") %>%
-  mutate(cpue = cpue_1 - cpue_0,
-         pct = cpue / cpue_0) %>%
-  ggplot(aes(x = event, y = pct)) +
-  # geom_point() +
-  geom_smooth(span = 1)
-
-
-
-

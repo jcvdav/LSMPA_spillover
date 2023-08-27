@@ -24,10 +24,12 @@ source(here("scripts/00_set_up.R"))
 
 # Load data --------------------------------------------------------------------
 annual_panel_raw <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
-  filter(between(event, -10, 10))
+  filter(between(event, -10, 10),
+         dist <= 600)
 
 qtr_panel_raw <- readRDS(file = here("data", "processed", "rfmo_all_qtr_gear_flag.rds")) %>%
-  filter(between(event, -10, 10))
+  filter(between(event, -10, 10),
+         dist <= 600)
 
 ## PROCESSING ##################################################################
 

@@ -33,8 +33,7 @@ combined <- rfmo_data %>%
   mutate(id = paste(lat, lon, sep = "_"),
          event = year - year_enforced,
          post = 1 * (event >= 0)) %>%
-  filter(cpue_tot > 0,
-         dist <= 600)
+  filter(cpue_tot > 0)
 
 check_mt(combined, cutoff = 0)
 

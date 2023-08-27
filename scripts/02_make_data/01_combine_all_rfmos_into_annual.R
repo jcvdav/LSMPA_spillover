@@ -188,7 +188,7 @@ map_of_overlaps <- plot_grid(map_of_all_overlaps,
 
 startR::lazy_ggsave(
   plot = map_of_overlaps,
-  filename = "figSx_map_of_overlaps",
+  filename = "figS1_map_of_overlaps",
   width = 15,
   height = 15
 )
@@ -271,7 +271,7 @@ overlap_plot <- cowplot::plot_grid(mt_ts_overlaps,
                                    rel_widths = c(2, 1))
 
 startR::lazy_ggsave(overlap_plot,
-                    "figSX_mt_ts_overlaps",
+                    "figS2_mt_ts_overlaps",
                     height = 15,
                     width = 20)
 

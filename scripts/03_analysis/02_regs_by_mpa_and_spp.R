@@ -117,11 +117,7 @@ panelsummary(gear_spp_regs,
 # For gear-mpa models ----------------------------------------------------------
 saveRDS(object = gear_mpa_regs,
         file = here("data", "output", "gear_mpa_regs.rds"))
-saveRDS(object = gear_mpa_regs_wo_fe,
-        file = here("data", "output", "gear_mpa_regs_wo_fe.rds"))
 
 # And now gear-spp models ------------------------------------------------------
 saveRDS(object = gear_spp_regs,
         file = here("data", "output", "gear_spp_regs.rds"))
-saveRDS(object = gear_spp_regs_wo_fe,
-        file = here("data", "output", "gear_spp_regs_wo_fe.rds"))

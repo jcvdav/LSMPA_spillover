@@ -41,18 +41,6 @@ main_reg <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + effort_measure,
                   fsplit = ~nice_gear,
                   data = annual_panel)
 
-# Now without fixed effects
-main_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | effort_measure,
-                        panel.id = ~id + year,
-                        vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                          time = ~year,
-                                                          lat = ~lat,
-                                                          lon = ~lon,
-                                                          cutoff = 200,
-                                                          lag = 5),
-                        fsplit = ~nice_gear,
-                        data = annual_panel)
-
 # Estimate DiD with subsamples of relevant MPA-gear combinations ---------------
 # Main specification
 relevant_mpa_gear_reg <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + effort_measure,
@@ -65,19 +53,6 @@ relevant_mpa_gear_reg <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + ef
                                                                  lag = 5),
                                fsplit = ~nice_gear,
                                data = most_relevant_panel)
-
-# Same, but without FEs
-relevant_mpa_gear_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | effort_measure,
-                                     panel.id = ~id + year,
-                                     vcov = function(x)vcov_conley_hac(x,
-                                                                       id = ~id,
-                                                                       time = ~year,
-                                                                       lat = ~lat,
-                                                                       lon = ~lon,
-                                                                       cutoff = 200,
-                                                                       lag = 5),
-                                     fsplit = ~nice_gear,
-                                     data = most_relevant_panel)
 
 ## Extract gear-specific coefficients ------------------------------------------
 gear_stats <- relevant_mpa_gear_reg %>%
@@ -96,18 +71,13 @@ gear_stats <- relevant_mpa_gear_reg %>%
 ## EXPORT ######################################################################
 
 # Export models ----------------------------------------------------------------
-
 # Main models
 saveRDS(object = main_reg,
         file = here("data", "output", "main_reg.rds"))
-saveRDS(object = main_reg_wo_fe,
-        file = here("data", "output", "main_reg_wo_fe.rds"))
 
 # Relevant MPA-gear combinations
 saveRDS(object = relevant_mpa_gear_reg,
         file = here("data", "output", "relevant_mpa_gear_reg.rds"))
-saveRDS(object = relevant_mpa_gear_reg_wo_fe,
-        file = here("data", "output", "relevant_mpa_gear_reg_wo_fe.rds"))
 
 # Export table of MPA and gears ------------------------------------------------
 saveRDS(object = gear_stats,

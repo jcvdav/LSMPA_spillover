@@ -50,8 +50,8 @@ ggplot2::theme_update(
   legend.key = ggplot2::element_blank(),
   strip.background = ggplot2::element_blank(),
   strip.text = ggplot2::element_text(hjust = 0 ),
-  text = ggplot2::element_text(size = 8),
-  axis.text.y = ggplot2::element_text(size = 5)
+  text = ggplot2::element_text(size = 5),
+  axis.text.y = ggplot2::element_text(size = 2)
 )
 
 

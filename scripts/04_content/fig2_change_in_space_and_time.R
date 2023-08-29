@@ -104,8 +104,6 @@ ll_baci_plot <- most_relevant_panel %>%
        title = "All longine",
        fill = "Distance")
 
-ll_baci_plot
-
 # Motu motira relevan example
 ll_baci_motu <- most_relevant_panel %>%
   filter(gear == "longline",
@@ -232,7 +230,7 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
   between(event, -10, 10)) %>%
   group_by(id, wdpaid, short_name, dist, post) %>%
   summarize(effort = sum(effort) / 1000,
-            tot_mt = sum(tott_mt),
+            tot_mt = sum(tot_mt),
             .groups = "drop") %>%
   ungroup() %>%
   mutate(

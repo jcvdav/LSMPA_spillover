@@ -50,23 +50,26 @@ labeler <- function(x) {
 panel_A <- ggplot(data = relevant_by_mpa_df,
                   mapping = aes(y = sample,
                                 x = estimate,
-                                shape = gear)) +
+                                shape = gear,
+                                fill = gear)) +
   geom_rect(data = gear_stats,
-            mapping = aes(xmin = estimate - std.error,
-                          xmax = estimate + std.error,
+            mapping = aes(xmin = conf.low,
+                          xmax = conf.high,
                           ymin = -Inf,
                           ymax = Inf),
             fill = "gray90",
             alpha = 0.5,
             inherit.aes = F) +
   geom_vline(data = gear_stats,
-             mapping = aes(xintercept = estimate)) +
-  geom_vline(xintercept =  0,
-             linetype = "dashed") +
-  geom_pointrange(aes(xmin = estimate -std.error,
-                      xmax = estimate + std.error),
-                  fill = "black", fatten = 6) +
+             mapping = aes(xintercept = estimate),
+             linetype = "dotted") +
+  geom_vline(xintercept =  0) +
+  geom_pointrange(aes(xmin = conf.low,
+                      xmax = conf.high),
+                  color = "black",
+                  fatten = 6) +
   scale_shape_manual(values = gear_shapes) +
+  scale_fill_manual(values = gear_palette) +
   facet_wrap(~gear, ncol = 1, scales = "free_y") +
   labs(x = "Effect on CPUE") +
   theme(legend.position = "None",
@@ -83,25 +86,25 @@ panel_B <- ggplot(data = gear_spp_df,
                                 fill = spp,
                                 shape = gear)) +
   geom_rect(data = gear_stats,
-            mapping = aes(xmin = estimate - std.error,
-                          xmax = estimate + std.error,
+            mapping = aes(xmin = conf.low,
+                          xmax = conf.high,
                           ymin = -Inf,
                           ymax = Inf),
             fill = "gray90",
             alpha = 0.5,
             inherit.aes = F) +
   geom_vline(data = gear_stats,
-             mapping = aes(xintercept = estimate)) +
-  geom_vline(xintercept =  0,
-             linetype = "dashed") +
-  geom_pointrange(aes(xmin = estimate -std.error,
-                      xmax = estimate + std.error),
+             mapping = aes(xintercept = estimate),
+             linetype = "dotted") +
+  geom_vline(xintercept =  0) +
+  geom_pointrange(aes(xmin = conf.low,
+                      xmax = conf.high),
                   fatten = 6) +
   scale_shape_manual(values = gear_shapes) +
   scale_fill_manual(values = tuna_palette) +
   guides(shape = guide_legend(title = "Gear",
                               order = 1,
-                              override.aes = list(size = 1, fill = "black")),
+                              override.aes = list(size = 1, fill = gear_palette[1:2])),
          fill = guide_legend(title = "Species",
                              order = 2,
                              override.aes = list(shape = 21, size = 1))) +
@@ -129,6 +132,6 @@ final_plot <- plot_grid(panels, get_legend(panel_B),
 # Figure 3 for main text -------------------------------------------------------
 startR::lazy_ggsave(plot = final_plot,
                     filename = "fig4_effects_by_mpa_and_spp",
-                    width = 12,
-                    height = 9)
+                    width = 18,
+                    height = 10)
 

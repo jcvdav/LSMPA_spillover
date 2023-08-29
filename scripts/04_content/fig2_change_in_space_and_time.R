@@ -45,6 +45,8 @@ baci_plot <- function(data, type = "pts"){
     scale_color_manual(values = col) +
     scale_fill_manual(values = col) +
     scale_shape_manual(values = gear_shapes) +
+    scale_y_continuous(expand = expansion(mult = c(0, .1)),
+                       limits = c(0, NA)) +
     guides(shape = "none",
            color = "none",
            fill = guide_legend(override.aes = list(shape = 22, size = 1))) +
@@ -58,19 +60,9 @@ baci_plot <- function(data, type = "pts"){
                    fun = "mean",
                    linetype = "dashed",
                    position = position_dodge(width = 0.5)) +
-      # stat_summary(geom = "errorbar",
-      #              fun.data = "mean_se",
-      #              alpha = 1,
-      #              width = 0.1,
-      #              position = position_dodge(width = 0.5)) +
-      # stat_summary(geom = "point",
-      #              fun = "mean",
-      #              size = 4,
-      #              color = "black",
-      #              position = position_dodge(width = 0.5))
     stat_summary(geom = "pointrange",
                  fun.data = "mean_se",
-                 fatten = 8,
+                 fatten = 6,
                  color = "black",
                  position = position_dodge(width = 0.5))
   }
@@ -78,7 +70,9 @@ baci_plot <- function(data, type = "pts"){
   if(type == "cols") {
     plot <- plot +
       stat_summary(geom = "col", fun = "mean", position = "dodge") +
-      stat_summary(geom = "linerange", fun.data = "mean_se", position = position_dodge(width = 1),
+      stat_summary(geom = "linerange",
+                   fun.data = "mean_se",
+                   position = position_dodge(width = 1),
                    color = "black")
   }
 
@@ -98,8 +92,8 @@ ll_baci_plot <- most_relevant_panel %>%
   mutate(cpue = cpue * 1e3) %>%
   baci_plot() +
   guides(color = "none") +
-  theme(legend.position = c(0, 1),
-        legend.justification = c(0, 1)) +
+  theme(legend.position = c(0, 0),
+        legend.justification = c(0, 0)) +
   labs(y = "CPUE (MT / 1000 hooks)",
        title = "All longine",
        fill = "Distance")
@@ -112,7 +106,7 @@ ll_baci_motu <- most_relevant_panel %>%
   mutate(cpue = cpue * 1e3) %>%
   baci_plot() +
   labs(y = "CPUE (MT / 1000 hooks)",
-       title = "Longline (Motu Motiro Hiva)",
+       title = "Motu Motiro Hiva",
        fill = "Distance",
        color = "Distance")
 
@@ -124,7 +118,7 @@ ps_baci_pipa <- most_relevant_panel %>%
   mutate(cpue = cpue) %>%
   baci_plot() +
   labs(y = "CPUE (MT / Set)",
-       title = "Purse seine (PIPA)",
+       title = "Phoenix Islands",
        fill = "Distance",
        color = "Distance")
 
@@ -154,8 +148,8 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
          pct_change = delta / cpue_0) %>%
   ggplot(aes(x = dist, y = delta)) +
   geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_vline(xintercept = 100, linetype = "dashed") +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 100, linetype = "dotted") +
   geom_smooth(method = "loess", span = 0.9,
               fill = unname(gear_palette)[1],
               color = unname(gear_palette)[1]) +
@@ -163,7 +157,7 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
              fill = "#0A3161",
              color = "black") +
   scale_size_continuous(labels = scales::percent) +
-  labs(x = "Dist. from LMPA (naut. miles)",
+  labs(x = "Distance from border (NM)",
        y = "Change in CPUE (MT / Set)",
        title = "All purse seine")
 
@@ -196,27 +190,25 @@ ps_delta_cpue_dist_plot <- most_relevant_panel %>%
                       y = delta,
                       group = short_name)) +
   geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0,
-             linetype = "dashed") +
+  geom_hline(yintercept = 0) +
   geom_vline(xintercept = 100,
-             linetype = "dashed") +
+             linetype = "dotted") +
   geom_smooth(method = "loess",
               span = 1,
               fill = "#0A3161",
               color = "#0A3161") +
   geom_point(shape = 21,
-             size = 1,
+             size = 2,
              fill = "#0A3161",
              color = "black") +
-  labs(x = "Dist. from LMPA   (naut. miles)",
+  labs(x = "Distance from border (NM)",
        y = "Change in CPUE",
        color = "LMPA",
-       title = "Purse seine (PRI [Jarvis])") +
+       title = "PRI - Jarvis") +
   theme(legend.position = c(1, 1),
         legend.justification = c(1, 1),
         legend.title = element_blank())
 
-ps_delta_cpue_dist_plot
 
 # Panel B- Example of specific longline data
 ll_delta_cpue_dist_plot <- most_relevant_panel %>%
@@ -249,25 +241,23 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
              y = delta,
              group = short_name)) +
   geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_vline(xintercept = 300, linetype = "dashed") +
-  geom_smooth(method = "loess", span = 1) +
-  geom_point(shape = 22, size = 1, color = "black") +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 300, linetype = "dotted") +
   geom_smooth(method = "loess",
               span = 1,
               fill = "#024731",
               color = "#024731") +
-  geom_point(shape = 21,
-             size = 1,
+  geom_point(shape = 22,
+             size = 2,
              fill = "#024731",
              color = "black") +
   guides(color = guide_legend(ncol = 1,
                               override.aes = list(fill = "transparent")),
          fill = "none") +
-  labs(x = "Dist. from LMPA   (naut. miles)",
+  labs(x = "Distance from border (NM)",
        y = "Change in CPUE",
        color = "LMPA",
-       title = "Longline (Papahanaumokuakea)") +
+       title = "Papahanaumokuakea") +
   theme(legend.position = c(1, 1),
         legend.justification = c(1, 1),
         legend.title = element_blank())
@@ -296,7 +286,7 @@ p <- plot_grid(ll_baci_plot, all_ps_delta_cpue_dist_plot,
 startR::lazy_ggsave(
   plot = p,
   filename = "fig2_visual_change",
-  width = 20,
-  height = 16
+  width = 18,
+  height = 15
 )
 

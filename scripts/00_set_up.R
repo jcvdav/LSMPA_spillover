@@ -1,7 +1,6 @@
 # Function for spatial_hac SEs ------------------------------------------------
 # From: https://github.com/lrberge/fixest/issues/350#issuecomment-1671226930
 vcov_conley_hac <- function(x, id, time, lat, lon, cutoff, lag) {
-
   # Spatial portion
   vcov_conley <-
     fixest::vcov_conley(
@@ -29,6 +28,14 @@ vcov_conley_hac <- function(x, id, time, lat, lon, cutoff, lag) {
     vcov_hac -
     vcov_robust
 
+  if(any(diag(vcov_conley_hac) < 0)){
+    # We 'fix' it
+    all_attr <- attributes(vcov_conley_hac)
+    vcov_conley_hac <- fixest:::mat_posdef_fix(vcov_conley_hac)
+    attributes(vcov_conley_hac) <- all_attr
+    message("Variance contained negative values in the diagonal and was 'fixed' (a la Cameron, Gelbach & Miller 2011).")
+  }
+
   return(vcov_conley_hac)
 }
 
@@ -42,16 +49,15 @@ ggplot2::theme_set(
   ggplot2::theme_bw()
 )
 ggplot2::theme_update(
-  panel.grid.major = ggplot2::element_line(color = "black",
-                                           linewidth = 0.1,
-                                           linetype = "dashed"),
+  panel.grid.major = ggplot2::element_blank(),
+  line = element_line(color = "black",
+                      linewidth = 0.176389),
   panel.grid.minor = ggplot2::element_blank(),
   legend.background = ggplot2::element_blank(),
   legend.key = ggplot2::element_blank(),
   strip.background = ggplot2::element_blank(),
-  strip.text = ggplot2::element_text(hjust = 0 ),
-  text = ggplot2::element_text(size = 5),
-  axis.text.y = ggplot2::element_text(size = 2)
+  strip.text = ggplot2::element_text(hjust = 0),
+  text = ggplot2::element_text(size = 8),
 )
 
 
@@ -133,7 +139,7 @@ extract_mpa_coefs <- function(model) {
                     "With FEs",
                     "Without FEs")
   model %>%
-    map_dfr(broom::tidy, .id = "sample") %>%
+    map_dfr(broom::tidy, .id = "sample", conf.int = TRUE, conf.level = 0.95) %>%
     filter(str_detect(term, ":")) %>%
     mutate(sample = str_remove(sample, ".+; sample: "),
            sample = fct_reorder(sample, estimate),
@@ -163,7 +169,7 @@ extract_spp_coefs <- function(model) {
                     "Without FEs")
 
   model %>%
-    map_dfr(broom::tidy, .id = "sample") %>%
+    map_dfr(broom::tidy, .id = "sample", conf.int = TRUE, conf.level = 0.95) %>%
     filter(str_detect(term, ":")) %>%
     mutate(sample = str_remove(sample, ".+; sample: "),
            sample = fct_reorder(sample, estimate),

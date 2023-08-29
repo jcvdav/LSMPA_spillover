@@ -56,7 +56,7 @@ relevant_mpa_gear_reg <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + ef
 
 ## Extract gear-specific coefficients ------------------------------------------
 gear_stats <- relevant_mpa_gear_reg %>%
-  map_dfr(broom::tidy, .id = "sample") %>%
+  map_dfr(broom::tidy, .id = "sample", conf.int = TRUE, conf.level = 0.95) %>%
   filter(str_detect(term, ":")) %>%
   mutate(sample = str_remove(sample, ".+; sample: "),
          gear = str_sub(sample, 1, 2),

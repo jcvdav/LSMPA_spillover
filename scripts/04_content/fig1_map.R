@@ -123,8 +123,7 @@ map <- ggplot() +
   labs(fill = "log(mt)") +
   guides(fill = guide_colorbar(ticks.colour = "black",
                                frame.colour = "black")) +
-  theme(axis.title = element_blank(),
-        panel.border = element_blank()) +
+  theme(axis.title = element_blank()) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   coord_sf(crs = "ESRI:54009")
@@ -135,8 +134,8 @@ map <- ggplot() +
 startR::lazy_ggsave(
   plot = map,
   filename = "fig1_map",
-  width = 11,
-  height = 5
+  width = 18,
+  height = 8
 )
 
 # # X ----------------------------------------------------------------------------

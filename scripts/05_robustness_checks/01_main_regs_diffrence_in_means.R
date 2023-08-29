@@ -21,6 +21,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom funcions -------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 annual_panel <- readRDS(file = here("data", "processed", "annual_full_estimation_panel.rds"))
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))

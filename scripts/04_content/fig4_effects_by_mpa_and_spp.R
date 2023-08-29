@@ -128,7 +128,7 @@ final_plot <- plot_grid(panels, get_legend(panel_B),
 ## EXPORT ######################################################################
 # Figure 3 for main text -------------------------------------------------------
 startR::lazy_ggsave(plot = final_plot,
-                    filename = "fig3_effects_by_mpa_and_spp",
+                    filename = "fig4_effects_by_mpa_and_spp",
                     width = 12,
                     height = 9)
 

@@ -81,25 +81,29 @@ mpa_palette <- c("Chagos" = "#047C91",
                  "Revillagigedo" = "#006341",
                  "All" = "transparent")
 
-gear_palette <- c("PS" = "gray",
-                 "LL" = "black",
-                 "Purse seine" = "gray",
-                 "Longline" = "black",
-                 "All" = "transparent")
+gear_palette <- c("PS" = "#0A3161",
+                  "LL" = "#024731",
+                  "Purse seine" = "#0A3161",
+                  "Longline" = "#024731",
+                  "purse_seine" = "#0A3161",
+                  "longline" = "#024731",
+                  "All" = "black")
 
 gear_shapes <- c("PS" = 21,
                  "LL" = 22,
                  "Purse seine" = 21,
                  "Longline" = 22,
+                 "purse_seine" = 21,
+                 "longline" = 22,
                  "All" = 24)
 
 fe_palette <- c("With FEs" = "black",
                 "Without FEs" = "gray")
 
-dist_palette <- c("Near" = "#F47321",
-                  "Far" = "#257BB1",
-                  "near" = "#F47321",
-                  "far" = "#257BB1")
+dist_alpha <- c("Near" = 1,
+                "Far" = 0.5,
+                "near" = 1,
+                "far" = 0.5)
 
 check_mt <- function(data, cutoff = 0) {
   data %>%

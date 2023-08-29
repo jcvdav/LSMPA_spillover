@@ -15,6 +15,7 @@
 # Load packages ----------------------------------------------------------------
 pacman::p_load(
   here,
+  wesanderson,
   cowplot,
   tidyterra,
   terra,
@@ -42,8 +43,8 @@ mpas <- st_read(here("data", "processed", "clean_lmpas.gpkg"))
 map_data_1x1 <- annual_panel %>%
   filter(grid == "1x1") %>%
   filter(between(year, 2011, 2021)) %>%
-  group_by(year, lat, lon) %>%
-  summarize(grid, tot_mt = sum(tot_mt, na.rm = T)) %>%
+  group_by(grid, year, lat, lon) %>%
+  summarize(tot_mt = sum(tot_mt, na.rm = T)) %>%
   ungroup() %>%
   group_by(grid, lat, lon) %>%
   summarize(tot_mt = mean(tot_mt, na.rm = T)) %>%
@@ -94,12 +95,13 @@ interpolated_catch <- c(rast_1x1, rast_5x5) %>%
 ## VISUALIZE ###################################################################
 
 # X ----------------------------------------------------------------------------
+mpa_col <- "#047C91"
 
 map <- ggplot() +
   geom_spatraster(data = log(interpolated_catch),
                   aes(fill = sum)) +
-  geom_spatraster_contour(data = log(interpolated_catch),
-                          aes(z = sum), color = "black") +
+  # geom_spatraster_contour(data = log(interpolated_catch),
+  #                         aes(z = sum), color = "black") +
   geom_sf(data = coast,
           fill = "#DCE1E5",
           color = "#DCE1E5",
@@ -108,21 +110,24 @@ map <- ggplot() +
           color = "#111517",
           linewidth = 0.25) +
   geom_sf(data = mpas,
-          fill = "#F47321",
-          color = "black",
+          fill = mpa_col,
+          color = "#111517",
           linewidth = 1) +
   geom_sf(data = mpas,
-          fill = "#F47321",
+          fill = mpa_col,
           color = "transparent") +
-  scale_fill_gradient(low = "#DCE1E5",
-                      high = "#003660",
-                      na.value = "transparent") +
+  scale_fill_gradientn(colours = wes_palette("Zissou1",
+                                             10,
+                                             type = "continuous"),
+                       na.value = "transparent") +
   labs(fill = "log(mt)") +
   guides(fill = guide_colorbar(ticks.colour = "black",
                                frame.colour = "black")) +
-  theme(axis.title = element_blank()) +
+  theme(axis.title = element_blank(),
+        panel.border = element_blank()) +
   scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0))
+  scale_y_continuous(expand = c(0, 0)) +
+  coord_sf(crs = "ESRI:54009")
 
 ## EXPORT ######################################################################
 

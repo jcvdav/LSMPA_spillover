@@ -1,12 +1,9 @@
-all: dag main_figs supp_figs
-main_figs: results/img/fig1_map.pdf results/img/fig2_visual_change.pdf results/img/fig3_effects_by_mpa_and_spp.pdf
-supp_figs: results/img/figS1_map_of_overlaps.pdf results/img/figS2_mt_ts_overlaps.pdf results/img/figS3_partially_fully_covered_pts_map.pdf results/img/figS4_effects_by_mpa_with_and_without_fe.pdf results/img/figS5_effects_by_spp_with_and_without_fe.pdf
-tables: results/tab/tab1_main_reg_table.tex results/tab/tabSx_main_regression_table.tex
-analysis: regressions
-regressions: data/output/main_reg.rds data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds
-panels: data/processed/annual_full_estimation_panel.rds
-clean_rfmo_data: data/processed/rfmo_iattc_tuna_monthly_gear_flag.rds data/processed/rfmo_wcpfc_tuna_quarterly_gear_flag.rds data/processed/rfmo_iotc_tuna_monthly_gear_flag.rds data/processed/rfmo_iccat_tuna_annual_gear_flag.rds
-dag: workflow.png
+all: figures tables supplements workflow.png
+supplements: supp_figures supp_tables
+figures: results/img/fig1_map.pdf results/img/fig2_visual_change.pdf results/img/fig3_spatial_event_study.pdf results/img/fig4_effects_by_mpa_and_spp.pdf
+supp_figures: results/img/figS1_map_of_overlaps.pdf results/img/figS2_mt_ts_overlaps.pdf results/img/figS3_partially_fully_covered_pts_map.pdf results/img/figS4_effects_by_mpa_with_and_without_fe.pdf results/img/figS5_effects_by_spp_with_and_without_fe.pdf
+tables: results/tab/tab1_main_reg_table.tex
+supp_tables: results/tab/tabSx_main_regression_table.tex
 
 ## STEP 1 -  CLEANING DATA #####################################################
 
@@ -64,18 +61,21 @@ data/processed/annual_full_estimation_panel.rds data/processed/annual_relevant_m
 ## STEP 3 -  ANALYSIS ##########################################################
 
 # CPUE analysis ----------------------------------------------------------------
-# Effect of MPA on CPUE
+# BANF Effect of MPA on CPUE
 data/output/main_reg.rds data/output/relevant_mpa_gear_reg.rds: scripts/03_analysis/01_main_regs.R data/processed/annual_full_estimation_panel.rds data/processed/annual_relevant_mpa_gears_estimation_panel.rds
 		cd $(<D);Rscript $(<F)
 
+# Spatial "event-study" Effect of MPA on CPUE
+data/output/spatial_event_study_ps.rds data/output/spatial_event_study_ll.rds: scripts/03_analysis/02_spatial_event_study.R data/processed/annual_relevant_mpa_gears_estimation_panel.rds
+		cd $(<D);Rscript $(<F)
+
 # Effect on CPUE by MPA and species -  note that it's two targets
-data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds: scripts/03_analysis/02_regs_by_mpa_and_spp.R data/processed/annual_relevant_mpa_gears_estimation_panel.rds
+data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds: scripts/03_analysis/03_regs_by_mpa_and_spp.R data/processed/annual_relevant_mpa_gears_estimation_panel.rds
 		cd $(<D);Rscript $(<F)
 
 ## CONTENT #####################################################################
 
 # Figures ----------------------------------------------------------------------
-
 # Figure 1 - Map
 results/img/fig1_map.pdf: scripts/04_content/fig1_map.R data/processed/annual_panel.rds
 		cd $(<D);Rscript $(<F)
@@ -84,8 +84,12 @@ results/img/fig1_map.pdf: scripts/04_content/fig1_map.R data/processed/annual_pa
 results/img/fig2_visual_change.pdf: scripts/04_content/fig2_change_in_space_and_time.R data/processed/annual_relevant_mpa_gears_estimation_panel.rds
 		cd $(<D);Rscript $(<F)
 
-# Figure 3 - Panel of effect by MPA and species
-results/img/fig3_effects_by_mpa_and_spp.pdf: scripts/04_content/fig3_effects_by_mpa_and_spp.R data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds
+# Figure 3 - Spatial event-study
+results/img/fig3_spatial_event_study.pdf: scripts/04_content/fig3_spatial_event_study.R data/output/spatial_event_study_ps.rds data/output/spatial_event_study_ll.rds
+		cd $(<D);Rscript $(<F)
+
+# Figure 4 - Panel of effect by MPA and species
+results/img/fig4_effects_by_mpa_and_spp.pdf: scripts/04_content/fig4_effects_by_mpa_and_spp.R data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds
 		cd $(<D);Rscript $(<F)
 
 # Figure 4 - Alluvial plot showing flow of spillover from MPA-spp-gear-nation
@@ -103,7 +107,7 @@ results/img/figS4_effects_by_mpa_with_and_without_fe.pdf results/img/figS5_effec
 
 # Tables -----------------------------------------------------------------------
 # Table 1 - Main regression table for main text
-results/tab/tab1_main_reg_table.tex: tab1_main_reg_table.R data/output/main_reg.rds data/output/relevant_mpa_gear_reg.rds
+results/tab/tab1_main_reg_table.tex: scripts/04_content/tab1_main_reg_table.R data/output/main_reg.rds data/output/relevant_mpa_gear_reg.rds
 		cd $(<D);Rscript $(<F)
 
 # Robustness check - Main regressions with difference in means esitmation
@@ -113,5 +117,8 @@ results/tab/tabSx_main_regression_table.tex: scripts/05_robustness_checks/01_mai
 ## OTHERS ######################################################################
 
 # Draw makefile dag
+#workflow.png: Makefile
+#	make -Bnd | make2graph -b | dot -Tpng -Gdpi=300 -o workflow.png
+
 workflow.png: Makefile
-	make -Bnd | make2graph -b | dot -Tpng -Gdpi=300 -o workflow.png
+		LANG=C make -pBnd | python3 make_p_to_json.py | python3 json_to_dot.py | dot -Tpng -Gdpi=300 -o workflow.png

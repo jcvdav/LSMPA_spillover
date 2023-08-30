@@ -50,7 +50,7 @@ ggplot2::theme_set(
 )
 ggplot2::theme_update(
   panel.grid.major = ggplot2::element_blank(),
-  line = element_line(color = "black",
+  line = ggplot2::element_line(color = "black",
                       linewidth = 0.176389),
   panel.grid.minor = ggplot2::element_blank(),
   legend.background = ggplot2::element_blank(),
@@ -69,6 +69,16 @@ test <- function(data) {
     "effort_0" = sum(data$effort == 0)
   )
 }
+
+blues <- dplyr::tribble(~"R", ~"G", ~"B",
+                        239, 243, 255,
+                        189, 215, 231,
+                        107, 174, 214,
+                        49, 130, 189,
+                        8, 81, 156)
+
+blues <- rgb(red = blues$R, green = blues$G, blue = blues$B, maxColorValue = 256)
+
 
 tuna_palette <- c("YFT" = "#FEBC11",
                   "BET" = "#003660",

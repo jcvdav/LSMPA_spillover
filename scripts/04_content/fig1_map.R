@@ -95,7 +95,7 @@ interpolated_catch <- c(rast_1x1, rast_5x5) %>%
 ## VISUALIZE ###################################################################
 
 # X ----------------------------------------------------------------------------
-mpa_col <- "#047C91"
+mpa_col <- "red2"#"#047C91"
 
 map <- ggplot() +
   geom_spatraster(data = log(interpolated_catch),
@@ -116,14 +116,17 @@ map <- ggplot() +
   geom_sf(data = mpas,
           fill = mpa_col,
           color = "transparent") +
-  scale_fill_gradientn(colours = wes_palette("Zissou1",
-                                             10,
-                                             type = "continuous"),
+  scale_fill_gradientn(colors = blues,
                        na.value = "transparent") +
-  labs(fill = "log(mt)") +
-  guides(fill = guide_colorbar(ticks.colour = "black",
+  guides(fill = guide_colorbar(title = "Tuna catch, log-transformed (MT)",
+                               title.position = "top",
+                               title.vjust = 0.5,
+                               barwidth = 9,
+                               ticks.colour = "black",
                                frame.colour = "black")) +
-  theme(axis.title = element_blank()) +
+  theme(axis.title = element_blank(),
+        panel.border = element_blank(),
+        legend.position = "top") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   coord_sf(crs = "ESRI:54009")
@@ -135,7 +138,7 @@ startR::lazy_ggsave(
   plot = map,
   filename = "fig1_map",
   width = 18,
-  height = 8
+  height = 11
 )
 
 # # X ----------------------------------------------------------------------------

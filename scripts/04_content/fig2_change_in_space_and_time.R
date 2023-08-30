@@ -285,7 +285,7 @@ p <- plot_grid(ll_baci_plot, all_ps_delta_cpue_dist_plot,
                cpue_time_subplot, cpue_dist_subplot,
                ncol = 2,
                labels = c("A", "D"),
-               rel_heights = c(2,1))
+               rel_heights = c(1.7,1))
 
 startR::lazy_ggsave(
   plot = p,

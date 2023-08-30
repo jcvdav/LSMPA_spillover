@@ -3,7 +3,7 @@ supplements: supp_figures supp_tables
 figures: results/img/fig1_map.pdf results/img/fig2_visual_change.pdf results/img/fig3_spatial_event_study.pdf results/img/fig4_effects_by_mpa_and_spp.pdf
 supp_figures: results/img/figS1_map_of_overlaps.pdf results/img/figS2_mt_ts_overlaps.pdf results/img/figS3_partially_fully_covered_pts_map.pdf results/img/figS4_effects_by_mpa_with_and_without_fe.pdf results/img/figS5_effects_by_spp_with_and_without_fe.pdf
 tables: results/tab/tab1_main_reg_table.tex
-supp_tables: results/tab/tabSx_main_regression_table.tex
+supp_tables: results/tab/tabS1_main_regression_table.tex results/tab/tabS2_other_distance_specifications.tex results/tab/tabS3_continuous_distance_reg_table.tex results/tab/tabS4_main_reg_quarterly.tex results/tab/tabS5_MPA_reg_quarterly.tex results/tab/tabS6_spp_reg_quarterly.tex
 
 ## STEP 1 -  CLEANING DATA #####################################################
 
@@ -62,7 +62,7 @@ data/processed/annual_full_estimation_panel.rds data/processed/annual_relevant_m
 
 # CPUE analysis ----------------------------------------------------------------
 # BANF Effect of MPA on CPUE
-data/output/main_reg.rds data/output/relevant_mpa_gear_reg.rds: scripts/03_analysis/01_main_regs.R data/processed/annual_full_estimation_panel.rds data/processed/annual_relevant_mpa_gears_estimation_panel.rds
+data/output/main_reg.rds data/output/relevant_mpa_gear_reg.rds data/output/relevant_mpa_gear_combination_model_coefs.rds: scripts/03_analysis/01_main_regs.R data/processed/annual_full_estimation_panel.rds data/processed/annual_relevant_mpa_gears_estimation_panel.rds
 		cd $(<D);Rscript $(<F)
 
 # Spatial "event-study" Effect of MPA on CPUE
@@ -89,10 +89,10 @@ results/img/fig3_spatial_event_study.pdf: scripts/04_content/fig3_spatial_event_
 		cd $(<D);Rscript $(<F)
 
 # Figure 4 - Panel of effect by MPA and species
-results/img/fig4_effects_by_mpa_and_spp.pdf: scripts/04_content/fig4_effects_by_mpa_and_spp.R data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds
+results/img/fig4_effects_by_mpa_and_spp.pdf: scripts/04_content/fig4_effects_by_mpa_and_spp.R data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds data/output/relevant_mpa_gear_combination_model_coefs.rds
 		cd $(<D);Rscript $(<F)
 
-# Figure 4 - Alluvial plot showing flow of spillover from MPA-spp-gear-nation
+# Figure 5 - Alluvial plot showing flow of spillover from MPA-spp-gear-nation
 
 # Fig S1 and S2- Map of overlappping points
 results/img/figS1_map_of_overlaps.pdf results/img/figS2_mt_ts_overlaps.pdf: scripts/02_make_data/01_combine_all_rfmos_into_annual.R
@@ -103,7 +103,8 @@ results/img/figS3_partially_fully_covered_pts_map.pdf: scripts/04_content/figS3_
 		cd $(<D);Rscript $(<F)
 
 # Fig S4 and S5 - Comparing DiD vs DiD + FE for mpa and spp
-results/img/figS4_effects_by_mpa_with_and_without_fe.pdf results/img/figS5_effects_by_spp_with_and_without_fe.pdf: scripts/04_content/figS4_5_compare_effects_with_and_without_fes.R data/processed/annual_relevant_mpa_gears_estimation_panel.rds data/output/relevant_mpa_gear_combination_model_coefs.rds data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds
+results/img/figS4_effects_by_mpa_with_and_without_fe.pdf results/img/figS5_effects_by_spp_with_and_without_fe.pdf: scripts/05_robustness_checks/figS4_5_compare_effects_with_and_without_fes.R data/processed/annual_relevant_mpa_gears_estimation_panel.rds data/output/relevant_mpa_gear_combination_model_coefs.rds data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds
+		cd $(<D);Rscript $(<F)
 
 # Tables -----------------------------------------------------------------------
 # Table 1 - Main regression table for main text
@@ -111,7 +112,19 @@ results/tab/tab1_main_reg_table.tex: scripts/04_content/tab1_main_reg_table.R da
 		cd $(<D);Rscript $(<F)
 
 # Robustness check - Main regressions with difference in means esitmation
-results/tab/tabSx_main_regression_table.tex: scripts/05_robustness_checks/01_main_regs_diffrence_in_means.R data/output/main_reg.rds data/output/relevant_mpa_gear_reg.rds
+results/tab/tabS1_main_regression_table.tex: scripts/05_robustness_checks/01_main_regs_diffrence_in_means.R data/output/main_reg.rds data/output/relevant_mpa_gear_reg.rds
+		cd $(<D);Rscript $(<F)
+
+# Other deffinitions of near-far
+results/tab/tabS2_other_distance_specifications.tex: scripts/05_robustness_checks/02_other_distance_specifications.R data/processed/annual_relevant_mpa_gears_and_distances_sensitivity_estimation_panel.rds
+		cd $(<D);Rscript $(<F)
+
+# Continuous distance
+results/tab/tabS3_continuous_distance_reg_table.tex: scripts/05_robustness_checks/03_continuous_distances.R data/processed/annual_full_estimation_panel.rds data/processed/annual_relevant_mpa_gears_estimation_panel.rds
+		cd $(<D);Rscript $(<F)
+
+# Aggregate data to quarterly
+results/tab/tabS4_main_reg_quarterly.tex results/tab/tabS5_MPA_reg_quarterly.tex results/tab/tabS6_spp_reg_quarterly.tex: scripts/05_robustness_checks/04_main_regs_qtr.R data/processed/annual_relevant_mpa_gears_estimation_panel.rds data/output/relevant_mpa_gear_reg.rds data/output/gear_mpa_regs.rds data/output/gear_spp_regs.rds
 		cd $(<D);Rscript $(<F)
 
 ## OTHERS ######################################################################

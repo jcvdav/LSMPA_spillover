@@ -100,4 +100,4 @@ panelsummary(list(main_reg_wo_fe[[1]], main_reg[[1]],
                 "and spatio-temporal autocorrelation (200 km cutoff; 5 yr lag).",
                 "When the data used contains more than one effort unit",
                 "(i.e. days, sets, hooks) we include fixed-effects")) %>%
-  cat(file = here("results", "tab", "tabSx_main_regression_table.tex"))
+  cat(file = here("results", "tab", "tabS1_main_regression_table.tex"))

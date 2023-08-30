@@ -48,18 +48,6 @@ gear_mpa_regs <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year,
                   split = ~paste(nice_gear, short_name),
                   data = most_relevant_panel)
 
-# And a model without fixed effects
-gear_mpa_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,
-                        panel.id = ~id + year,
-                        vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                          time = ~year,
-                                                          lat = ~lat,
-                                                          lon = ~lon,
-                                                          cutoff = 200,
-                                                          lag = 5),
-                        split = ~paste(nice_gear, short_name),
-                        data = most_relevant_panel)
-
 # Species-level analysis -------------------------------------------------------
 gear_spp_regs <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + effort_measure,
                        panel.id = ~id + event,
@@ -71,47 +59,6 @@ gear_spp_regs <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + effort_mea
                                                          lag = 5),
                        data = panel_for_spp_regs,
                        split = ~paste(nice_gear, spp))
-
-gear_spp_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | effort_measure,
-                        panel.id = ~id + event,
-                        vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                          time = ~year,
-                                                          lat = ~lat,
-                                                          lon = ~lon,
-                                                          cutoff = 200,
-                                                          lag = 5),
-                        data = panel_for_spp_regs,
-                        split = ~paste(nice_gear, spp))
-
-## Inspect models ##############################################################
-# Models for MPA analysis
-mpa_model_names <- str_remove(names(gear_mpa_regs), ".+; sample: ")
-panelsummary(gear_mpa_regs,
-             gear_mpa_regs_wo_fe,
-             colnames = c("", mpa_model_names),
-             stars = "econ",
-             gof_omit = c("RMSE|IC|With|Std"),
-             panel_labels = c("Panel A: Models that include fixed effects",
-                              "Pabel B: Models without fixed effects"),
-             coef_map = (c("post::1:near" = "Post x Near",
-                           "post:near" = "Post X Near"))) %>%
-  kableExtra::add_header_above(c(" " = 1,
-                                 "LL" = 8,
-                                 "PS" = 6))
-# Models for spp-level analysis
-spp_model_names <- str_remove_all(names(gear_spp_regs), ".+; sample: |cpue_")
-panelsummary(gear_spp_regs,
-             gear_spp_regs_wo_fe,
-             colnames = c("", spp_model_names),
-             stars = "econ",
-             gof_omit = c("RMSE|IC|With|Std|eff"),
-             panel_labels = c("Panel A: Models that include fixed effects",
-                              "Pabel B: Models without fixed effects"),
-             coef_map = (c("post::1:near" = "Post x Near",
-                           "post:near" = "Post X Near"))) %>%
-  kableExtra::add_header_above(c(" " = 1,
-                                 "LL" = 3,
-                                 "PS" = 3))
 
 ## Export models ###############################################################
 # For gear-mpa models ----------------------------------------------------------

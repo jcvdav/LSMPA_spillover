@@ -21,6 +21,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom funcions -------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 most_relevant_qtr_panel <-
   readRDS(file = here("data", "processed", "qtr_relevant_mpa_gears_and_distances_sensitivity_estimation_panel.rds"))
@@ -95,7 +98,7 @@ panelsummary(relevant_mpa_gear_reg,
                               "Panel B: Aggregatign data to tye year-quarter-flag level"),
              caption = "Comparison of results when aggregating our main data set to the annual level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).",
              format = "latex") %>%
-  cat(file = here("results", "tab", "tabSx_main_reg_quarterly.tex"))
+  cat(file = here("results", "tab", "tabS4_main_reg_quarterly.tex"))
 
 # Table mpa-level results ------------------------------------------------------
 mpa_model_names <- str_remove(names(gear_mpa_regs), ".+; sample: ")
@@ -113,7 +116,7 @@ panelsummary(gear_mpa_regs,
   kableExtra::add_header_above(c(" " = 1,
                                  "LL" = 8,
                                  "PS" = 6)) %>%
-  cat(file = here("results", "tab", "tabSx_MPA_reg_quarterly.tex"))
+  cat(file = here("results", "tab", "tabS5_MPA_reg_quarterly.tex"))
 
 # Table comparing spp-level results --------------------------------------------
 spp_model_names <- str_remove_all(names(gear_spp_regs), ".+; sample: |cpue_")
@@ -131,5 +134,5 @@ panelsummary(gear_spp_regs,
   kableExtra::add_header_above(c(" " = 1,
                                  "LL" = 3,
                                  "PS" = 3)) %>%
-  cat(file = here("results", "tab", "tabSx_spp_reg_quarterly.tex"))
+  cat(file = here("results", "tab", "tabS6_spp_reg_quarterly.tex"))
 

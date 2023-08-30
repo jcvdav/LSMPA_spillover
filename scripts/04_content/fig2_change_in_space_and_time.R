@@ -290,3 +290,47 @@ startR::lazy_ggsave(
   height = 15
 )
 
+most_relevant_panel %>%
+  filter(gear == "longline") %>%
+  group_by(event, near) %>%
+  summarize(cpue = mean(cpue_tot)) %>%
+  ggplot(aes(x = event, y = cpue, color = (near == 1))) +
+  geom_point() +
+  geom_smooth()
+
+most_relevant_panel %>%
+  filter(gear == "longline") %>%
+  group_by(event, treatment_300) %>%
+  summarize(cpue = mean(cpue_tot)) %>%
+  pivot_wider(names_from = treatment_300,
+              values_from = cpue) %>%
+  mutate(cpue = near - far) %>%
+  ggplot(aes(x = event, y = cpue)) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_point() +
+  geom_smooth()
+
+
+most_relevant_panel %>%
+  filter(gear == "longline") %>%
+  ggplot(aes(x = event, y = cpue_tot, color = treatment_300)) +
+  # geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  stat_summary(geom = "pointrange", fun.data = "mean_se")
+
+
+most_relevant_panel %>%
+  filter(!wdpaid == "555512151",
+         gear == "purse_seine") %>%
+  group_by(short_name, event, treatment_100) %>%
+  summarize(cpue = mean(cpue_tot)) %>%
+  pivot_wider(names_from = treatment_100,
+              values_from = cpue) %>%
+  mutate(cpue = near - far) %>%
+  ggplot(aes(x = event, y = cpue)) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(~short_name, scales = "free_y")

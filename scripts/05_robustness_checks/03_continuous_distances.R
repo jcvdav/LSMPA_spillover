@@ -21,6 +21,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom funcions -------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 annual_panel_raw <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
   filter(between(event, -10, 10),
@@ -149,5 +152,5 @@ panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
                 "Panel A: 23 LMPA-gear combinations, Panel B: 25 LMPA-gear",
                 "combinations, Panel C: 26 LMPA-gear combinations. For columns",
                 "4-5 all panels have 14 LMPA-gear combinations.")) %>%
-  cat(file = here("results", "tab", "tabSx_continuous_distance_reg_table.tex"))
+  cat(file = here("results", "tab", "tabS3_continuous_distance_reg_table.tex"))
 

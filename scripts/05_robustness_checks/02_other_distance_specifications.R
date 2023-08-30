@@ -21,6 +21,9 @@ pacman::p_load(
   tidyverse
 )
 
+# Source custom funcions -------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 most_relevant_panel_multiple_distances <- readRDS(here("data", "processed", "annual_relevant_mpa_gears_and_distances_sensitivity_estimation_panel.rds"))
 
@@ -72,8 +75,8 @@ panelsummary(near_100,
              caption = "\\label{tab:other_near_far}Testig for spillover effects using other deffinitions of near and far from an MPA boundary.",
              colnames = c("", "Combined", "Purse Seine", "Longline"),
              panel_labels = c("Panel A: 0:100 - 100:200 nautical miles",
-                              "Panel B: 0:200 - 100:400 nautical miles",
-                              "Panel C: 0:300 - 100:500 nautical miles"),
+                              "Panel B: 0:200 - 200:400 nautical miles",
+                              "Panel C: 0:300 - 300:600 nautical miles"),
              stars = "econ",
              collapse_fe = T,
              format = "latex",
@@ -83,4 +86,4 @@ panelsummary(near_100,
              pretty_num = T,
              gof_omit = "With|IC|RMSE|Std.|effort",
              hline_after = T) %>%
-  cat(file = here("results", "tab", "tabSx_other_distance_specifications.tex"))
+  cat(file = here("results", "tab", "tabS2_other_distance_specifications.tex"))

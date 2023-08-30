@@ -70,6 +70,9 @@ test <- function(data) {
   )
 }
 
+# Different color palettes -----------------------------------------------------
+
+# From IPCC color palettes
 blues <- dplyr::tribble(~"R", ~"G", ~"B",
                         239, 243, 255,
                         189, 215, 231,
@@ -77,7 +80,10 @@ blues <- dplyr::tribble(~"R", ~"G", ~"B",
                         49, 130, 189,
                         8, 81, 156)
 
-blues <- rgb(red = blues$R, green = blues$G, blue = blues$B, maxColorValue = 256)
+blues <- grDevices::rgb(red = blues$R,
+                        green = blues$G,
+                        blue = blues$B,
+                        maxColorValue = 256)
 
 
 tuna_palette <- c("YFT" = "#FEBC11",

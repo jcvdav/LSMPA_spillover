@@ -27,7 +27,7 @@ most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant
 gear_stats <- readRDS(file = here("data", "output", "relevant_mpa_gear_combination_model_coefs.rds"))
 
 # Now load the model objects (they are multifit or lists)
-# For MPA analysis
+# From MPA analysis
 gear_mpa_regs <- readRDS(file = here("data", "output", "gear_mpa_regs.rds"))
 
 # And now spp models

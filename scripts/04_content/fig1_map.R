@@ -15,7 +15,7 @@
 # Load packages ----------------------------------------------------------------
 pacman::p_load(
   here,
-  wesanderson,
+  magrittr,
   cowplot,
   tidyterra,
   terra,
@@ -95,7 +95,7 @@ interpolated_catch <- c(rast_1x1, rast_5x5) %>%
 ## VISUALIZE ###################################################################
 
 # X ----------------------------------------------------------------------------
-mpa_col <- "red2"#"#047C91"
+mpa_col <- "gray50"#"#047C91"
 
 map <- ggplot() +
   geom_spatraster(data = log(interpolated_catch),
@@ -122,23 +122,88 @@ map <- ggplot() +
                                title.position = "top",
                                title.vjust = 0.5,
                                barwidth = 9,
+                               barheight = 0.5,
                                ticks.colour = "black",
                                frame.colour = "black")) +
   theme(axis.title = element_blank(),
         panel.border = element_blank(),
-        legend.position = "top") +
+        legend.position = "top",
+        legend.box.spacing = unit(0, "pt")) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   coord_sf(crs = "ESRI:54009")
+
+subplot <- function(mpa, wdpaid, dist = 150000) {
+
+  if(wdpaid == "220201") {
+    mpa <- st_transform(mpa, crs = "EPSG:2782") %>%
+      group_by(name) %>%
+      summarize(a = 1)
+    interpolated_catch <- project(interpolated_catch, "EPSG:2782")
+  }
+
+  # browser()
+  dist_km <- dist * 1.854
+  buffered_mpa <- st_buffer(mpa, dist = dist_km)
+
+  interpolated_catch <- crop(interpolated_catch, buffered_mpa, touches = T)
+  buffered_mpa <- st_buffer(mpa, dist = 100000 * 1.854)
+  # coast <- st_crop(coast, buffered_mpa)
+  # coastline <- st_crop(coastline, buffered_mpa)
+
+  plot <- ggplot() +
+    geom_spatraster(data = log(interpolated_catch),
+                    aes(fill = sum)) +
+    geom_sf(data = mpa,
+            fill = mpa_col,
+            color = "black",
+            linewidth = 1) +
+    geom_sf(data = mpa,
+            fill = mpa_col,
+            color = mpa_col) +
+    geom_sf(data = buffered_mpa,
+            fill = "transparent",
+            color = "black") +
+    scale_fill_gradientn(colors = blues,
+                         na.value = "transparent")  +
+    theme_void() +
+    theme(legend.position = "None")
+
+  return(plot)
+}
+
+subplots <- mpas %>%
+  group_by(wdpaid) %>%
+  nest() %$%
+  map2(data, wdpaid, subplot)
+
+
+left <- plot_grid(plotlist = subplots[1:2], ncol = 1, align = "hv", labels = c("b", "d"))
+right <- plot_grid(plotlist = subplots[3:4], ncol = 1, align = "hv", labels = c("c", "e"))
+bottom <- plot_grid(plotlist = subplots[5:14], nrow = 2, align = "hv", labels = letters[(5:14) + 1])
+
+panel <- plot_grid(
+  plot_grid(map, left, right, ncol = 3,
+            rel_widths = c(4, 1, 1),
+            align = "hv", axis = "t",
+            labels = "a", label_y = 0.9),
+  bottom,
+  rel_heights = c(3, 2),
+  ncol = 1,
+  align = "hv",
+  axis = "t"
+)
+
+
 
 ## EXPORT ######################################################################
 
 # X -----------------------------------------------------------------------------
 startR::lazy_ggsave(
-  plot = map,
+  plot = panel,
   filename = "fig1_map",
   width = 18,
-  height = 11
+  height = 15
 )
 
 # # X ----------------------------------------------------------------------------

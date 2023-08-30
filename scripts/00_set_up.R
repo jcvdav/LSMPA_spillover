@@ -92,23 +92,12 @@ tuna_palette <- c("YFT" = "#FEBC11",
                   "ALB" = "#DCE1E5",
                   "All" = "transparent")
 
-mpa_palette <- c("Chagos" = "#047C91",
-                 "Galápagos" = "#09847A",
-                 "Motu Motiro Hiva" = "#6D7D33",
-                 "Nazca-Desventuradas" = "#9CBEBE",
-                 "Papahānaumokuākea" = "#0A3161",
-                 "PIPA" = "#EF5645",
-                 "PRI (Jarvis)" = "#DCD6CC",
-                 "PRI (Wake)" = "#C9BF9D",
-                 "Revillagigedo" = "#006341",
-                 "All" = "transparent")
-
-gear_palette <- c("PS" = "#0A3161",
-                  "LL" = "#024731",
-                  "Purse seine" = "#0A3161",
-                  "Longline" = "#024731",
-                  "purse_seine" = "#0A3161",
-                  "longline" = "#024731",
+gear_palette <- c("PS" = "#08519B",
+                  "LL" = "#006D2C",
+                  "Purse seine" = "#08519B",
+                  "Longline" = "#006D2C",
+                  "purse_seine" = "#08519B",
+                  "longline" = "#006D2C",
                   "All" = "black")
 
 gear_shapes <- c("PS" = 21,

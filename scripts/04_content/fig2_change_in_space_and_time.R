@@ -156,7 +156,7 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
               fill = unname(gear_palette)[1],
               color = unname(gear_palette)[1]) +
   geom_point(shape = 21, size = 2,
-             fill = "#0A3161",
+             fill = "#08519B",
              color = "black") +
   scale_size_continuous(labels = scales::percent) +
   labs(x = "Distance from border (NM)",
@@ -198,11 +198,11 @@ ps_delta_cpue_dist_plot <- most_relevant_panel %>%
   annotate(geom = "text", x = c(50, 150), y = 20, label = c("Near", "Far")) +
   geom_smooth(method = "loess",
               span = 1,
-              fill = "#0A3161",
-              color = "#0A3161") +
+              fill = "#08519B",
+              color = "#08519B") +
   geom_point(shape = 21,
              size = 2,
-             fill = "#0A3161",
+             fill = "#08519B",
              color = "black") +
   labs(x = "Distance from border (NM)",
        y = "Change in CPUE",
@@ -249,11 +249,11 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
   annotate(geom = "text", x = c(150, 450), y = 0.15, label = c("Near", "Far")) +
   geom_smooth(method = "loess",
               span = 1,
-              fill = "#024731",
-              color = "#024731") +
+              fill = "#006D2C",
+              color = "#006D2C") +
   geom_point(shape = 22,
              size = 2,
-             fill = "#024731",
+             fill = "#006D2C",
              color = "black") +
   guides(color = guide_legend(ncol = 1,
                               override.aes = list(fill = "transparent")),

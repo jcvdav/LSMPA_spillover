@@ -137,6 +137,7 @@ ps_delta_cpue_dist_data <- most_relevant_panel %>%
   mutate(cpue = tot_mt / effort,
          dist = (floor(dist / 25) * 25) + 12.5,
          dist_f = as.factor(-1 * dist))
+
 # Panel A - All purse seine data within 200 NM
 all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
   group_by(post, dist) %>%
@@ -150,6 +151,7 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
   geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 100, linetype = "dotted") +
+  annotate(geom = "text", x = c(50, 150), y = 10, label = c("Near", "Far")) +
   geom_smooth(method = "loess", span = 0.9,
               fill = unname(gear_palette)[1],
               color = unname(gear_palette)[1]) +
@@ -193,6 +195,7 @@ ps_delta_cpue_dist_plot <- most_relevant_panel %>%
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 100,
              linetype = "dotted") +
+  annotate(geom = "text", x = c(50, 150), y = 20, label = c("Near", "Far")) +
   geom_smooth(method = "loess",
               span = 1,
               fill = "#0A3161",
@@ -243,6 +246,7 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
   geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 300, linetype = "dotted") +
+  annotate(geom = "text", x = c(150, 450), y = 0.15, label = c("Near", "Far")) +
   geom_smooth(method = "loess",
               span = 1,
               fill = "#024731",

@@ -16,7 +16,8 @@
 pacman::p_load(
   here,
   cowplot,
-  ggiplot,
+  broom,
+  # ggiplot,
   tidyverse
 )
 
@@ -37,47 +38,67 @@ ll_mod <- readRDS(file = here("data", "output", "spatial_event_study_ll.rds"))
 ## VISUALIZE ###################################################################
 
 # X ----------------------------------------------------------------------------
-ps_plot <- ggiplot(ps_mod,
-                   # multi_style = "facet",
-                   geom_style = "ribbon",
-                   col = unname(gear_palette)[1],
-                   ci_level = c(.5, .95),
-                   theme = ggplot2::theme_get()) +
+ps_plot <- ps_mod %>%
+  tidy(conf.int = TRUE, conf.level = 0.95) %>%
+  mutate(dist_bin = as.numeric(str_extract(term, "[:digit:]+"))) %>%
+  bind_rows(tibble(dist_bin = 200, estimate = 0, std.error = 0)) %>%
+  ggplot(aes(x = dist_bin, y = estimate)) +
+  geom_hline(yintercept = 0) +
   geom_vline(xintercept = 0) +
+  annotate(geom = "text", x = c(50, 150), y = 0.5, label = c("Near", "Far")) +
   geom_vline(xintercept = 100, linetype = "dotted") +
-  geom_point(shape = 21, size = 4) +
+  geom_line(color = unname(gear_palette)[1],
+            linetype = "dashed") +
+  geom_pointrange(aes(ymin = estimate - std.error,
+                      ymax = estimate + std.error),
+                  fill = unname(gear_palette)[1],
+                  shape = 21,
+                  fatten = 8) +
+  scale_x_continuous(limits = c(0, 200),
+                     expand = expansion(0.01, 0)) +
+  scale_y_continuous(limits = c(-0.15, 0.55),
+                     expand = expansion(0.01, 0)) +
   labs(y = "Estimate and Conf. Int.",
        x = "Distance bin (NM)",
-       title = NULL) +
-  theme(legend.position = "None")
+       title = NULL)
 
-ll_plot <- ggiplot(ll_mod,
-                   # multi_style = "facet",
-                   geom_style = "ribbon",
-                   col = unname(gear_palette)[2],
-                   ci_level = c(.5, .95),
-                   theme = ggplot2::theme_get()) +
+
+ll_plot <- ll_mod %>%
+  tidy() %>%
+  mutate(dist_bin = as.numeric(str_extract(term, "[:digit:]+"))) %>%
+  bind_rows(tibble(dist_bin = 600, estimate = 0, std.error = 0)) %>%
+  ggplot(aes(x = dist_bin, y = estimate)) +
+  geom_hline(yintercept = 0) +
   geom_vline(xintercept = 0) +
+  annotate(geom = "text", x = c(150, 450), y = 0.5, label = c("Near", "Far")) +
   geom_vline(xintercept = 300, linetype = "dotted") +
-  geom_point(shape = 22, size = 4) +
-  labs(y = "Estimate and Conf. Int.",
+  geom_line(color = unname(gear_palette)[2],
+            linetype = "dashed") +
+  geom_pointrange(aes(ymin = estimate - std.error,
+                      ymax = estimate + std.error),
+                  fill = unname(gear_palette)[2],
+                  shape = 22,
+                  fatten = 8) +
+  scale_x_continuous(limits = c(0, 600),
+                     expand = expansion(0.01, 0)) +
+  scale_y_continuous(limits = c(-0.15, 0.55),
+                     expand = expansion(0.01, 0)) +
+  labs(y = "Estimate and SE",
        x = "Distance bin (NM)",
-       title = NULL) +
-  theme(legend.position = "None")
+       title = NULL)
 
 
 p <- plot_grid(ps_plot,
                ll_plot,
-               ncol = 1,
-               labels = "AUTO") +
-  geom_point(shape = 22, size = 3)
+               ncol = 2,
+               labels = "AUTO")
 
 ## EXPORT ######################################################################
 # X ----------------------------------------------------------------------------
 startR::lazy_ggsave(
   plot = p,
   filename = "fig3_spatial_event_study",
-  width = 9,
-  height = 10
+  width = 18,
+  height = 5
 )
 

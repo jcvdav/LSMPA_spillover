@@ -45,7 +45,8 @@ gear_spp_df <- extract_spp_coefs(gear_spp_regs)                                 
 ## VISUALIZE ###################################################################
 # Build panel A) MPA-level coefficients ----------------------------------------
 labeler <- function(x) {
-  str_remove(x, "PS |LL ")
+  str_remove(x, "PS |LL ") %>%
+    str_replace_all("ā", "a")
 }
 panel_A <- ggplot(data = relevant_by_mpa_df,
                   mapping = aes(y = sample,

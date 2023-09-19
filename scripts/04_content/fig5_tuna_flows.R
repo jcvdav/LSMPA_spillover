@@ -1,6 +1,32 @@
-library(ggalluvial)
+################################################################################
+# title
+################################################################################
+#
+# Juan Carlos Villaseñor-Derbez
+# juancvd@stanford.edu
+# date
+#
+# Description
+#
+################################################################################
 
-alluvial_data <- annual_panel %>%
+## SET UP ######################################################################
+
+# Load packages ----------------------------------------------------------------
+pacman::p_load(
+  here,
+  ggalluvial,
+  tidyverse
+)
+
+# Load data --------------------------------------------------------------------
+most_relevant_panel <- readRDS(here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds")) %>%
+  mutate(name = short_name)
+
+## PROCESSING ##################################################################
+
+# X ----------------------------------------------------------------------------
+alluvial_data <- most_relevant_panel %>%
   filter(dist <= 200,
          event > 0) %>%
   select(name, gear, flag, year, contains("mt"), -tot_mt) %>%
@@ -17,18 +43,44 @@ alluvial_data <- annual_panel %>%
   summarize(mt = sum(mt, na.rm = T)) %>%
   ungroup() %>%
   mutate(spp = str_remove(spp, "_mt"),
-         pct_mt = mt / sum(mt, na.rm = T)) %>%
+         pct_mt = mt / sum(mt, na.rm = T))
+
+pct_mpas <- alluvial_data %>%
+  group_by(name) %>%
+  summarize(pct = sum(pct_mt)) %>%
+  arrange(desc(pct)) %>%
+  mutate(cumsum_pct = cumsum(pct))
+
+pct_flags <- alluvial_data %>%
+  group_by(flag) %>%
+  summarize(pct = sum(pct_mt)) %>%
+  arrange(desc(pct)) %>%
+  mutate(cumsum_pct = cumsum(pct))
+
+grouped_alluvial_data <- alluvial_data %>%
+  mutate(name = ifelse(name %in% head(pct_mpas$name, 5), name, "Other MPAs (N = 6)"),
+         flag = ifelse(flag %in% head(pct_flags$flag, 10), flag, "Other flags (N = 26)"),
+         spp = case_when(spp == "skj" ~ "Skipjack",
+                         spp == "yft" ~ "Yellowfin",
+                         spp == "bet" ~ "Bigeye",
+                         spp == "alb" ~ "Albacore",
+                         T ~ "Others")) %>%
   mutate(name = fct_reorder(name, pct_mt, sum),
          spp = fct_reorder(spp, pct_mt, sum),
          gear = fct_reorder(gear, pct_mt, sum),
-         flag = fct_reorder(flag, pct_mt, sum))
+         flag = fct_reorder(flag, pct_mt, sum),
+         name = fct_relevel(name, "Other MPAs (N = 6)"),
+         flag = fct_relevel(flag, "Other flags (N = 26)"))
 
-p <- ggplot(data = alluvial_data,
-       mapping = aes(y = pct_mt,
-                     axis1 = name,
-                     axis2 = flag,
-                     axis3 = spp,
-                     fill = gear)) +
+## VISUALIZE ###################################################################
+
+# X ----------------------------------------------------------------------------
+p <- ggplot(data = grouped_alluvial_data,
+            mapping = aes(y = pct_mt,
+                          axis1 = name,
+                          axis2 = flag,
+                          axis3 = spp,
+                          fill = gear)) +
   geom_alluvium() +
   geom_stratum(fill = "white", width = 0.3, size = 0.3) +
   geom_text(stat = "stratum",
@@ -45,7 +97,9 @@ p <- ggplot(data = alluvial_data,
   theme_bw() +
   theme(legend.position = "None")
 
+## EXPORT ######################################################################
 
+# X ----------------------------------------------------------------------------
 startR::lazy_ggsave(p,
                     filename = "fig_5_tuna_flows",
                     width = 18)

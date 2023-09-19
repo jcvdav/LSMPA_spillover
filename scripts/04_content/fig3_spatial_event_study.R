@@ -90,15 +90,15 @@ ll_plot <- ll_mod %>%
 
 p <- plot_grid(ps_plot,
                ll_plot,
-               ncol = 2,
-               labels = "AUTO")
+               ncol = 1,
+               labels = "auto")
 
 ## EXPORT ######################################################################
 # X ----------------------------------------------------------------------------
 startR::lazy_ggsave(
   plot = p,
   filename = "fig3_spatial_event_study",
-  width = 18,
-  height = 5
+  width = 9,
+  height = 10
 )
 

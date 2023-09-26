@@ -190,3 +190,71 @@ extract_spp_coefs <- function(model) {
                              "ALB"),
            model = has_fes)
 }
+
+# Plotting functions -----------------------------------------------------------
+baci_plot <- function(data, type = "pts"){
+
+  gear <- unique(data$gear)
+  col <- c(unname(gear_palette[gear]), "gray")
+
+  plot <- data %>%
+    mutate(timing = ifelse(post == 0, "Before", "After"),
+           timing = fct_relevel(timing, "Before", "After"),
+           treatment = ifelse(near == 1, "Near", "Far"),
+           treatment = fct_relevel(treatment, "Near", "Far")) %>%
+    ggplot(mapping = aes(x = timing, y = cpue,
+                         group = treatment,
+                         fill = treatment,
+                         color = treatment,
+                         shape = gear)) +
+    scale_color_manual(values = col) +
+    scale_fill_manual(values = col) +
+    scale_shape_manual(values = gear_shapes) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.1)),
+                       limits = c(0, NA)) +
+    guides(shape = "none",
+           color = "none",
+           fill = guide_legend(override.aes = list(shape = gear_shapes[gear], size = 1))) +
+    theme(legend.position = "None") +
+    labs(y = "CPUE",
+         x = "Period")
+
+  if(type == "pts") {
+    plot <- plot +
+      stat_summary(geom = "line",
+                   fun = "mean",
+                   linetype = "dashed",
+                   arrow = grid::arrow(angle = 25,
+                                       length = unit(0.15, "inches"),
+                                       type = "closed"),
+                   position = position_dodge(width = 0.5)) +
+      stat_summary(geom = "pointrange",
+                   fun.data = "mean_se",
+                   fatten = 6,
+                   color = "black",
+                   position = position_dodge(width = 0.5))
+  }
+
+  if(type == "cols") {
+    plot <- plot +
+      stat_summary(geom = "col", fun = "mean", position = "dodge") +
+      stat_summary(geom = "linerange",
+                   fun.data = "mean_se",
+                   position = position_dodge(width = 1),
+                   color = "black")
+  }
+
+  return(plot)
+
+}
+
+# Function to calculat ethe percent change
+delta_cpue <- function(data){
+  data %>%
+    group_by(post, near) %>%
+    summarize(cpue = mean(cpue)) %>%
+    pivot_wider(names_from = post,
+                values_from = cpue,
+                names_prefix = "post_") %>%
+    mutate(change = ((post_1 - post_0) / post_0) * 100)
+}

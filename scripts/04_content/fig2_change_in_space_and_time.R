@@ -28,73 +28,6 @@ img <- function(pic) {here("data", "raw", "gear_fish_pics", paste0(pic, ".svg"))
 # Load data --------------------------------------------------------------------
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
 
-baci_plot <- function(data, type = "pts"){
-
-  gear <- unique(data$gear)
-  col <- c(unname(gear_palette[gear]), "gray")
-
-  plot <- data %>%
-    mutate(timing = ifelse(post == 0, "Before", "After"),
-           timing = fct_relevel(timing, "Before", "After"),
-           treatment = ifelse(near == 1, "Near", "Far"),
-           treatment = fct_relevel(treatment, "Near", "Far")) %>%
-    ggplot(mapping = aes(x = timing, y = cpue,
-                         group = treatment,
-                         fill = treatment,
-                         color = treatment,
-                         shape = gear)) +
-    scale_color_manual(values = col) +
-    scale_fill_manual(values = col) +
-    scale_shape_manual(values = gear_shapes) +
-    scale_y_continuous(expand = expansion(mult = c(0, 0.1)),
-                       limits = c(0, NA)) +
-    guides(shape = "none",
-           color = "none",
-           fill = guide_legend(override.aes = list(shape = 22, size = 1))) +
-    theme(legend.position = "None") +
-    labs(y = "CPUE",
-         x = "Period")
-
-  if(type == "pts") {
-    plot <- plot +
-      stat_summary(geom = "line",
-                   fun = "mean",
-                   linetype = "dashed",
-                   arrow = grid::arrow(angle = 25,
-                                       length = unit(0.15, "inches"),
-                                       type = "closed"),
-                   position = position_dodge(width = 0.5)) +
-      stat_summary(geom = "pointrange",
-                   fun.data = "mean_se",
-                   fatten = 6,
-                   color = "black",
-                   position = position_dodge(width = 0.5))
-  }
-
-  if(type == "cols") {
-    plot <- plot +
-      stat_summary(geom = "col", fun = "mean", position = "dodge") +
-      stat_summary(geom = "linerange",
-                   fun.data = "mean_se",
-                   position = position_dodge(width = 1),
-                   color = "black")
-  }
-
-  return(plot)
-
-}
-
-# Function to calculat ethe percent change
-delta_cpue <- function(data){
-  data %>%
-    group_by(post, near) %>%
-    summarize(cpue = mean(cpue)) %>%
-    pivot_wider(names_from = post,
-                values_from = cpue,
-                names_prefix = "post_") %>%
-    mutate(change = ((post_1 - post_0) / post_0) * 100)
-}
-
 ## PROCESSING ##################################################################
 
 ## VISUALIZE ###################################################################
@@ -137,7 +70,7 @@ ll_baci_plot <- baci_plot(data = ll_data) +
        fill = "Distance") +
   annotate(geom = "text",
            x =c(1.7, 1.2),
-           y = c(0.3, 0.4),
+           y = c(300, 400),
            label = c("Change in CPUE far: 1.18%",
                      "Change in CPUE near: 6.68%"),
            color = c("gray50", gear_palette["LL"]))
@@ -177,7 +110,7 @@ ll_baci_motu <- baci_plot(data = ll_motu_data) +
        color = "Distance") +
   annotate(geom = "text",
            x =c(1.75, 1.25),
-           y = c(0.2, 0.7),
+           y = c(200, 700),
            label = c("15.7%",
                      "16.1%"),
            color = c("gray50", gear_palette["LL"]))
@@ -250,7 +183,7 @@ all_ll_delta_cpue_dist_plot <- ll_delta_cpue_dist_data %>%
   geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 300, linetype = "dotted") +
-  annotate(geom = "text", x = c(150, 450), y = 0.08, label = c("Near", "Far")) +
+  annotate(geom = "text", x = c(150, 450), y = 80, label = c("Near", "Far")) +
   geom_smooth(method = "loess", span = 0.9,
               fill = unname(gear_palette)[2],
               color = unname(gear_palette)[2]) +
@@ -345,7 +278,7 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
   geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 300, linetype = "dotted") +
-  annotate(geom = "text", x = c(150, 450), y = 0.15, label = c("Near", "Far")) +
+  annotate(geom = "text", x = c(150, 450), y = 150, label = c("Near", "Far")) +
   geom_smooth(method = "loess",
               span = 1,
               fill = "#006D2C",
@@ -398,6 +331,21 @@ p <- plot_grid(BACI_plots, dist_plots,
                cpue_time_subplot, cpue_dist_subplot,
                ncol = 2,
                rel_heights = c(3.4,1))
+
+p2 <- ggdraw() +
+  draw_plot(p) +
+  draw_image(img("Longline"),
+             scale = 0.25,
+             x = 0.83,
+             y = 0.85,
+             hjust = 1,
+             vjust = 1) +
+  draw_image(img("Purse seine"),
+             scale = 0.25,
+             x = 0.83,
+             y = 1.25,
+             hjust = 1,
+             vjust = 1)
 
 
 startR::lazy_ggsave(

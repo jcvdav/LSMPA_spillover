@@ -107,5 +107,5 @@ p <- ggplot(data = grouped_alluvial_data,
 
 # X ----------------------------------------------------------------------------
 startR::lazy_ggsave(p,
-                    filename = "fig_5_tuna_flows",
+                    filename = "fig5_tuna_flows",
                     width = 18)

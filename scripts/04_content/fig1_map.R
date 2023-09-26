@@ -142,7 +142,7 @@ subplot <- function(mpa, wdpaid, dist = 250000) {
 
   if(wdpaid %in% c("309888", "220201")) {
     mpa <- st_transform(mpa, crs = "EPSG:2782") %>%
-      group_by(name) %>%
+      group_by(name, year_enforced) %>%
       summarize(a = 1)
     interpolated_catch <- project(interpolated_catch, "EPSG:2782")
   }
@@ -174,6 +174,9 @@ subplot <- function(mpa, wdpaid, dist = 250000) {
     geom_sf(data = buffered_mpa_f,
             fill = "transparent",
             color = "black") +
+    geom_sf_text(data = mpa,
+                 aes(label = year_enforced),
+                 color = "white") +
     scale_fill_gradientn(colors = blues,
                          na.value = "transparent",
                          limits = interpolated_catch %>% values() %>% log() %>% range(na.rm = T))  +

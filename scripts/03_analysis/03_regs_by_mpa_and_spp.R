@@ -29,10 +29,12 @@ most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant
 ## PROCESSING ##################################################################
 # We will need this panel for the species-level regressions
 panel_for_spp_regs <- most_relevant_panel %>%
-  mutate(cpue_skj = ifelse(gear == "longline", 0, cpue_skj)) %>%
+  # mutate(cpue_skj = ifelse(gear == "longline", 0, cpue_skj)) %>%
   select(wdpaid, short_name, year, event, id, lat, lon, nice_gear, flag, effort, effort_measure, near, post, cpue_alb, cpue_bet, cpue_skj, cpue_yft, -cpue_tot) %>%
-  pivot_longer(cols = contains("cpue"), names_to = "spp", values_to = "cpue_tot") %>%
-  filter(cpue_tot > 0) %>%
+  pivot_longer(cols = contains("cpue"),
+               names_to = "spp",
+               values_to = "cpue_tot") %>%
+  filter(cpue_tot > 0) %>% # remove explicit zeroes (i.e. a cell records catch and effort but species A but not species B, so species B's CPUE is 0 [technically NA but...])
   drop_na(cpue_tot)
 
 # MPA-level analysis -----------------------------------------------------------

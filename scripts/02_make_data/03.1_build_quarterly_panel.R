@@ -153,7 +153,7 @@ qtr_all_rfmos <- bind_rows(iattc_qtr,
             tot_mt = max(tot_mt)) %>%
   ungroup() %>%
   mutate(effort_measure = ifelse(effort_measure == "hooks", "thousand_hooks", effort_measure),
-         effort = ifelse(effort_measure == "thousand_hooks", effort / 1e3, effort)) %>%
+         effort = ifelse(effort_measure == "thousand_hooks", effort / 1e6, effort)) %>% # Convert longline CPUE from mt / hook to kg / thousand hooks
   mutate(tot_mt = alb_mt + bet_mt + bft_mt + pbf_mt + sbf_mt + skj_mt + yft_mt,
          cpue_alb = alb_mt / effort,
          cpue_bet = bet_mt / effort,

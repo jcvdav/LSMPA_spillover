@@ -16,6 +16,7 @@
 pacman::p_load(
   here,
   cowplot,
+  ggimage,
   tidyverse
 )
 
@@ -54,8 +55,8 @@ panel_A <- ggplot(data = relevant_by_mpa_df,
                                 shape = gear,
                                 fill = gear)) +
   geom_rect(data = gear_stats,
-            mapping = aes(xmin = conf.low,
-                          xmax = conf.high,
+            mapping = aes(xmin = estimate - std.error,
+                          xmax = estimate + std.error,
                           ymin = -Inf,
                           ymax = Inf),
             fill = "gray90",
@@ -65,30 +66,43 @@ panel_A <- ggplot(data = relevant_by_mpa_df,
              mapping = aes(xintercept = estimate),
              linetype = "dotted") +
   geom_vline(xintercept =  0) +
-  geom_pointrange(aes(xmin = conf.low,
-                      xmax = conf.high),
+  geom_pointrange(aes(xmin = estimate - std.error,
+                      xmax = estimate + std.error),
                   color = "black",
                   fatten = 6) +
+  geom_image(aes(x = -0.14,
+                 y = ifelse(gear == "Purse seine", 5, 7),
+                 image = here("data", "raw", "gear_fish_pics", paste0(gear, ".svg"))),
+             size = 0.75,
+             nudge_y = 0.25,
+             inherit.aes = F) +
   scale_shape_manual(values = gear_shapes) +
   scale_fill_manual(values = gear_palette) +
   facet_wrap(~gear, ncol = 1, scales = "free_y") +
   labs(x = "Effect on CPUE") +
   theme(legend.position = "None",
-        axis.title.y = element_blank()) +
+        axis.title.y = element_blank(),
+        strip.text = element_text(size = 10)) +
   scale_y_discrete(labels = labeler)
 
 # Build panel B) Species-level coefficients ------------------------------------
 labeler <- function(x) {
-  str_to_upper(str_remove_all(x, "PS |LL |cpue_"))
+  y <- str_to_upper(str_remove_all(x, "PS |LL |cpue_"))
+  z <- case_when(y == "YFT" ~ "Yellowfin",
+                 y == "SKJ" ~ "Skipjack",
+                 y == "BET" ~ "Bigeye",
+                 y == "ALB" ~ "Albacore")
+  return(z)
 }
+
 panel_B <- ggplot(data = gear_spp_df,
                   mapping = aes(x = estimate,
                                 y = sample,
                                 fill = spp,
                                 shape = gear)) +
   geom_rect(data = gear_stats,
-            mapping = aes(xmin = conf.low,
-                          xmax = conf.high,
+            mapping = aes(xmin = estimate - std.error,
+                          xmax = estimate + std.error,
                           ymin = -Inf,
                           ymax = Inf),
             fill = "gray90",
@@ -98,23 +112,30 @@ panel_B <- ggplot(data = gear_spp_df,
              mapping = aes(xintercept = estimate),
              linetype = "dotted") +
   geom_vline(xintercept =  0) +
-  geom_pointrange(aes(xmin = conf.low,
-                      xmax = conf.high),
+  geom_image(aes(x = estimate + std.error,
+                 y = sample,
+                 image = here("data", "raw", "gear_fish_pics", paste0(spp, ".svg"))),
+             size = 0.4,
+             nudge_y = 0.25) +
+  geom_pointrange(aes(xmin = estimate - std.error,
+                      xmax = estimate + std.error),
                   fatten = 6) +
-  scale_shape_manual(values = gear_shapes) +
-  scale_fill_manual(values = tuna_palette) +
   guides(shape = guide_legend(title = "Gear",
                               order = 1,
                               override.aes = list(size = 1, fill = gear_palette[1:2])),
          fill = guide_legend(title = "Species",
                              order = 2,
                              override.aes = list(shape = 21, size = 1))) +
+  scale_shape_manual(values = gear_shapes) +
+  scale_fill_manual(values = tuna_palette) +
+  scale_y_discrete(labels = labeler) +
+  scale_x_continuous(expand = expansion(0.11, 0)) +
   facet_wrap(~gear, ncol = 1, scales = "free_y") +
   labs(x = "Effect on CPUE") +
   theme(axis.title.y = element_blank(),
         legend.position = "bottom",
-        legend.box = "horizontal") +
-  scale_y_discrete(labels = labeler)
+        legend.box = "horizontal",
+        strip.text = element_text(size = 10))
 
 # Build the plot ---------------------------------------------------------------
 # Combine both panels
@@ -135,4 +156,11 @@ startR::lazy_ggsave(plot = final_plot,
                     filename = "fig4_effects_by_mpa_and_spp",
                     width = 18,
                     height = 10)
+
+ggsave(plot = final_plot,
+       filename = here("results", "img", "fig4_effects_by_mpa_and_spp.pdf"),
+       device = cairo_pdf,
+       width = 18,
+       height = 10,
+       units = "cm")
 

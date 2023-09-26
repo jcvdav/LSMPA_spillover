@@ -187,7 +187,6 @@ extract_spp_coefs <- function(model) {
                              "YFT",
                              "SKJ",
                              "BET",
-                             "ALB",
-           ),
+                             "ALB"),
            model = has_fes)
 }

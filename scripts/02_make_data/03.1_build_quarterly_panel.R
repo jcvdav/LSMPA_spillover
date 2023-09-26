@@ -152,6 +152,8 @@ qtr_all_rfmos <- bind_rows(iattc_qtr,
             yft_mt = max(yft_mt),
             tot_mt = max(tot_mt)) %>%
   ungroup() %>%
+  mutate(effort_measure = ifelse(effort_measure == "hooks", "thousand_hooks", effort_measure),
+         effort = ifelse(effort_measure == "thousand_hooks", effort / 1e3, effort)) %>%
   mutate(tot_mt = alb_mt + bet_mt + bft_mt + pbf_mt + sbf_mt + skj_mt + yft_mt,
          cpue_alb = alb_mt / effort,
          cpue_bet = bet_mt / effort,
@@ -168,7 +170,7 @@ qtr_all_rfmos <- bind_rows(iattc_qtr,
   filter(cpue_tot > 0)
 
 # How many records did we remove?
-dim(qtr_all_rfmos) # [1]  633128     27
+dim(qtr_all_rfmos)
 
 ## CHECKS ######################################################################
 check_mt(qtr_all_rfmos)

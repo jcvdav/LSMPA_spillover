@@ -70,7 +70,11 @@ grouped_alluvial_data <- alluvial_data %>%
          gear = fct_reorder(gear, pct_mt, sum),
          flag = fct_reorder(flag, pct_mt, sum),
          name = fct_relevel(name, "Other MPAs (N = 6)"),
-         flag = fct_relevel(flag, "Other flags (N = 26)"))
+         flag = fct_relevel(flag, "Other flags (N = 26)"),
+         gear = str_to_sentence(str_replace(gear, "_", " "))) %>%
+  group_by(name, gear, flag, spp) %>%
+  summarize(mt = sum(mt),
+            pct_mt = sum(pct_mt))
 
 ## VISUALIZE ###################################################################
 
@@ -81,23 +85,25 @@ p <- ggplot(data = grouped_alluvial_data,
                           axis2 = flag,
                           axis3 = spp,
                           fill = gear)) +
-  geom_alluvium() +
+  geom_alluvium(alpha = 0.75) +
   geom_stratum(fill = "white", width = 0.3, size = 0.3) +
   geom_text(stat = "stratum",
             aes(label = after_stat(stratum)),
             size = 2) +
-  scale_x_discrete(limits = c("MPA",
-                              "Flag",
+  scale_x_discrete(limits = c("LMPA",
+                              "Fishing nation",
                               "Species"),
                    expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0), labels = scales::percent) +
   scale_fill_manual(values = gear_palette) +
+  guides(fill = guide_legend(override.aes = list(alpha = 1))) +
   labs(x = "",
-       y = "% Total tuna caught") +
-  theme_bw() +
-  theme(legend.position = "None")
+       y = "% Total tuna caught",
+       fill = "Gear")+
+  theme(legend.position = "bottom",
+        legend.box.spacing = unit(0, 'cm'))
 
-## EXPORT ######################################################################
+
 
 # X ----------------------------------------------------------------------------
 startR::lazy_ggsave(p,

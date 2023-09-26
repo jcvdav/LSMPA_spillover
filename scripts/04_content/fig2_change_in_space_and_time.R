@@ -16,11 +16,14 @@
 pacman::p_load(
   here,
   cowplot,
+  ggimage,
   tidyverse
 )
 
 # Source custom funcions -------------------------------------------------------
 source(here("scripts/00_set_up.R"))
+
+img <- function(pic) {here("data", "raw", "gear_fish_pics", paste0(pic, ".svg"))}
 
 # Load data --------------------------------------------------------------------
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
@@ -96,12 +99,32 @@ delta_cpue <- function(data){
 
 ## VISUALIZE ###################################################################
 
-# BACI plots (Panels A-C) ------------------------------------------------------
+# BACI plots (Panels A-D) ------------------------------------------------------
 # Panel A - All LL data
+ps_data <- most_relevant_panel %>%
+  filter(gear == "purse_seine") %>%
+  rename(cpue = cpue_tot)
+
+delta_cpue(ps_data)
+
+ps_baci_plot <- baci_plot(data = ps_data) +
+  guides(color = "none") +
+  theme(legend.position = c(0, 0),
+        legend.justification = c(0, 0)) +
+  labs(y = "CPUE (MT / set)",
+       title = "All purse seine",
+       fill = "Distance") +
+  annotate(geom = "text",
+           x = c(1.25, 1.75),
+           y = c(27, 19),
+           label = c("Change in CPUE far: 8.62%",
+                     "Change in CPUE near: 35.8%"),
+           color = c("gray50", gear_palette["PS"]))
+
+# Panel B - All LL data
 ll_data <- most_relevant_panel %>%
   filter(gear == "longline") %>%
-  rename(cpue = cpue_tot) %>%
-  mutate(cpue = cpue * 1e3)
+  rename(cpue = cpue_tot)
 
 delta_cpue(ll_data)
 
@@ -113,34 +136,13 @@ ll_baci_plot <- baci_plot(data = ll_data) +
        title = "All longine",
        fill = "Distance") +
   annotate(geom = "text",
-           x =c(1.75, 1.25),
+           x =c(1.7, 1.2),
            y = c(0.3, 0.4),
-           label = c("Change in CPUE: 1.18%",
-                     "Change in CPUE: 6.68%"),
+           label = c("Change in CPUE far: 1.18%",
+                     "Change in CPUE near: 6.68%"),
            color = c("gray50", gear_palette["LL"]))
 
-# Motu motira relevan example
-ll_motu_data <- most_relevant_panel %>%
-  filter(gear == "longline",
-         wdpaid == "555543712") %>%
-  rename(cpue = cpue_tot) %>%
-  mutate(cpue = cpue * 1e3)
-
-delta_cpue(ll_motu_data)
-
-ll_baci_motu <- baci_plot(data = ll_motu_data) +
-  labs(y = "CPUE (MT / 1000 hooks)",
-       title = "Motu Motiro Hiva",
-       fill = "Distance",
-       color = "Distance") +
-  annotate(geom = "text",
-           x =c(1.75, 1.25),
-           y = c(0.2, 0.7),
-           label = c("15.7%",
-                     "16.1%"),
-           color = c("gray50", gear_palette["LL"]))
-
-# Purse seine example
+# Good example: Purse seine example
 ps_pipa <- most_relevant_panel %>%
   filter(gear == "purse_seine",
          wdpaid == "309888") %>%
@@ -160,6 +162,26 @@ ps_baci_pipa <- baci_plot(data = ps_pipa) +
                      "13.6%"),
            color = c("gray50", gear_palette["PS"]))
 
+# Bad example: Motu motira
+ll_motu_data <- most_relevant_panel %>%
+  filter(gear == "longline",
+         wdpaid == "555543712") %>%
+  rename(cpue = cpue_tot)
+
+delta_cpue(ll_motu_data)
+
+ll_baci_motu <- baci_plot(data = ll_motu_data) +
+  labs(y = "CPUE (MT / 1000 hooks)",
+       title = "Motu Motiro Hiva",
+       fill = "Distance",
+       color = "Distance") +
+  annotate(geom = "text",
+           x =c(1.75, 1.25),
+           y = c(0.2, 0.7),
+           label = c("15.7%",
+                     "16.1%"),
+           color = c("gray50", gear_palette["LL"]))
+
 # CPUE plots (Panelas A - C) ---------------------------------------------------
 # X ----------------------------------------------------------------------------
 ps_delta_cpue_dist_data <- most_relevant_panel %>%
@@ -176,7 +198,7 @@ ps_delta_cpue_dist_data <- most_relevant_panel %>%
          dist = (floor(dist / 25) * 25) + 12.5,
          dist_f = as.factor(-1 * dist))
 
-# Panel A - All purse seine data within 200 NM
+# Panel E - All purse seine data within 200 NM
 all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
   group_by(post, dist) %>%
   summarize(cpue = mean(cpue, na.rm = T), .groups = "drop") %>%
@@ -200,6 +222,45 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
   labs(x = "Distance from border (NM)",
        y = "Change in CPUE (MT / Set)",
        title = "All purse seine")
+
+
+# Longline event-study
+ll_delta_cpue_dist_data <- most_relevant_panel %>%
+  filter(gear == "longline",
+         between(event, -10, 10),
+         !is.na(near_300)) %>%
+  group_by(id, wdpaid, name, dist, lat, lon, event, post, near_300) %>%
+  summarize(effort = sum(effort),
+            tot_mt = sum(tot_mt),
+            .groups = "drop") %>%
+  ungroup() %>%
+  mutate(cpue = tot_mt / effort,
+         dist = (floor(dist / 75) * 75) + 37.5,
+         dist_f = as.factor(-1 * dist))
+
+all_ll_delta_cpue_dist_plot <- ll_delta_cpue_dist_data %>%
+  group_by(post, dist) %>%
+  summarize(cpue = mean(cpue, na.rm = T), .groups = "drop") %>%
+  ungroup() %>%
+  pivot_wider(names_from = post,
+              values_from = cpue, names_prefix = "cpue_") %>%
+  mutate(delta = cpue_1 - cpue_0,
+         pct_change = delta / cpue_0) %>%
+  ggplot(aes(x = dist, y = delta)) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 300, linetype = "dotted") +
+  annotate(geom = "text", x = c(150, 450), y = 0.08, label = c("Near", "Far")) +
+  geom_smooth(method = "loess", span = 0.9,
+              fill = unname(gear_palette)[2],
+              color = unname(gear_palette)[2]) +
+  geom_point(shape = 21, size = 2,
+             fill = unname(gear_palette)[2],
+             color = "black") +
+  scale_size_continuous(labels = scales::percent) +
+  labs(x = "Distance from border (NM)",
+       y = "Change in CPUE (MT / 1000 hoks)",
+       title = "All longline")
 
 # Panel B - Example of specific PS data
 ps_delta_cpue_dist_plot <- most_relevant_panel %>%
@@ -262,7 +323,7 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
   gear == "longline",
   between(event, -10, 10)) %>%
   group_by(id, wdpaid, short_name, dist, post) %>%
-  summarize(effort = sum(effort) / 1000,
+  summarize(effort = sum(effort),
             tot_mt = sum(tot_mt),
             .groups = "drop") %>%
   ungroup() %>%
@@ -305,30 +366,44 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
         legend.title = element_blank())
 
 # Combine all panels -----------------------------------------------------------
+BACI_plots <- plot_grid(ps_baci_plot,
+                        ll_baci_plot,
+                        ncol = 1,
+                        align = "hv",
+                        labels = c("a", "b"))
+
+dist_plots <- plot_grid(
+  all_ps_delta_cpue_dist_plot,
+  all_ll_delta_cpue_dist_plot,
+  ncol = 1,
+  align = "hv",
+  labels = c("e", "f")
+)
+
 # bottom left side of plot (B-C)
-cpue_time_subplot <- plot_grid(ll_baci_motu,
-                               ps_baci_pipa,
+cpue_time_subplot <- plot_grid(ps_baci_pipa,
+                               ll_baci_motu,
                                ncol = 2,
-                               labels = c("b", "c"))
+                               labels = c("c", "d"))
 
 # bottom ight side of plot (E-F)
 cpue_dist_subplot <- plot_grid(ll_delta_cpue_dist_plot,
                                ps_delta_cpue_dist_plot,
                                ncol = 2,
-                               labels = c("e", "f"))
+                               labels = c("g", "h"))
 
 ## VISUALIZE ###################################################################
 
-p <- plot_grid(ll_baci_plot, all_ps_delta_cpue_dist_plot,
+p <- plot_grid(BACI_plots, dist_plots,
                cpue_time_subplot, cpue_dist_subplot,
                ncol = 2,
-               labels = c("a", "d"),
-               rel_heights = c(1.7,1))
+               rel_heights = c(3.4,1))
+
 
 startR::lazy_ggsave(
   plot = p,
   filename = "fig2_visual_change",
   width = 18,
-  height = 15
+  height = 20
 )
 

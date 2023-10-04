@@ -62,7 +62,8 @@ p <- ggplot() +
   geom_sf(data = pt_inside, color = "red") +
   geom_sf(data = pts_partial) +
   scale_y_continuous(breaks = seq(-30, -22, 1)) +
-  scale_x_continuous(breaks = seq(-85, -76, 1))
+  scale_x_continuous(breaks = seq(-85, -76, 1)) +
+  theme(panel.grid.major = element_line(color = "black"))
 
 ## EXPORT ######################################################################
 

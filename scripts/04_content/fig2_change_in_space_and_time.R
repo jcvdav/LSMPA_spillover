@@ -33,9 +33,14 @@ most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant
 ## VISUALIZE ###################################################################
 
 # BACI plots (Panels A-D) ------------------------------------------------------
-# Panel A - All LL data
+# We first build BACI plots showing the mean CPUE for each of the before, after,
+# control, impact groups. There is one main plot for each gear, and then a plot
+# for a "good" and a "bad" example.
+
+# Panel A - For all purse seine data
 ps_data <- most_relevant_panel %>%
-  filter(gear == "purse_seine") %>%
+  filter(!wdpaid == "555512151", # Chagos is reported in different CPUE units
+         gear == "purse_seine") %>%
   rename(cpue = cpue_tot)
 
 delta_cpue(ps_data)
@@ -49,10 +54,10 @@ ps_baci_plot <- baci_plot(data = ps_data) +
        fill = "Distance") +
   annotate(geom = "text",
            x = c(1.25, 1.75),
-           y = c(27, 19),
-           label = c("Change in CPUE far: 8.62%",
-                     "Change in CPUE near: 35.8%"),
-           color = c("gray50", gear_palette["PS"]))
+           y = c(31, 22),
+           label = c("Change in CPUE near: 22.9%",
+                     "Change in CPUE far: 8.74%"),
+           color = c(gear_palette["PS"], "gray50"))
 
 # Panel B - All LL data
 ll_data <- most_relevant_panel %>%
@@ -65,17 +70,17 @@ ll_baci_plot <- baci_plot(data = ll_data) +
   guides(color = "none") +
   theme(legend.position = c(0, 0),
         legend.justification = c(0, 0)) +
-  labs(y = "CPUE (MT / 1000 hooks)",
+  labs(y = "CPUE (Kg / 1000 hooks)",
        title = "All longine",
        fill = "Distance") +
   annotate(geom = "text",
            x =c(1.7, 1.2),
-           y = c(300, 400),
+           y = c(300, 410),
            label = c("Change in CPUE far: 1.18%",
                      "Change in CPUE near: 6.68%"),
            color = c("gray50", gear_palette["LL"]))
 
-# Good example: Purse seine example
+# Panel C: Good example with a purse seine example
 ps_pipa <- most_relevant_panel %>%
   filter(gear == "purse_seine",
          wdpaid == "309888") %>%
@@ -84,7 +89,7 @@ ps_pipa <- most_relevant_panel %>%
 delta_cpue(ps_pipa)
 
 ps_baci_pipa <- baci_plot(data = ps_pipa) +
-  labs(y = "CPUE (MT / Set)",
+  labs(y = "CPUE (MT / set)",
        title = "Phoenix Islands",
        fill = "Distance",
        color = "Distance") +
@@ -95,7 +100,7 @@ ps_baci_pipa <- baci_plot(data = ps_pipa) +
                      "13.6%"),
            color = c("gray50", gear_palette["PS"]))
 
-# Bad example: Motu motira
+# Panel D: Bad example with longline data
 ll_motu_data <- most_relevant_panel %>%
   filter(gear == "longline",
          wdpaid == "555543712") %>%
@@ -104,7 +109,7 @@ ll_motu_data <- most_relevant_panel %>%
 delta_cpue(ll_motu_data)
 
 ll_baci_motu <- baci_plot(data = ll_motu_data) +
-  labs(y = "CPUE (MT / 1000 hooks)",
+  labs(y = "CPUE (Kg / 1000 hooks)",
        title = "Motu Motiro Hiva",
        fill = "Distance",
        color = "Distance") +
@@ -115,8 +120,12 @@ ll_baci_motu <- baci_plot(data = ll_motu_data) +
                      "16.1%"),
            color = c("gray50", gear_palette["LL"]))
 
-# CPUE plots (Panelas A - C) ---------------------------------------------------
-# X ----------------------------------------------------------------------------
+# Panels E-H "spillover gradient" plots ----------------------------------------
+# Now we build plots where we show the change in CPUE as one moves away from the
+# MPA border. We also build one for PS, one for LL, and then one for a good and
+# a bad example.
+
+# Panel E - All purse seine data within 200 NM
 ps_delta_cpue_dist_data <- most_relevant_panel %>%
   filter(!wdpaid == "555512151",
          gear == "purse_seine",
@@ -131,7 +140,6 @@ ps_delta_cpue_dist_data <- most_relevant_panel %>%
          dist = (floor(dist / 25) * 25) + 12.5,
          dist_f = as.factor(-1 * dist))
 
-# Panel E - All purse seine data within 200 NM
 all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
   group_by(post, dist) %>%
   summarize(cpue = mean(cpue, na.rm = T), .groups = "drop") %>%
@@ -153,7 +161,7 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
              color = "black") +
   scale_size_continuous(labels = scales::percent) +
   labs(x = "Distance from border (NM)",
-       y = "Change in CPUE (MT / Set)",
+       y = "Change in CPUE (MT / set)",
        title = "All purse seine")
 
 
@@ -183,28 +191,24 @@ all_ll_delta_cpue_dist_plot <- ll_delta_cpue_dist_data %>%
   geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 300, linetype = "dotted") +
-  annotate(geom = "text", x = c(150, 450), y = 80, label = c("Near", "Far")) +
+  annotate(geom = "text", x = c(150, 450),
+           y = 80,
+           label = c("Near", "Far")) +
   geom_smooth(method = "loess", span = 0.9,
               fill = unname(gear_palette)[2],
               color = unname(gear_palette)[2]) +
-  geom_point(shape = 21, size = 2,
+  geom_point(shape = 22, size = 2,
              fill = unname(gear_palette)[2],
              color = "black") +
   scale_size_continuous(labels = scales::percent) +
   labs(x = "Distance from border (NM)",
-       y = "Change in CPUE (MT / 1000 hoks)",
+       y = "Change in CPUE (Kg / 1000 hooks)",
        title = "All longline")
 
 # Panel B - Example of specific PS data
 ps_delta_cpue_dist_plot <- most_relevant_panel %>%
-  filter(wdpaid %in% c(
-    # "11753", #Galapagos
-    # "309888", #PIPA
-    # "555512151" # Chagos
-    "400011_B" #PRI (Jarvis)
-    # "555629385" # Revilla
-  ),
-  gear == "purse_seine") %>%
+  filter(wdpaid  == "400011_B",    #PRI (Jarvis)
+         gear == "purse_seine") %>%
   group_by(id, wdpaid, short_name, dist, lat, lon, post) %>%
   summarize(effort = sum(effort),
             tot_mt = sum(tot_mt),
@@ -247,14 +251,9 @@ ps_delta_cpue_dist_plot <- most_relevant_panel %>%
 
 # Panel B- Example of specific longline data
 ll_delta_cpue_dist_plot <- most_relevant_panel %>%
-  filter(wdpaid %in% c(
-    "220201" # Papahanaumokuakea
-    # "400011_B" #PRI (Wake)
-    # "555556875_A"# Coral sea
-    # "555543712" # Motu Motiro Hiva
-  ),
-  gear == "longline",
-  between(event, -10, 10)) %>%
+  filter(wdpaid == "220201", # Papahanaumokuakea
+         gear == "longline",
+         between(event, -10, 10)) %>%
   group_by(id, wdpaid, short_name, dist, post) %>%
   summarize(effort = sum(effort),
             tot_mt = sum(tot_mt),

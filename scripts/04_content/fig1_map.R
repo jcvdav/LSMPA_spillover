@@ -176,7 +176,8 @@ subplot <- function(mpa, wdpaid, dist = 250000) {
             color = "black") +
     geom_sf_text(data = mpa,
                  aes(label = year_enforced),
-                 color = "white") +
+                 color = "white",
+                 size = 2) +
     scale_fill_gradientn(colors = blues,
                          na.value = "transparent",
                          limits = interpolated_catch %>% values() %>% log() %>% range(na.rm = T))  +

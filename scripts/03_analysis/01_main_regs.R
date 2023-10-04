@@ -30,7 +30,7 @@ most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant
 # ## PROCESSING ##################################################################
 # Estimate DiD with all the data -----------------------------------------------
 # Main specification
-main_reg <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + effort_measure,
+main_reg <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + year + effort_measure,
                   panel.id = ~id + year,
                   vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                     time = ~year,
@@ -43,7 +43,7 @@ main_reg <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + effort_measure,
 
 # Estimate DiD with subsamples of relevant MPA-gear combinations ---------------
 # Main specification
-relevant_mpa_gear_reg <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year + effort_measure,
+relevant_mpa_gear_reg <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + year + effort_measure,
                                panel.id = ~id + year,
                                vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                                  time = ~year,

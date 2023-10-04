@@ -56,7 +56,7 @@ gear_mpa_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,
                              data = most_relevant_panel)
 
 # Species-level analysis -------------------------------------------------------
-gear_spp_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | effort_measure,
+gear_spp_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | id + year + effort_measure,
                              panel.id = ~id + event,
                              vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                                time = ~year,

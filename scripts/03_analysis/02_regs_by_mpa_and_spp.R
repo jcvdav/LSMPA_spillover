@@ -38,26 +38,16 @@ panel_for_spp_regs <- most_relevant_panel %>%
 
 # MPA-level analysis -----------------------------------------------------------
 # Fit a model with fixed effects
-gear_mpa_regs <- feols(log(cpue_tot) ~ i(post, near, 0) | id + year,
-                  panel.id = ~id + year,
-                  vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                    time = ~year,
-                                                    lat = ~lat,
-                                                    lon = ~lon,
-                                                    cutoff = 200,
-                                                    lag = 5),
-                  split = ~paste(nice_gear, short_name),
-                  data = most_relevant_panel)
+gear_mpa_regs <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag + wdpaid^year,
+                       panel.id = ~id + year,
+                       vcov = conley(cutoff = 200),
+                       split = ~paste(nice_gear, short_name),
+                       data = most_relevant_panel)
 
 # Species-level analysis -------------------------------------------------------
-gear_spp_regs <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | effort_measure,
+gear_spp_regs <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag + wdpaid ^ year,
                        panel.id = ~id + year,
-                       vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                         time = ~year,
-                                                         lat = ~lat,
-                                                         lon = ~lon,
-                                                         cutoff = 200,
-                                                         lag = 5),
+                       vcov = conley(cutoff = 200),
                        data = panel_for_spp_regs,
                        split = ~paste(nice_gear, spp))
 

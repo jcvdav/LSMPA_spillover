@@ -30,38 +30,23 @@ most_relevant_panel_multiple_distances <- readRDS(here("data", "processed", "ann
 ## PROCESSING ##################################################################
 
 # X ----------------------------------------------------------------------------
-near_100 <- feols(log(cpue_tot) ~ post + near_100 +  i(post, near_100, 0) | id + year + effort_measure,
+near_100 <- feols(log(cpue_tot) ~ post + near_100 +  i(post, near_100, 0) | id + flag ^ gear + wdpaid ^ gear ^ year,
                   panel.id = ~id + year,
-                  vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                    time = ~year,
-                                                    lat = ~lat,
-                                                    lon = ~lon,
-                                                    cutoff = 200,
-                                                    lag = 5),
+                  vcov = conley(cutoff = 200),
                   fsplit = ~nice_gear,
                   subset = ~!is.na(near_100),
                   data = most_relevant_panel_multiple_distances)
 
-near_200 <- feols(log(cpue_tot) ~ post + near_200 + i(post, near_200, 0) | id + year + effort_measure,
+near_200 <- feols(log(cpue_tot) ~ post + near_200 + i(post, near_200, 0) | id + flag ^ gear + wdpaid ^ gear ^ year,
                   panel.id = ~id + year,
-                  vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                    time = ~year,
-                                                    lat = ~lat,
-                                                    lon = ~lon,
-                                                    cutoff = 200,
-                                                    lag = 5),
+                  vcov = conley(cutoff = 200),
                   fsplit = ~nice_gear,
                   subset = ~!is.na(near_200),
                   data = most_relevant_panel_multiple_distances)
 
-near_300 <- feols(log(cpue_tot) ~ post + near_300 + i(post, near_300, 0) | id + year + effort_measure,
+near_300 <- feols(log(cpue_tot) ~ post + near_300 + i(post, near_300, 0) | id + flag ^ gear + wdpaid ^ gear ^ year,
                   panel.id = ~id + year,
-                  vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                    time = ~year,
-                                                    lat = ~lat,
-                                                    lon = ~lon,
-                                                    cutoff = 200,
-                                                    lag = 5),
+                  vcov = conley(cutoff = 200),
                   fsplit = ~nice_gear,
                   subset = ~!is.na(near_300),
                   data = most_relevant_panel_multiple_distances)

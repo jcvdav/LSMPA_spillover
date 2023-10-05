@@ -1,45 +1,37 @@
 \begin{table}
 
-\caption{\label{tab:main_reg}Spillover effects of Large Marine Protected Areas on
-             catch-per-unit effort in the purse seine and longline tuna fleet targetting Skipjack tuna, Yellowfin
-             tuna, Bigeye tuna, and Albacore tuna. Coefficients are
-             difference-in-difference estimates for change in CPUE.
-             Column 1 shows results for purse seine and longline data
-             combined. Column 2 presents models fit to purse seine data
-             only, and column 3 presents models fit to longline data only.}
+\caption{Effect of Large Marine Protected Areas on catch-per-unit-effort in the worlds tuna fisheries.
+             Coefficients are difference-in-difference estimates for change in CPUE. Column 1 is the simplest
+             specification with no fixed effects. Column 2 includes grid-level fixed effects. Column 3 includes fixed
+             effects by grid and by Flag-Gear. Column 4 shows a full specification with fixed-effects by grid, by
+             Flag-Gear, and by MPA-Gear-Year. Columns 5 and 6 are the same as columnf 4, but restrict data to purseine
+             and longline catch, respectively.}
 \centering
-\begin{tabular}[t]{lccc}
+\begin{tabular}[t]{lcccccc}
 \toprule
-  & Combined gears & Purse seine & Longline\\
+  & (1) & (2) & (3) & (4) & (5) & (6)\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{4}{l}{Panel A: All data (23 LMPA-gear combinations; 14 LMPAs)}\\
-\hline
-\hspace{1em}Post x Near & 0.083** & 0.133*** & -0.029\\
-\hspace{1em} & (0.036) & (0.050) & (0.021)\\
-\hspace{1em}Num.Obs & 17,146 & 10,424 & 6,722\\
-\hspace{1em}R2 & 0.815 & 0.556 & 0.409\\
-\hspace{1em}R2 Adj & 0.803 & 0.527 & 0.359\\
-\hspace{1em}RMSE & 0.77 & 0.79 & 0.72\\
+\multicolumn{7}{l}{Panel A: All data (23 LMPA-gear combinations; 14 LMPAs)}\\
+\hspace{1em}Post x Near & 0.238*** & 0.122*** & 0.088** & 0.080* & 0.117** & 0.012\\
+\hspace{1em} & (0.055) & (0.047) & (0.041) & (0.041) & (0.057) & (0.048)\\
+\hspace{1em}N & 17146 & 17146 & 17146 & 17146 & 10424 & 6722\\
+\hspace{1em}R2 Adj & 0.003 & 0.768 & 0.809 & 0.825 & 0.545 & 0.513\\
+\hspace{1em}SE & IID & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley \vphantom{1} (200km)\\
 \addlinespace[0.5cm]
-\multicolumn{4}{l}{Panel B: Subsample (14 LMPA-gear combinations, 11 LMPAs)}\\
-\hline
-\hspace{1em}Post x Near & 0.088*** & 0.133*** & -0.023\\
-\hspace{1em} & (0.034) & (0.050) & (0.025)\\
-\hspace{1em}Num.Obs & 15,972 & 10,290 & 5,682\\
-\hspace{1em}R2 & 0.821 & 0.553 & 0.324\\
-\hspace{1em}R2 Adj & 0.810 & 0.527 & 0.272\\
-\hspace{1em}RMSE & 0.75 & 0.79 & 0.66\\
+\multicolumn{7}{l}{Panel B: Subsample (14 LMPA-gear combinations, 11 LMPAs)}\\
+\hspace{1em}Post x Near & 0.225*** & 0.120** & 0.085** & 0.076* & 0.117** & -0.007\\
+\hspace{1em} & (0.057) & (0.046) & (0.042) & (0.042) & (0.057) & (0.049)\\
+\hspace{1em}N & 15972 & 15972 & 15972 & 15972 & 10290 & 5682\\
+\hspace{1em}R2 Adj & 0.001 & 0.775 & 0.812 & 0.826 & 0.546 & 0.412\\
+\hspace{1em}SE & IID & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km)\\
 \midrule
-FE: id & X & X & X\\
-FE: year & X & X & X\\
+FE: Grid ID &  & X & X & X & X & X\\
+FE: Flag-Gear &  &  & X & X & X & X\\
+FE: MPA-Gear-Year &  &  &  & X & X & X\\
 \midrule
 \bottomrule
-\multicolumn{4}{l}{\rule{0pt}{1em}\textit{Note: }}\\
-\multicolumn{4}{l}{\rule{0pt}{1em}* p < 0.1, ** p < 0.05, *** p < 0.01}\\
-\multicolumn{4}{l}{\rule{0pt}{1em}Numbers in parenthesis are standard errors robust to heteroskedasticity}\\
-\multicolumn{4}{l}{\rule{0pt}{1em}and spatio-temporal autocorrelation (200 km cutoff; 5 yr lag).}\\
-\multicolumn{4}{l}{\rule{0pt}{1em}When the data used contains more than one effort unit}\\
-\multicolumn{4}{l}{\rule{0pt}{1em}(i.e. days, sets, hooks) we include fixed-effects}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}\textit{Note: }}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}* p < 0.1, ** p < 0.05, *** p < 0.01}\\
 \end{tabular}
 \end{table}

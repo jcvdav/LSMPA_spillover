@@ -31,30 +31,20 @@ most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant
 ps_mod <- feols(data = most_relevant_panel %>%
                   filter(gear == "purse_seine") %>%
                   mutate(dist_bin = (floor(dist / 25) * 25) + 12.5),
-                fml = log(cpue_tot) ~ dist_bin + post + i(dist_bin, post, "187.5") | id + year + effort_measure,
-                vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                  time = ~year,
-                                                  lat = ~lat,
-                                                  lon = ~lon,
-                                                  cutoff = 200,
-                                                  lag = 5))
+                fml = log(cpue_tot) ~ dist_bin + post + i(dist_bin, post, "187.5") | id + flag ^ gear + wdpaid ^ gear ^ year,
+                vcov = conley(cutoff = 200))
 
 # Purse seine models -----------------------------------------------------------
 ll_mod <- feols(data = most_relevant_panel %>%
                   filter(gear == "longline") %>%
                   mutate(dist_bin = (floor(dist / 75) * 75) + 37.5),
-                fml = log(cpue_tot) ~ dist_bin + post + i(dist_bin, post, "562.5") | id + year,
-                vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                  time = ~year,
-                                                  lat = ~lat,
-                                                  lon = ~lon,
-                                                  cutoff = 200,
-                                                  lag = 5))
+                fml = log(cpue_tot) ~ dist_bin + post + i(dist_bin, post, "562.5") | id + flag ^ gear + wdpaid ^ gear ^ year,
+                vcov = conley(cutoff = 200))
 
 
 ## VISUALIZE ###################################################################
 ps_plot <- ps_mod %>%
-  tidy(conf.int = TRUE, conf.level = 0.95) %>%
+  broom::tidy(conf.int = TRUE, conf.level = 0.95) %>%
   mutate(dist_bin = as.numeric(str_extract(term, "[:digit:]+"))) %>%
   bind_rows(tibble(dist_bin = 200, estimate = 0, std.error = 0)) %>%
   ggplot(aes(x = dist_bin, y = estimate)) +
@@ -79,7 +69,7 @@ ps_plot <- ps_mod %>%
 
 
 ll_plot <- ll_mod %>%
-  tidy() %>%
+  broom::tidy() %>%
   mutate(dist_bin = as.numeric(str_extract(term, "[:digit:]+"))) %>%
   bind_rows(tibble(dist_bin = 600, estimate = 0, std.error = 0)) %>%
   ggplot(aes(x = dist_bin, y = estimate)) +

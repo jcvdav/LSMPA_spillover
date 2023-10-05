@@ -39,20 +39,15 @@ most_relevant_panel_multiple_distances <- readRDS(here("data", "processed", "ann
 ## PROCESSING ##################################################################
 
 # All data ---------------------------------------------------------------------
-main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | effort_measure,
+main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
-                       vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                         time = ~year,
-                                                         lat = ~lat,
-                                                         lon = ~lon,
-                                                         cutoff = 200,
-                                                         lag = 5),
+                       vcov = conley(cutoff = 200),
                        fsplit = ~nice_gear,
                        subset = ~!is.na(near_100),
                        data = annual_panel_raw %>%
                          mutate(dist = -1 * (dist / 100)))
 
-main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | effort_measure,
+main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
                        vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                          time = ~year,
@@ -65,7 +60,7 @@ main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | effort_meas
                        data = annual_panel_raw %>%
                          mutate(dist = -1 * (dist / 100)))
 
-main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | effort_measure,
+main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
                        vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                          time = ~year,
@@ -79,7 +74,7 @@ main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | effort_meas
                          mutate(dist = -1 * (dist / 100)))
 
 # Relevant MPA - gear combinaitons ---------------------------------------------
-relevant_main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | effort_measure,
+relevant_main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
                                     vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                                       time = ~year,
@@ -92,7 +87,7 @@ relevant_main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | ef
                                     data = most_relevant_panel_multiple_distances %>%
                                       mutate(dist = -1 * (dist / 100)))
 
-relevant_main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | effort_measure,
+relevant_main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
                                     vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                                       time = ~year,
@@ -105,7 +100,7 @@ relevant_main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | ef
                                     data = most_relevant_panel_multiple_distances %>%
                                       mutate(dist = -1 * (dist / 100)))
 
-relevant_main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | effort_measure,
+relevant_main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
                                     vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                                       time = ~year,

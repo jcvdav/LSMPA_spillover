@@ -24,10 +24,7 @@ pacman::p_load(
 source(here("scripts/00_set_up.R"))
 
 # Load data --------------------------------------------------------------------
-# Data to add general model fits in the background of plots
-gear_stats <- readRDS(file = here("data", "output", "relevant_mpa_gear_combination_model_coefs.rds"))
-
-# Now load the model objects (they are multifit or lists)
+# Model objects (they are multifit or lists)
 # For MPA analysis
 gear_mpa_regs <- readRDS(file = here("data", "output", "gear_mpa_regs.rds"))
 
@@ -54,25 +51,9 @@ panel_A <- ggplot(data = relevant_by_mpa_df,
                                 x = estimate,
                                 shape = gear,
                                 fill = gear)) +
-  geom_rect(data = gear_stats,
-            mapping = aes(xmin = estimate - std.error,
-                          xmax = estimate + std.error,
-                          ymin = -Inf,
-                          ymax = Inf),
-            fill = "gray90",
-            alpha = 0.5,
-            inherit.aes = F) +
-  geom_vline(data = gear_stats,
-             mapping = aes(xintercept = estimate),
-             linetype = "dotted") +
   geom_vline(xintercept =  0) +
-  geom_errorbarh(aes(xmin = estimate - std.error,
-                     xmax = estimate + std.error),
-                 color = "black",
-                 linewidth = 1,
-                 height = 0) +
-  geom_pointrange(aes(xmin = conf.low,
-                      xmax = conf.high),
+  geom_pointrange(aes(xmin = estimate - std.error,
+                      xmax = estimate + std.error),
                   color = "black",
                   fatten = 6) +
   geom_image(aes(x = -0.14,
@@ -105,30 +86,14 @@ panel_B <- ggplot(data = gear_spp_df,
                                 y = sample,
                                 fill = spp,
                                 shape = gear)) +
-  geom_rect(data = gear_stats,
-            mapping = aes(xmin = estimate - std.error,
-                          xmax = estimate + std.error,
-                          ymin = -Inf,
-                          ymax = Inf),
-            fill = "gray90",
-            alpha = 0.5,
-            inherit.aes = F) +
-  geom_vline(data = gear_stats,
-             mapping = aes(xintercept = estimate),
-             linetype = "dotted") +
   geom_vline(xintercept =  0) +
   geom_image(aes(x = estimate + std.error,
                  y = sample,
                  image = here("data", "raw", "gear_fish_pics", paste0(spp, ".svg"))),
              size = 0.4,
              nudge_y = 0.25) +
-  geom_errorbarh(aes(xmin = estimate - std.error,
-                     xmax = estimate + std.error),
-                 color = "black",
-                 linewidth = 1,
-                 height = 0) +
-  geom_pointrange(aes(xmin = conf.low,
-                      xmax = conf.high),
+  geom_pointrange(aes(xmin = estimate - std.error,
+                      xmax = estimate + std.error),
                   color = "black",
                   fatten = 6) +
   guides(shape = guide_legend(title = "Gear",

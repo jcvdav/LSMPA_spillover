@@ -43,8 +43,7 @@ panelsummary(main_reg,
              hline_after = T,
              format = "latex",
              caption = "\\label{tab:main_reg}Spillover effects of Large Marine Protected Areas on
-             catch-per-unit effort in the purse seine and longline tuna fleet targetting Skipjack tuna, Yellowfin
-             tuna, Bigeye tuna, and Albacore tuna. Coefficients are
+             catch-per-unit effort in the purse seine and longline tuna fleets. Coefficients are
              difference-in-difference estimates for change in CPUE.
              Column 1 shows results for purse seine and longline data
              combined. Column 2 presents models fit to purse seine data

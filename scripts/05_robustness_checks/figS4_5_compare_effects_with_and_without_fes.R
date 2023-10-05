@@ -46,25 +46,16 @@ panel_for_spp_regs <- most_relevant_panel %>%
 # Model without fixed effects
 gear_mpa_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,
                              panel.id = ~id + year,
-                             vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                               time = ~year,
-                                                               lat = ~lat,
-                                                               lon = ~lon,
-                                                               cutoff = 200,
-                                                               lag = 5),
+                             vcov = conley(cutoff = 200),
                              split = ~paste(nice_gear, short_name),
                              data = most_relevant_panel)
 
 # Species-level analysis -------------------------------------------------------
-gear_spp_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | id + year + effort_measure,
-                             panel.id = ~id + event,
-                             vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                               time = ~year,
-                                                               lat = ~lat,
-                                                               lon = ~lon,
-                                                               cutoff = 200,
-                                                               lag = 5),
-                             data = panel_for_spp_regs,
+gear_spp_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,# | chagos,
+                             panel.id = ~id + year,
+                             vcov = conley(cutoff = 200),
+                             data = panel_for_spp_regs %>%
+                               mutate(chagos = ifelse(wdpaid == "555512151" & nice_gear == "PS", 1, 0)),
                              split = ~paste(nice_gear, spp))
 
 ## EXTRACT models ##############################################################

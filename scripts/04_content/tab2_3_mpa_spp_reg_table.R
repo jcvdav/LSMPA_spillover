@@ -15,6 +15,7 @@
 # Load packages ----------------------------------------------------------------
 pacman::p_load(
   here,
+  panelsummary,
   modelsummary,
   kableExtra,
   tidyverse
@@ -43,11 +44,11 @@ abbr_names <- function(mod) {
   return(mod)
 }
 
-modelsummary(abbr_names(gear_mpa_regs),
+
+modelsummary(abbr_names(gear_mpa_regs), shape = model ~ term + statistic,
              output = here("results", "tab", "tab2_mpa_reg_table.tex"),
              stars = panelsummary:::econ_stars(),
              coef_map = c("post::1:near" = "Post x Near"),
-             gof_omit = "With|IC|Std.|effort",
              caption = "\\label{tab:mpa_reg}Spillover effects by gear and Large Marine Protected Areas. Coefficients are
              difference-in-difference estimates for change in CPUE.")
 

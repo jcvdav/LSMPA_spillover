@@ -15,46 +15,37 @@
 \addlinespace[0.3em]
 \multicolumn{7}{l}{Panel A: 0-200 nautical miles}\\
 \hline
-\hspace{1em}Post x Distance & 0.105** & 0.129*** & 0.000 & 0.105** & 0.129** & -0.015\\
-\hspace{1em} & (0.046) & (0.050) & (0.072) & (0.048) & (0.050) & (0.034)\\
-\hspace{1em}Num.Obs & 12,286 & 10,424 & 1,862 & 11,884 & 10,290 & 1,594\\
-\hspace{1em}R2 & 0.776 & 0.578 & 0.714 & 0.764 & 0.576 & 0.579\\
-\hspace{1em}R2 Adj & 0.755 & 0.545 & 0.646 & 0.745 & 0.546 & 0.492\\
-\hspace{1em}FE: id & X & X & X & X & X & \vphantom{2} X\\
-\hspace{1em}FE: flag\textasciicircum{}gear & X & X & X & X & X & \vphantom{2} X\\
-\hspace{1em}FE: wdpaid\textasciicircum{}gear\textasciicircum{}year & X & X & X & X & X & \vphantom{2} X\\
+\hspace{1em}Post x Distance & 0.110** & 0.131*** & 0.003 & 0.105** & 0.129*** & -0.015\\
+\hspace{1em} & (0.046) & (0.050) & (0.075) & (0.046) & (0.050) & (0.072)\\
+\hspace{1em}N & 12,286 & 10,424 & 1,862 & 11,884 & 10,290 & 1,594\\
+\hspace{1em}R2 Adj & 0.754 & 0.543 & 0.627 & 0.745 & 0.546 & 0.492\\
+\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley \vphantom{2} (200km)\\
 \addlinespace[0.5cm]
 \multicolumn{7}{l}{Panel B: 0-400 nautical miles}\\
 \hline
-\hspace{1em}Post x Distance & 0.026 & 0.028 & 0.021** & 0.027 & 0.029 & 0.017\\
-\hspace{1em} & (0.017) & (0.020) & (0.010) & (0.017) & (0.019) & (0.011)\\
-\hspace{1em}Num.Obs & 32,521 & 28,236 & 4,285 & 30,873 & 27,201 & 3,672\\
-\hspace{1em}R2 & 0.736 & 0.530 & 0.618 & 0.726 & 0.526 & 0.502\\
+\hspace{1em}Post x Distance & 0.026* & 0.028* & 0.021 & 0.027* & 0.029* & 0.017\\
+\hspace{1em} & (0.015) & (0.017) & (0.023) & (0.015) & (0.017) & (0.023)\\
+\hspace{1em}N & 32,521 & 28,236 & 4,285 & 30,873 & 27,201 & 3,672\\
 \hspace{1em}R2 Adj & 0.719 & 0.501 & 0.561 & 0.711 & 0.501 & 0.438\\
-\hspace{1em}FE: id & X & X & X & X & X & \vphantom{1} X\\
-\hspace{1em}FE: flag\textasciicircum{}gear & X & X & X & X & X & \vphantom{1} X\\
-\hspace{1em}FE: wdpaid\textasciicircum{}gear\textasciicircum{}year & X & X & X & X & X & \vphantom{1} X\\
+\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley \vphantom{1} (200km)\\
 \addlinespace[0.5cm]
 \multicolumn{7}{l}{Panel C: 0-600 nautical miles}\\
 \hline
 \hspace{1em}Post x Distance & 0.011 & 0.011 & 0.008 & 0.010 & 0.011 & -0.001\\
-\hspace{1em} & (0.010) & (0.012) & (0.008) & (0.011) & (0.012) & (0.009)\\
-\hspace{1em}Num.Obs & 58,606 & 51,884 & 6,722 & 53,080 & 47,398 & 5,682\\
-\hspace{1em}R2 & 0.707 & 0.515 & 0.567 & 0.704 & 0.517 & 0.469\\
+\hspace{1em} & (0.008) & (0.009) & (0.012) & (0.009) & (0.010) & (0.012)\\
+\hspace{1em}N & 58,606 & 51,884 & 6,722 & 53,080 & 47,398 & 5,682\\
 \hspace{1em}R2 Adj & 0.691 & 0.490 & 0.513 & 0.690 & 0.495 & 0.412\\
-\hspace{1em}FE: id & X & X & X & X & X & X\\
-\hspace{1em}FE: flag\textasciicircum{}gear & X & X & X & X & X & X\\
-\hspace{1em}FE: wdpaid\textasciicircum{}gear\textasciicircum{}year & X & X & X & X & X & X\\
+\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km)\\
+\midrule
+FE: Grid ID & X & X & X & X & X & X\\
+FE: Flag-Gear & X & X & X & X & X & X\\
+FE: MPA-Gear-Year & X & X & X & X & X & X\\
+\midrule
 \bottomrule
 \multicolumn{7}{l}{\rule{0pt}{1em}\textit{Note: }}\\
 \multicolumn{7}{l}{\rule{0pt}{1em}* p < 0.1, ** p < 0.05, *** p < 0.01}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}Numbers in parenthesis are standard errors robust to heteroskedasticity}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}and spatio-temporal autocorrelation (200 km cutoff; 5 yr lag).}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}When the data used contains more than one effort unit}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}(i.e. days, sets, hooks) we include fixed-effects. The number}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}of unique MPA-gear combinations is as follows: For columns 1-3 in}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}Panel A: 23 LMPA-gear combinations, Panel B: 25 LMPA-gear}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}combinations, Panel C: 26 LMPA-gear combinations. For columns}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}4-5 all panels have 14 LMPA-gear combinations.}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}The number of unique MPA-gear combinations is as follows: For columns 1-3 in}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Panel A: 23 LMPA-gear combinations, Panel B: 25 LMPA-gear combinations,}\\
+\multicolumn{7}{l}{\rule{0pt}{1em}Panel C: 26 LMPA-gear combinations. For columns 4-5 all panels have 14 LMPA-gear combinations.}\\
 \end{tabular}
 \end{table}

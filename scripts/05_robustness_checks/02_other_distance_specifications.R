@@ -54,6 +54,15 @@ near_300 <- feols(log(cpue_tot) ~ post + near_300 + i(post, near_300, 0) | id + 
 ## VISUALIZE ###################################################################
 
 # X ----------------------------------------------------------------------------
+gm <- tribble(~raw, ~clean, ~fmt,
+              "nobs", "N", 0,
+              "adj.r.squared", "R2 Adj", 3,
+              "vcov.type", "SE", 0,
+              "FE: id", "FE: Grid ID", 0,
+              "FE: flag^gear", "FE: Flag-Gear", 0,
+              "FE: wdpaid^gear^year", "FE: MPA-Gear-Year", 0
+)
+
 panelsummary(near_100,
              near_200,
              near_300,
@@ -69,6 +78,6 @@ panelsummary(near_100,
                           "post::1:near_200" = "Post x Distance",
                           "post::1:near_300" = "Post x Distance"),
              pretty_num = T,
-             gof_omit = "With|IC|RMSE|Std.|effort",
+             gof_map = gm,
              hline_after = T) %>%
   cat(file = here("results", "tab", "tabS2_other_distance_specifications.tex"))

@@ -28,8 +28,8 @@ theme_set(theme_minimal())
 mpas <- st_read(dsn = here("data", "processed", "clean_lmpas.gpkg"))
 
 # CPUE data
-data <- readRDS(here("data", "processed", "quarterly_all_rfmos.rds"))
-annual_data <- readRDS(here("data", "processed", "annual_all_rfmos.rds"))
+data <- readRDS(file = here("data", "processed", "rfmo_all_qtr_gear_flag.rds"))
+annual_data <- readRDS(file = here("data", "processed", "rfmo_all_annual_gear_flag.rds"))
 
 
 grid <- readRDS(here("data", "processed", "distance_grid.rds")) %>%
@@ -64,7 +64,7 @@ gal <- mpas %>%
 
 # Galapagos CPUE data ----------------------------------------------------------
 gal_data <- data %>%
-  filter(rfmo == "iattc",
+  filter(str_detect(name, "Galápagos"),
          flag == "ECU",
          gear == "purse_seine",
          between(lat, -6, 6),
@@ -84,11 +84,12 @@ pts <- replication_data %>%
   complete(lon, lat, fill = list(catch = 0, effort = 0)) %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
-ggplot() +
+map <- ggplot() +
   geom_sf(data = gal, fill = "steelblue", color = "black") +
   geom_tile(data = hotspot_grid_cells, aes(x = lon, y = lat), fill = "lightblue", alpha = 0.5) +
   geom_sf(data = pts, aes(size = effort, color = catch)) +
-  theme_bw()
+  theme_bw() +
+  ggtitle(label = "Replicating Boerder et al., 2017")
 
 
 ts <- replication_data %>%
@@ -129,7 +130,10 @@ f <- ggplot(data = ts, aes(x = year, y = log(cpue), color = group)) +
         legend.background = element_blank())
 
 
-cowplot::plot_grid(d, e, f, ncol = 1)
+p <- cowplot::plot_grid(map, d, e, f,
+                   ncol = 1,
+                   align = "hv",
+                   rel_heights = c(3, 1, 1, 1))
 
 # Now extend it
 pts <- replication_data %>%
@@ -178,3 +182,9 @@ list(feols(norm_cpue ~ treated + post + post:treated, data = panel, cluster = ~i
                              coef_rename = c("post" = "Post",
                                              "treated" = "Treated",
                                              "dist" = "Treated"))
+
+
+startR::lazy_ggsave(plot = p,
+                    filename = "replicate_boerder_2017",
+                    width = 10,
+                    height = 20)

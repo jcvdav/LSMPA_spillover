@@ -38,27 +38,17 @@ gear_spp_regs <- readRDS(file = here("data", "output", "gear_spp_regs.rds"))
 
 # Replicate main regressions using quarterly daggregations ata -----------------
 # Fit DiD
-relevant_mpa_gear_reg_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + year + effort_measure,
+relevant_mpa_gear_reg_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ gear + wdpaid ^ gear ^ year,
                                    panel.id = ~id + year,
-                                   vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                                     time = ~year,
-                                                                     lat = ~lat,
-                                                                     lon = ~lon,
-                                                                     cutoff = 200,
-                                                                     lag = 5),
+                                   vcov = conley(cutoff = 200),
                                    fsplit = ~nice_gear,
                                    data = most_relevant_qtr_panel)
 
 # MPA-level analysis -----------------------------------------------------------
 # Fit a model with fixed effects
-gear_mpa_regs_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + year,
+gear_mpa_regs_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ gear + wdpaid ^ gear ^ year,
                            panel.id = ~id + year,
-                           vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                             time = ~year,
-                                                             lat = ~lat,
-                                                             lon = ~lon,
-                                                             cutoff = 200,
-                                                             lag = 5),
+                           vcov = conley(cutoff = 200),
                            split = ~paste(nice_gear, short_name),
                            data = most_relevant_qtr_panel)
 
@@ -73,7 +63,7 @@ qtr_panel_for_spp_regs <- most_relevant_qtr_panel%>%
   drop_na(cpue_tot)
 
 # Fit DiD
-gear_spp_regs_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + year + effort_measure,
+gear_spp_regs_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ nice_gear + wdpaid ^ nice_gear ^ year,
                            panel.id = ~id + event,
                            vcov = function(x)vcov_conley_hac(x, id = ~id,
                                                              time = ~year,
@@ -88,11 +78,20 @@ gear_spp_regs_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id +
 ## BUILD TABLES ################################################################
 
 # Table comparing main DiD results ---------------------------------------------
-panelsummary(relevant_mpa_gear_reg,
+gm <- tribble(~raw, ~clean, ~fmt,
+              "nobs", "N", 0,
+              "adj.r.squared", "R2 Adj", 3,
+              "vcov.type", "SE", 0,
+              "FE: id", "FE: Grid ID", 0,
+              "FE: flag^gear", "FE: Flag-Gear", 0,
+              "FE: wdpaid^gear^year", "FE: MPA-Gear-Year", 0
+)
+
+panelsummary(relevant_mpa_gear_reg[[4]],
              relevant_mpa_gear_reg_qtr,
              stars = "econ",
              collapse_fe = T,
-             gof_omit = "IC|With|Std.|RMSE",
+             gof_map = gm,
              colnames = c(" ", "Combined", "PS", "LL"),
              panel_labels = c("Panel A: Aggregating data to the year-flag level (form main text)",
                               "Panel B: Aggregatign data to tye year-quarter-flag level"),
@@ -106,7 +105,7 @@ panelsummary(gear_mpa_regs,
              gear_mpa_regs_qtr,
              colnames = c("", mpa_model_names),
              stars = "econ",
-             gof_omit = c("RMSE|IC|With|Std"),
+             gof_map = gm,
              panel_labels = c("Panel A: Aggregating data to the year-flag level (form main text)",
                               "Panel B: Aggregatign data to tye year-quarter-flag level"),
              coef_map = (c("post::1:near" = "Post x Near",

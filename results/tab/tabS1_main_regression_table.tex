@@ -4,49 +4,39 @@
              without fixed-effects when estimating the spillover effects of
              Large Marine Protected Areas on catch-per-unit effort of tuna
              fisheries. Coefficients are difference-in-difference estimates for
-             change in CPUE. Columns 1 and 2 show results for purse seine and
-             longline data combined. Columns 3 and 4 present models fit to purse
+             change in CPUE. Columns 1 and 2 present models fit to purse
              seine data only, and columns 5 and 6 present models fit to longline
-             data only. Models with fixed-effects are the same as the ones
+             data only. Models with fixed-effects (columns 2 and 4) are the same as the ones
              presented in the main text. Note that AIC values are always lower
              and R2 higher for models with fixed-effects.}
 \centering
-\begin{tabular}[t]{lcccccc}
+\begin{tabular}[t]{lcccc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Combined gears} & \multicolumn{2}{c}{Purse seine} & \multicolumn{2}{c}{Longline} \\
-\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
-  & (1) & (2) & (3) & (4) & (5) & (6)\\
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Purse seine} & \multicolumn{2}{c}{Longline} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+  & (1) & (2) & (3) & (4)\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{7}{l}{Panel A: All data (23 LMPA-gear combinations; 14 LMPAs)}\\
-\hline
-\hspace{1em}Post x Near & 0.046 & 0.084** & 0.112** & 0.133*** & -0.019 & -0.028\\
-\hspace{1em} & (0.042) & (0.036) & (0.050) & (0.050) & (0.038) & (0.021)\\
-\hspace{1em}Num.Obs & 17,146 & 17,146 & 10,424 & 10,424 & 6,722 & 6,722\\
-\hspace{1em}R2 & 0.732 & 0.815 & 0.402 & 0.556 & 0.003 & 0.409\\
-\hspace{1em}R2 Adj & 0.732 & 0.802 & 0.402 & 0.527 & 0.003 & 0.359\\
-\hspace{1em}AIC & 46,017.8 & 41,809.1 & 27,739.1 & 25,881.4 & 18,220.2 & 15,742.1\\
-\hspace{1em}RMSE & 0.93 & 0.77 & 0.91 & 0.79 & 0.94 & 0.72\\
+\multicolumn{5}{l}{Panel A: All data (23 LMPA-gear combinations; 14 LMPAs)}\\
+\hspace{1em}Post x Near & 0.112** & 0.117** & -0.019 & 0.012\\
+\hspace{1em} & (0.053) & (0.057) & (0.062) & (0.048)\\
+\hspace{1em}N & 10,424 & 10,424 & 6,722 & 6,722\\
+\hspace{1em}R2 Adj & 0.402 & 0.545 & 0.003 & 0.513\\
+\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley (200km) & Conley \vphantom{1} (200km)\\
 \addlinespace[0.5cm]
-\multicolumn{7}{l}{Panel B: Subsample (14 LMPA-gear combinations; 11 LMPAs)}\\
-\hline
-\hspace{1em}Post x Near & 0.050 & 0.088*** & 0.108** & 0.133*** & -0.020 & -0.023\\
-\hspace{1em} & (0.044) & (0.034) & (0.053) & (0.050) & (0.032) & (0.025)\\
-\hspace{1em}Num.Obs & 15,972 & 15,972 & 10,290 & 10,290 & 5,682 & 5,682\\
-\hspace{1em}R2 & 0.756 & 0.821 & 0.403 & 0.553 & 0.002 & 0.324\\
-\hspace{1em}R2 Adj & 0.756 & 0.810 & 0.403 & 0.527 & 0.002 & 0.271\\
-\hspace{1em}AIC & 41,264.3 & 38,093.9 & 27,401.6 & 25,540.6 & 13,695.4 & 12,295.9\\
-\hspace{1em}RMSE & 0.88 & 0.75 & 0.92 & 0.79 & 0.81 & 0.66\\
+\multicolumn{5}{l}{Panel B: Subsample (14 LMPA-gear combinations; 11 LMPAs)}\\
+\hspace{1em}Post x Near & 0.033 & 0.117** & 0.108** & -0.007\\
+\hspace{1em} & (0.091) & (0.057) & (0.054) & (0.049)\\
+\hspace{1em}N & 15,972 & 10,290 & 10,290 & 5,682\\
+\hspace{1em}R2 Adj & 0.263 & 0.546 & 0.403 & 0.412\\
+\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km)\\
 \midrule
-FE: id &  & X &  & X &  & X\\
-FE: year &  & X &  & X &  & X\\
+FE: Grid ID &  & X &  & X\\
+FE: Flag-Gear &  & X &  & X\\
+FE: MPA-Gear-Year &  & X &  & X\\
 \midrule
 \bottomrule
-\multicolumn{7}{l}{\rule{0pt}{1em}\textit{Note: }}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}* p < 0.1, ** p < 0.05, *** p < 0.01}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}Numbers in parenthesis are standard errors robust to heteroskedasticity}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}and spatio-temporal autocorrelation (200 km cutoff; 5 yr lag).}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}When the data used contains more than one effort unit}\\
-\multicolumn{7}{l}{\rule{0pt}{1em}(i.e. days, sets, hooks) we include fixed-effects}\\
+\multicolumn{5}{l}{\rule{0pt}{1em}\textit{Note: }}\\
+\multicolumn{5}{l}{\rule{0pt}{1em}* p < 0.1, ** p < 0.05, *** p < 0.01}\\
 \end{tabular}
 \end{table}

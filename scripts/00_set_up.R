@@ -252,7 +252,7 @@ baci_plot <- function(data, type = "pts"){
 delta_cpue <- function(data){
   data %>%
     group_by(post, near) %>%
-    summarize(cpue = mean(cpue)) %>%
+    summarize(cpue = mean(cpue), .groups = "drop") %>%
     pivot_wider(names_from = post,
                 values_from = cpue,
                 names_prefix = "post_") %>%

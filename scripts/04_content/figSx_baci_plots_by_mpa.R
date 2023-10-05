@@ -55,14 +55,43 @@ ll_data <- most_relevant_panel %>%
   filter(gear == "longline") %>%
   rename(cpue = cpue_tot)
 
+# Build Delta cpue dfs ---------------------------------------------------------
+ps_delta_cpue <- ps_data %>%
+  group_by(name) %>%
+  nest() %>%
+  mutate(delta = map(data, delta_cpue)) %>%
+  select(name, delta) %>%
+  unnest(delta) %>%
+  mutate(treatment = ifelse(near == 1, "Near", "Far"))
+
+ll_delta_cpue <- ll_data %>%
+  group_by(name) %>%
+  nest() %>%
+  mutate(delta = map(data, delta_cpue)) %>%
+  select(name, delta) %>%
+  unnest(delta) %>%
+  mutate(treatment = ifelse(near == 1, "Near", "Far"))
+
 ## VISUALIZE ###################################################################
 
 # BACI plots -------------------------------------------------------------------
 ps_baci_plot <- baci_plot(data = ps_data) +
-  facet_wrap(~name, scale = "free_y")
+  facet_wrap(~name, scale = "free_y") +
+  geom_text(data = ps_delta_cpue,
+            aes(x = 2,
+                y = post_1 * (0.5 + near),
+                label = paste0(round(change, 2), "%"),
+                color = treatment),
+            inherit.aes = F)
 
 ll_baci_plot <- baci_plot(data = ll_data) +
-  facet_wrap(~name, scale = "free_y")
+  facet_wrap(~name, scale = "free_y") +
+  geom_text(data = ll_delta_cpue,
+            aes(x = 2,
+                y = post_1 * (0.5 + near),
+                label = paste0(round(change, 2), "%"),
+                color = treatment),
+            inherit.aes = F)
 
 startR::lazy_ggsave(
   plot = ps_baci_plot,

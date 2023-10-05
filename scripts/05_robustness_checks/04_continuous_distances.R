@@ -39,22 +39,17 @@ most_relevant_panel_multiple_distances <- readRDS(here("data", "processed", "ann
 ## PROCESSING ##################################################################
 
 # All data ---------------------------------------------------------------------
-main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
+main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | dist + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
                        vcov = conley(cutoff = 200),
                        fsplit = ~nice_gear,
                        subset = ~!is.na(near_100),
                        data = annual_panel_raw %>%
-                         mutate(dist = -1 * (dist / 100)))
+                         mutate(dist = -1 * dist / 100))
 
 main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
-                       vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                         time = ~year,
-                                                         lat = ~lat,
-                                                         lon = ~lon,
-                                                         cutoff = 200,
-                                                         lag = 5),
+                       vcov = conley(cutoff = 200),
                        fsplit = ~nice_gear,
                        subset = ~!is.na(near_200),
                        data = annual_panel_raw %>%
@@ -62,12 +57,7 @@ main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^
 
 main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
-                       vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                         time = ~year,
-                                                         lat = ~lat,
-                                                         lon = ~lon,
-                                                         cutoff = 200,
-                                                         lag = 5),
+                       vcov = conley(cutoff = 200),
                        fsplit = ~nice_gear,
                        subset = ~!is.na(near_300),
                        data = annual_panel_raw %>%
@@ -76,12 +66,7 @@ main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^
 # Relevant MPA - gear combinaitons ---------------------------------------------
 relevant_main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
-                                    vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                                      time = ~year,
-                                                                      lat = ~lat,
-                                                                      lon = ~lon,
-                                                                      cutoff = 200,
-                                                                      lag = 5),
+                                    vcov = conley(cutoff = 200),
                                     fsplit = ~nice_gear,
                                     subset = ~!is.na(near_100),
                                     data = most_relevant_panel_multiple_distances %>%
@@ -89,12 +74,7 @@ relevant_main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | id
 
 relevant_main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
-                                    vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                                      time = ~year,
-                                                                      lat = ~lat,
-                                                                      lon = ~lon,
-                                                                      cutoff = 200,
-                                                                      lag = 5),
+                                    vcov = conley(cutoff = 200),
                                     fsplit = ~nice_gear,
                                     subset = ~!is.na(near_200),
                                     data = most_relevant_panel_multiple_distances %>%
@@ -102,12 +82,7 @@ relevant_main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id
 
 relevant_main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
-                                    vcov = function(x)vcov_conley_hac(x, id = ~id,
-                                                                      time = ~year,
-                                                                      lat = ~lat,
-                                                                      lon = ~lon,
-                                                                      cutoff = 200,
-                                                                      lag = 5),
+                                    vcov = conley(cutoff = 200),
                                     fsplit = ~nice_gear,
                                     subset = ~!is.na(near_300),
                                     data = most_relevant_panel_multiple_distances %>%
@@ -116,9 +91,19 @@ relevant_main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id
 ## EXPORT ######################################################################
 
 # X ----------------------------------------------------------------------------
+gm <- tribble(~raw, ~clean, ~fmt,
+              "nobs", "N", 0,
+              "adj.r.squared", "R2 Adj", 3,
+              "vcov.type", "SE", 0,
+              "FE: id", "FE: Grid ID", 0,
+              "FE: flag^gear", "FE: Flag-Gear", 0,
+              "FE: wdpaid^gear^year", "FE: MPA-Gear-Year", 0
+)
+
 panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
              list(main_cont_reg_200, relevant_main_cont_reg_200),
              list(main_cont_reg_300, relevant_main_cont_reg_300),
+             collapse_fe = T,
              colnames = c("", "Combined", "Purse Seine", "Longline",
                           "Combined", "Purse Seine", "Longline"),
              panel_labels = c("Panel A: 0-200 nautical miles",
@@ -128,7 +113,7 @@ panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
              format = "latex",
              coef_map = c("post:dist" = "Post x Distance"),
              pretty_num = T,
-             gof_omit = "With|IC|RMSE|Std.|effort",
+             gof_map = gm,
              hline_after = T,
              caption = "Effect of LMPAs on CPUE. Coefficiente estimates show the
              effect of moving 100 nautical miles closer to the border fo an LMPA.
@@ -139,13 +124,8 @@ panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
                      "All data" = 3,
                      "Relevant MPA-gear combinations" = 3)) %>%
   footnote(list("* p < 0.1, ** p < 0.05, *** p < 0.01",
-                "Numbers in parenthesis are standard errors robust to heteroskedasticity",
-                "and spatio-temporal autocorrelation (200 km cutoff; 5 yr lag).",
-                "When the data used contains more than one effort unit",
-                "(i.e. days, sets, hooks) we include fixed-effects. The number",
-                "of unique MPA-gear combinations is as follows: For columns 1-3 in",
-                "Panel A: 23 LMPA-gear combinations, Panel B: 25 LMPA-gear",
-                "combinations, Panel C: 26 LMPA-gear combinations. For columns",
-                "4-5 all panels have 14 LMPA-gear combinations.")) %>%
+                "The number of unique MPA-gear combinations is as follows: For columns 1-3 in",
+                "Panel A: 23 LMPA-gear combinations, Panel B: 25 LMPA-gear combinations,",
+                "Panel C: 26 LMPA-gear combinations. For columns 4-5 all panels have 14 LMPA-gear combinations.")) %>%
   cat(file = here("results", "tab", "tabS3_continuous_distance_reg_table.tex"))
 

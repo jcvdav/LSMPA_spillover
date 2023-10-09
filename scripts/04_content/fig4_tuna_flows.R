@@ -101,8 +101,7 @@ p <- ggplot(data = grouped_alluvial_data,
        y = "% Total tuna caught",
        fill = "Gear")+
   theme(legend.position = "bottom",
-        legend.box.spacing = unit(0, 'cm')) +
-  coord_flip()
+        legend.box.spacing = unit(0, 'cm'))
 
 
 

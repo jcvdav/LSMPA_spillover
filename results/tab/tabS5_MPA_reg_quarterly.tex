@@ -1,31 +1,29 @@
 \begin{table}
 
-\caption{Comparison of results when aggregating our main data set to the annual level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).}
+\caption{\label{tab:mpa_reg}Spillover effects by gear and Large Marine Protected Areas using quarterly data. Coefficients are
+             difference-in-difference estimates for change in CPUE.}
 \centering
-\begin{tabular}[t]{lcccccccccccccc}
+\begin{tabular}[t]{lcc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{8}{c}{LL} & \multicolumn{6}{c}{PS} \\
-\cmidrule(l{3pt}r{3pt}){2-9} \cmidrule(l{3pt}r{3pt}){10-15}
- & LL Chagos & LL Coral Sea & LL Motu Motiro Hiva & LL Papahānaumokuākea & LL PIPA & LL Pitcairn & LL PRI (Jarvis) & LL PRI (Wake) & PS Chagos & PS Galápagos & PS Nazca-Desventuradas & PS PIPA & PS PRI (Jarvis) & PS Revillagigedo\\
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Post x Near} \\
+\cmidrule(l{3pt}r{3pt}){2-3}
+  & Est. & S.E.\\
 \midrule
-\addlinespace[0.3em]
-\multicolumn{15}{l}{Panel A: Aggregating data to the year-flag level (form main text)}\\
-\hspace{1em}Post x Near & -0.084 & -0.067 & -0.102 & 0.147 & 0.041 & -0.123* & 0.109 & 0.137 & 0.026 & 0.154 & 0.213 & 0.126 & -0.119 & 0.076\\
-\hspace{1em} & (0.078) & (0.056) & (0.213) & (0.161) & (0.048) & (0.066) & (0.086) & (0.369) & (0.082) & (0.098) & (0.172) & (0.082) & (0.140) & (0.061)\\
-\hspace{1em}N & 1405 & 445 & 330 & 729 & 690 & 1030 & 580 & 473 & 1390 & 5300 & 231 & 1525 & 495 & 1349\\
-\hspace{1em}R2 Adj & 0.374 & 0.558 & 0.344 & 0.359 & 0.416 & 0.233 & 0.325 & 0.498 & 0.111 & 0.105 & 0.073 & 0.150 & 0.335 & 0.200\\
-\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley \vphantom{1} (200km)\\
-\hspace{1em}FE: Grid ID & X & X & X & X & X & X & X & X & X & X & X & X & X & \vphantom{1} X\\
-\addlinespace[0.5cm]
-\multicolumn{15}{l}{Panel B: Aggregatign data to tye year-quarter-flag level}\\
-\hspace{1em}Post x Near & -0.106 & -0.072* & -0.138 & 0.011 & 0.026 & -0.175*** & 0.035 & 0.158 & 0.099 & 0.141 & 0.061 & 0.060 & -0.088 & 0.050\\
-\hspace{1em} & (0.079) & (0.041) & (0.199) & (0.171) & (0.068) & (0.055) & (0.064) & (0.310) & (0.077) & (0.120) & (0.168) & (0.080) & (0.136) & (0.053)\\
-\hspace{1em}N & 3578 & 1187 & 613 & 1299 & 1529 & 2444 & 1250 & 895 & 1716 & 8876 & 258 & 2090 & 581 & 3294\\
-\hspace{1em}R2 Adj & 0.256 & 0.437 & 0.226 & 0.351 & 0.330 & 0.123 & 0.283 & 0.523 & 0.102 & 0.088 & 0.047 & 0.110 & 0.293 & 0.097\\
-\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km) & Conley (200km)\\
-\hspace{1em}FE: Grid ID & X & X & X & X & X & X & X & X & X & X & X & X & X & X\\
-\hspace{1em}FE: Flag-Gear & X & X & X & X & X & X & X & X & X & X & X & X & X & X\\
-\hspace{1em}FE: MPA-Gear-Year & X & X & X & X & X & X & X & X & X & X & X & X & X & X\\
+LL Chagos & \num{-0.106} & \num{0.079}\\
+LL Coral Sea & \num{-0.072}* & \num{0.041}\\
+LL Motu Motiro Hiva & \num{-0.138} & \num{0.199}\\
+LL Papahānaumokuākea & \num{0.011} & \num{0.171}\\
+LL PIPA & \num{0.026} & \num{0.068}\\
+LL Pitcairn & \num{-0.175}*** & \num{0.055}\\
+LL PRI (Jarvis) & \num{0.035} & \num{0.064}\\
+LL PRI (Wake) & \num{0.158} & \num{0.310}\\
+PS Chagos & \num{0.099} & \num{0.077}\\
+PS Galápagos & \num{0.141} & \num{0.120}\\
+PS Nazca-Desventuradas & \num{0.061} & \num{0.168}\\
+PS PIPA & \num{0.060} & \num{0.080}\\
+PS PRI (Jarvis) & \num{-0.088} & \num{0.136}\\
+PS Revillagigedo & \num{0.050} & \num{0.053}\\
 \bottomrule
+\multicolumn{3}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}
 \end{table}

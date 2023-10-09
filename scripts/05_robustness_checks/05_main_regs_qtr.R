@@ -17,6 +17,7 @@ pacman::p_load(
   here,
   kableExtra,
   panelsummary,
+  modelsummary,
   fixest,
   tidyverse
 )
@@ -78,6 +79,16 @@ gear_spp_regs_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id +
 ## BUILD TABLES ################################################################
 
 # Table comparing main DiD results ---------------------------------------------
+abbr_names <- function(mod) {
+  cols <- mod %>%
+    names() %>%
+    str_remove(pattern = ".+; sample: ") %>%
+    str_remove(pattern = "cpue_")
+
+  names(mod) <- cols
+
+  return(mod)
+}
 gm <- tribble(~raw, ~clean, ~fmt,
               "nobs", "N", 0,
               "adj.r.squared", "R2 Adj", 3,
@@ -94,28 +105,21 @@ panelsummary(relevant_mpa_gear_reg[[4]],
              gof_map = gm,
              colnames = c(" ", "Combined", "PS", "LL"),
              panel_labels = c("Panel A: Aggregating data to the year-flag level (form main text)",
-                              "Panel B: Aggregatign data to tye year-quarter-flag level"),
+                              "Panel B: Aggregating data to the year-quarter-flag level"),
              caption = "Comparison of results when aggregating our main data set to the annual level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).",
              format = "latex") %>%
   cat(file = here("results", "tab", "tabS4_main_reg_quarterly.tex"))
 
 # Table mpa-level results ------------------------------------------------------
-mpa_model_names <- str_remove(names(gear_mpa_regs), ".+; sample: ")
-panelsummary(gear_mpa_regs,
-             gear_mpa_regs_qtr,
-             colnames = c("", mpa_model_names),
-             stars = "econ",
-             gof_map = gm,
-             panel_labels = c("Panel A: Aggregating data to the year-flag level (form main text)",
-                              "Panel B: Aggregatign data to tye year-quarter-flag level"),
-             coef_map = (c("post::1:near" = "Post x Near",
-                           "post:near" = "Post X Near")),
-             caption = "Comparison of results when aggregating our main data set to the annual level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).",
-             format = "latex") %>%
-  kableExtra::add_header_above(c(" " = 1,
-                                 "LL" = 8,
-                                 "PS" = 6)) %>%
-  cat(file = here("results", "tab", "tabS5_MPA_reg_quarterly.tex"))
+modelsummary(abbr_names(gear_mpa_regs_qtr),
+             shape = model ~ term + statistic,
+             output = here("results", "tab", "tabS5_MPA_reg_quarterly.tex"),
+             stars = panelsummary:::econ_stars(),
+             coef_map = c("post::1:near" = "Post x Near"),
+             caption = "\\label{tab:mpa_reg}Spillover effects by gear and Large Marine Protected Areas using quarterly data. Coefficients are
+             difference-in-difference estimates for change in CPUE.")
+
+
 
 # Table comparing spp-level results --------------------------------------------
 spp_model_names <- str_remove_all(names(gear_spp_regs), ".+; sample: |cpue_")
@@ -124,8 +128,8 @@ panelsummary(gear_spp_regs,
              colnames = c("", spp_model_names),
              stars = "econ",
              gof_omit = c("RMSE|IC|With|Std|eff"),
-             panel_labels = c("Panel A: Aggregating data to the year-flag level (form main text)",
-                              "Panel B: Aggregatign data to tye year-quarter-flag level"),
+             panel_labels = c("Panel A: Aggregating data to the year-flag level (from main text)",
+                              "Panel B: Aggregating data to the year-quarter-flag level"),
              coef_map = (c("post::1:near" = "Post x Near",
                            "post:near" = "Post X Near")),
              caption = "Comparison of results when aggregating our main data set to the annual level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).",

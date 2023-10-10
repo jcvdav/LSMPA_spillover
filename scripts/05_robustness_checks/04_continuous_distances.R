@@ -94,7 +94,7 @@ relevant_main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id
 gm <- tribble(~raw, ~clean, ~fmt,
               "nobs", "N", 0,
               "adj.r.squared", "R2 Adj", 3,
-              "vcov.type", "SE", 0,
+              # "vcov.type", "SE", 0,
               "FE: id", "FE: Grid ID", 0,
               "FE: flag^gear", "FE: Flag-Gear", 0,
               "FE: wdpaid^gear^year", "FE: MPA-Gear-Year", 0
@@ -115,17 +115,18 @@ panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
              pretty_num = T,
              gof_map = gm,
              hline_after = T,
-             caption = "Effect of LMPAs on CPUE. Coefficiente estimates show the
-             effect of moving 100 nautical miles closer to the border fo an LMPA.
+             caption = "\\label{tab:cont_treat}Effect of LSMPAs on CPUE. Coefficiente estimates show the
+             effect of moving 100 nautical miles closer to the border of an LSMPA.
              Columns 1-3 show coefficients estimated using the entire data set.
              Colu,ns 4-6 show coefficients estimated using a subsample of relevant
-             MPA-gear combinations.") %>%
+             MPA-gear combinations. The number of unique LSMPA-gear combinations
+             is as follows: For columns 1-3 in Panel A: 23 LSMPA-gear combinations,
+             Panel B: 25 LSMPA-gear combinations, Panel C: 26 LSMPA-gear combinations.
+             For columns 4-5 all panels have 14 LSMPA-gear combinations. All
+             columns use Conley standard errors with a 200 km cutoff.") %>%
   add_header_above(c(" " = 1,
                      "All data" = 3,
                      "Relevant MPA-gear combinations" = 3)) %>%
-  footnote(list("* p < 0.1, ** p < 0.05, *** p < 0.01",
-                "The number of unique MPA-gear combinations is as follows: For columns 1-3 in",
-                "Panel A: 23 LMPA-gear combinations, Panel B: 25 LMPA-gear combinations,",
-                "Panel C: 26 LMPA-gear combinations. For columns 4-5 all panels have 14 LMPA-gear combinations.")) %>%
+  footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$.", escape = F) %>%
   cat(file = here("results", "tab", "tabS3_continuous_distance_reg_table.tex"))
 

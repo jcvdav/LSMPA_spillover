@@ -1,22 +1,20 @@
 \begin{table}
 
 \caption{\label{tab:spp_reg}Spillover effects by gear and species. Coefficients are
-             difference-in-difference estimates for change in CPUE.}
+             difference-in-difference estimates for change in CPUE. LL stands for Longline and PS for Purse Seine. ALB = Albacore, BET = Bigeye, YFT = Yellowfin, SKJ = Skipjack.}
 \centering
 \begin{tabular}[t]{lcccccc}
 \toprule
-  & LL alb & LL bet & LL yft & PS bet & PS skj & PS yft\\
+  & LL ALB & LL BET & LL YFT & PS BET & PS SKJ & PS YFT\\
 \midrule
 Post x Near & \num{0.222}* & \num{0.051} & \num{0.061} & \num{0.112} & \num{0.021} & \num{0.052}\\
  & (\num{0.125}) & (\num{0.072}) & (\num{0.068}) & (\num{0.128}) & (\num{0.058}) & (\num{0.075})\\
 \midrule
-Num.Obs. & \num{5191} & \num{5548} & \num{5481} & \num{5176} & \num{7968} & \num{9221}\\
-R2 & \num{0.740} & \num{0.707} & \num{0.718} & \num{0.573} & \num{0.667} & \num{0.513}\\
-R2 Adj. & \num{0.717} & \num{0.675} & \num{0.688} & \num{0.522} & \num{0.638} & \num{0.475}\\
-RMSE & \num{1.19} & \num{0.80} & \num{0.76} & \num{1.28} & \num{1.00} & \num{0.99}\\
-FE: id & X & X & X & X & X & X\\
-FE: flag & X & X & X & X & X & X\\
-FE: wdpaid^year & X & X & X & X & X & X\\
+N & \num{5191} & \num{5548} & \num{5481} & \num{5176} & \num{7968} & \num{9221}\\
+R2 Adj & \num{0.717} & \num{0.675} & \num{0.688} & \num{0.522} & \num{0.638} & \num{0.475}\\
+FE: Grid ID & X & X & X & X & X & X\\
+FE: Flag-Gear & X & X & X & X & X & X\\
+FE: MPA-Gear-Year & X & X & X & X & X & X\\
 \bottomrule
 \multicolumn{7}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
 \end{tabular}

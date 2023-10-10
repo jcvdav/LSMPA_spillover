@@ -40,18 +40,18 @@ gm <- tribble(~raw, ~clean, ~fmt,
 panelsummary(main_reg,
              relevant_mpa_gear_reg,
              stars = "econ",
-             panel_labels = c("Panel A: All data (23 LMPA-gear combinations; 14 LMPAs)",
-                              "Panel B: Subsample (14 LMPA-gear combinations, 11 LMPAs)"),
+             panel_labels = c("Panel A: All data (23 LSMPA-gear combinations; 14 LSMPAs)",
+                              "Panel B: Subsample (14 LSMPA-gear combinations, 11 LSMPAs)"),
              gof_map = gm,
              coef_map = c("post::1:near" = "Post x Near"),
              collapse_fe = T,
              format = "latex",
-             caption = "\\label{tab:main_reg}Effect of Large Marine Protected Areas on catch-per-unit-effort in the worlds tuna fisheries.
+             caption = "\\label{tab:main_reg}Effect of large-scale Marine Protected Areas on catch-per-unit-effort in the worlds tuna fisheries.
              Coefficients are difference-in-difference estimates for change in CPUE. Column 1 is the simplest
              specification with no fixed effects. Column 2 includes grid-level fixed effects. Column 3 includes fixed
              effects by grid and by Flag-Gear. Column 4 shows a full specification with fixed-effects by grid, by
-             Flag-Gear, and by MPA-Gear-Year. Columns 5 and 6 are the same as columnf 4, but restrict data to purseine
+             Flag-Gear, and by MPA-Gear-Year. Columns 5 and 6 are the same as column 4, but restrict data to purseine
              and longline catch, respectively.") %>%
-  footnote("* p < 0.1, ** p < 0.05, *** p < 0.01") %>%
+  footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$", escape = F) %>%
   cat(file = here("results", "tab", "tab1_main_reg_table.tex"))
 

@@ -79,7 +79,7 @@ gear_spp_regs_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id +
 ## BUILD TABLES ################################################################
 
 # Table comparing main DiD results ---------------------------------------------
-abbr_names <- function(mod) {
+abbr_names <- function(mod, caps = F) {
   cols <- mod %>%
     names() %>%
     str_remove(pattern = ".+; sample: ") %>%
@@ -89,13 +89,16 @@ abbr_names <- function(mod) {
 
   return(mod)
 }
+
 gm <- tribble(~raw, ~clean, ~fmt,
               "nobs", "N", 0,
               "adj.r.squared", "R2 Adj", 3,
-              "vcov.type", "SE", 0,
+              # "vcov.type", "SE", 0,
               "FE: id", "FE: Grid ID", 0,
               "FE: flag^gear", "FE: Flag-Gear", 0,
-              "FE: wdpaid^gear^year", "FE: MPA-Gear-Year", 0
+              "FE: flag^nice_gear", "FE: Flag-Gear", 0,
+              "FE: wdpaid^gear^year", "FE: MPA-Gear-Year", 0,
+              "FE: wdpaid^nice_gear^year", "FE: MPA-Gear-Year", 0
 )
 
 panelsummary(relevant_mpa_gear_reg[[4]],
@@ -103,11 +106,16 @@ panelsummary(relevant_mpa_gear_reg[[4]],
              stars = "econ",
              collapse_fe = T,
              gof_map = gm,
+             coef_map = (c("post::1:near" = "Post x Near",
+                           "post:near" = "Post X Near")),
              colnames = c(" ", "Combined", "PS", "LL"),
              panel_labels = c("Panel A: Aggregating data to the year-flag level (form main text)",
                               "Panel B: Aggregating data to the year-quarter-flag level"),
-             caption = "Comparison of results when aggregating our main data set to the annual level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).",
+             caption = "Comparison of results when aggregating our main data set to the annual
+             level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).
+             All specifications use Conley standard errors with a 200 km cutoff",
              format = "latex") %>%
+  footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$.", escape = F) %>%
   cat(file = here("results", "tab", "tabS4_main_reg_quarterly.tex"))
 
 # Table mpa-level results ------------------------------------------------------
@@ -116,18 +124,20 @@ modelsummary(abbr_names(gear_mpa_regs_qtr),
              output = here("results", "tab", "tabS5_MPA_reg_quarterly.tex"),
              stars = panelsummary:::econ_stars(),
              coef_map = c("post::1:near" = "Post x Near"),
-             caption = "\\label{tab:mpa_reg}Spillover effects by gear and Large Marine Protected Areas using quarterly data. Coefficients are
-             difference-in-difference estimates for change in CPUE.")
+             caption = "\\label{tab:mpa_reg}Spillover effects by gear and Large-Scale Marine Protected Areas using quarterly data. Coefficients are
+             difference-in-difference estimates for change in CPUE. All specifications use Conley standard errors with a 200 km cutoff")
 
 
 
 # Table comparing spp-level results --------------------------------------------
-spp_model_names <- str_remove_all(names(gear_spp_regs), ".+; sample: |cpue_")
+spp_model_names <- str_remove_all(names(gear_spp_regs), ".+; sample: |cpue_") %>%
+  str_to_upper()
 panelsummary(gear_spp_regs,
              gear_spp_regs_qtr,
              colnames = c("", spp_model_names),
              stars = "econ",
-             gof_omit = c("RMSE|IC|With|Std|eff"),
+             collapse_fe =  T,
+             gof_map = gm,
              panel_labels = c("Panel A: Aggregating data to the year-flag level (from main text)",
                               "Panel B: Aggregating data to the year-quarter-flag level"),
              coef_map = (c("post::1:near" = "Post x Near",
@@ -137,5 +147,6 @@ panelsummary(gear_spp_regs,
   kableExtra::add_header_above(c(" " = 1,
                                  "LL" = 3,
                                  "PS" = 3)) %>%
+  footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$.", escape = F) %>%
   cat(file = here("results", "tab", "tabS6_spp_reg_quarterly.tex"))
 

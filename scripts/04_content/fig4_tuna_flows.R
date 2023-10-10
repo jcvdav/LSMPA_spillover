@@ -103,7 +103,17 @@ p <- ggplot(data = grouped_alluvial_data,
   theme(legend.position = "bottom",
         legend.box.spacing = unit(0, 'cm'))
 
-
+# Stats for text
+grouped_alluvial_data %>%
+  filter(name%in% c("Galápagos", "Revillagigedo"),
+         gear == "Purse seine",
+         spp %in% c("Skipjack", "Yellowfin")) %>%
+  arrange(spp) %>%
+  group_by(name, flag) %>%
+  summarize(mt = sum(mt)) %>%
+  group_by(name) %>% mutate(mpa_mt = sum(mt)) %>%
+  ungroup() %>%
+  mutate(pct_mt = mt / mpa_mt)
 
 # X ----------------------------------------------------------------------------
 startR::lazy_ggsave(p,

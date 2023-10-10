@@ -45,7 +45,7 @@ gear_mpa_regs <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + fla
                        data = most_relevant_panel)
 
 # Species-level analysis -------------------------------------------------------
-gear_spp_regs <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag + wdpaid ^ year,
+gear_spp_regs <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) |  id + flag ^ nice_gear + wdpaid ^ nice_gear ^ year,
                        panel.id = ~id + year,
                        vcov = conley(cutoff = 200),
                        data = panel_for_spp_regs,

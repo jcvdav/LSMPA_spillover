@@ -1,6 +1,8 @@
 \begin{table}
 
-\caption{Comparison of results when aggregating our main data set to the annual level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).}
+\caption{Comparison of results when aggregating our main data set to the annual
+             level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).
+             All specifications use Conley standard errors with a 200 km cutoff}
 \centering
 \begin{tabular}[t]{lccc}
 \toprule
@@ -8,31 +10,23 @@
 \midrule
 \addlinespace[0.3em]
 \multicolumn{4}{l}{Panel A: Aggregating data to the year-flag level (form main text)}\\
-\hspace{1em}post & 0.884 & 0.024 & 0.219\\
-\hspace{1em} & (19019.301) & (10341.731) & (50988.543)\\
-\hspace{1em}near & -0.147* &  & \\
-\hspace{1em} & (0.079) &  & \\
-\hspace{1em}post = 1 × near & 0.076* & 0.117** & -0.007\\
+\hspace{1em}Post x Near & 0.076* & 0.117** & -0.007\\
 \hspace{1em} & (0.042) & (0.057) & (0.049)\\
 \hspace{1em}N & 15972 & 10290 & 5682\\
 \hspace{1em}R2 Adj & 0.826 & 0.546 & 0.412\\
-\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley \vphantom{1} (200km)\\
 \addlinespace[0.5cm]
 \multicolumn{4}{l}{Panel B: Aggregating data to the year-quarter-flag level}\\
-\hspace{1em}post & 0.633 & 1.253 & -2.885\\
-\hspace{1em} & (6311.577) & (10225.151) & (23576.573)\\
-\hspace{1em}near & -0.103 &  & \\
-\hspace{1em} & (0.087) &  & \\
-\hspace{1em}post = 1 × near & 0.039 & 0.106 & -0.060\\
+\hspace{1em}Post x Near & 0.039 & 0.106 & -0.060\\
 \hspace{1em} & (0.045) & (0.068) & (0.041)\\
 \hspace{1em}N & 29610 & 16815 & 12795\\
 \hspace{1em}R2 Adj & 0.809 & 0.440 & 0.400\\
-\hspace{1em}SE & Conley (200km) & Conley (200km) & Conley (200km)\\
 \midrule
 FE: Grid ID & X & X & X\\
 FE: Flag-Gear & X & X & X\\
 FE: MPA-Gear-Year & X & X & X\\
 \midrule
 \bottomrule
+\multicolumn{4}{l}{\rule{0pt}{1em}\textit{Note: }}\\
+\multicolumn{4}{l}{\rule{0pt}{1em}$* p < 0.1, ** p < 0.05, *** p < 0.01$.}\\
 \end{tabular}
 \end{table}

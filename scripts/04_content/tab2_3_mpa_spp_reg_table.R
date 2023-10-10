@@ -33,16 +33,31 @@ gear_mpa_regs <- readRDS(file = here("data", "output", "gear_mpa_regs.rds"))
 gear_spp_regs <- readRDS(file = here("data", "output", "gear_spp_regs.rds"))
 
 
-abbr_names <- function(mod) {
+abbr_names <- function(mod, caps = F) {
   cols <- mod %>%
     names() %>%
     str_remove(pattern = ".+; sample: ") %>%
     str_remove(pattern = "cpue_")
 
+  if(caps) {
+    cols <- str_to_upper(cols)
+  }
+
   names(mod) <- cols
 
   return(mod)
 }
+
+gm <- tribble(~raw, ~clean, ~fmt,
+              "nobs", "N", 0,
+              "adj.r.squared", "R2 Adj", 3,
+              # "vcov.type", "SE", 0,
+              "FE: id", "FE: Grid ID", 0,
+              "FE: flag^gear", "FE: Flag-Gear", 0,
+              "FE: flag^nice_gear", "FE: Flag-Gear", 0,
+              "FE: wdpaid^gear^year", "FE: MPA-Gear-Year", 0,
+              "FE: wdpaid^nice_gear^year", "FE: MPA-Gear-Year", 0
+)
 
 
 modelsummary(abbr_names(gear_mpa_regs),
@@ -50,13 +65,13 @@ modelsummary(abbr_names(gear_mpa_regs),
              output = here("results", "tab", "tab2_mpa_reg_table.tex"),
              stars = panelsummary:::econ_stars(),
              coef_map = c("post::1:near" = "Post x Near"),
-             caption = "\\label{tab:mpa_reg}Spillover effects by gear and Large Marine Protected Areas. Coefficients are
-             difference-in-difference estimates for change in CPUE.")
+             caption = "\\label{tab:mpa_reg}Spillover effects by gear and Large-Scale Marine Protected Areas. Coefficients are
+             difference-in-difference estimates for change in CPUE. LL stands for Longline and PS for Purse Seine.")
 
-modelsummary(abbr_names(gear_spp_regs),
+modelsummary(abbr_names(gear_spp_regs, caps = T),
              output = here("results", "tab", "tab3_spp_reg_table.tex"),
              stars = panelsummary:::econ_stars(),
              coef_map = c("post::1:near" = "Post x Near"),
-             gof_omit = "With|IC|Std.|effort",
+             gof_map = gm,
              caption = "\\label{tab:spp_reg}Spillover effects by gear and species. Coefficients are
-             difference-in-difference estimates for change in CPUE.")
+             difference-in-difference estimates for change in CPUE. LL stands for Longline and PS for Purse Seine. ALB = Albacore, BET = Bigeye, YFT = Yellowfin, SKJ = Skipjack.")

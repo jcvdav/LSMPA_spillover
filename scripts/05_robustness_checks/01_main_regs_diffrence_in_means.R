@@ -40,7 +40,7 @@ relevant_mpa_gear_reg <- readRDS(file = here("data", "output", "relevant_mpa_gea
 # Now without fixed effects
 main_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | chagos,
                         panel.id = ~id + year,
-                        vcov = conley(cutoff = 200),
+                        vcov = "iid",
                         split = ~nice_gear,
                         data = annual_panel %>%
                           mutate(chagos = ifelse(nice_gear == "PS" & wdpaid == "555512151", 1, 0)))
@@ -48,8 +48,8 @@ main_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | chagos,
 # Same, but without FEs
 relevant_mpa_gear_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | chagos,
                                      panel.id = ~id + year,
-                                     vcov = conley(cutoff = 200),
-                                     fsplit = ~nice_gear,
+                                     vcov = "iid",
+                                     split = ~nice_gear,
                                      data = most_relevant_panel %>%
                                        mutate(chagos = ifelse(nice_gear == "PS" & wdpaid == "555512151", 1, 0)))
 
@@ -80,7 +80,7 @@ panelsummary(list(main_reg_wo_fe[[1]], main_reg[[4]][[2]],
              format = "latex",
              caption = "\\label{tab:dif_in_means_reg}Comparision of coefficinet estimates for models with and
              without fixed-effects when estimating the spillover effects of
-             Large Marine Protected Areas on catch-per-unit effort of tuna
+             Large-Scale Marine Protected Areas on catch-per-unit effort of tuna
              fisheries. Coefficients are difference-in-difference estimates for
              change in CPUE. Columns 1 and 2 present models fit to purse
              seine data only, and columns 5 and 6 present models fit to longline
@@ -90,5 +90,5 @@ panelsummary(list(main_reg_wo_fe[[1]], main_reg[[4]][[2]],
   add_header_above(c(" " = 1,
                      "Purse seine" = 2,
                      "Longline" = 2)) %>%
-  footnote("* p < 0.1, ** p < 0.05, *** p < 0.01") %>%
+  footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$", escape = F) %>%
   cat(file = here("results", "tab", "tabS1_main_regression_table.tex"))

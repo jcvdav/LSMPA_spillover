@@ -37,7 +37,7 @@ pts_near <- data %>%
   distinct() %>%
   st_as_sf(coords = c("lon", "lat"), crs = "EPSG:4326") %>%
   mutate(dist = as.numeric(st_distance(., nazca))) %>%
-  filter(dist < 2e5) %>%
+  filter(dist < 1112400) %>%
   st_as_sf(coords = c("lon", "lat"), crs = "EPSG:4326")
 
 
@@ -61,8 +61,8 @@ p <- ggplot() +
   geom_sf(data = pts_near, color = "gray") +
   geom_sf(data = pt_inside, color = "red") +
   geom_sf(data = pts_partial) +
-  scale_y_continuous(breaks = seq(-30, -22, 1)) +
-  scale_x_continuous(breaks = seq(-85, -76, 1)) +
+  scale_y_continuous(breaks = seq(-40, 0, 1)) +
+  scale_x_continuous(breaks = seq(-100, -60, 1)) +
   theme(panel.grid.major = element_line(color = "black"))
 
 ## EXPORT ######################################################################

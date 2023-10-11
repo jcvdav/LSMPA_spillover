@@ -66,7 +66,9 @@ gm <- tribble(~raw, ~clean, ~fmt,
 panelsummary(near_100,
              near_200,
              near_300,
-             caption = "\\label{tab:other_near_far}Testig for spillover effects using other deffinitions of near and far from an LSMPA boundary.",
+             caption = "\\label{tab:other_near_far}\\textbf{Testig for spillover effects using other deffinitions of near and far from an LSMPA boundary.}
+             The table shows difference-in-difference estimates using alternative deffinitions of the near-far areas. In Panel A near is defined as 0-100 and
+             far as 100-200. In Panel B near is defined as 0-200 and far as 200-400. Finally, in panel C near is defined as 0-300 and far as 300-600.",
              colnames = c("", "Combined", "Purse Seine", "Longline"),
              panel_labels = c("Panel A: 0:100 - 100:200 nautical miles",
                               "Panel B: 0:200 - 200:400 nautical miles",

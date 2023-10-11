@@ -69,8 +69,8 @@ panelsummary(list(main_reg_wo_fe[[1]], main_reg[[4]][[2]],
                   main_reg_wo_fe[[2]], main_reg[[4]][[3]]),
              list(relevant_mpa_gear_reg_wo_fe[[1]], relevant_mpa_gear_reg[[4]][[2]],
                   relevant_mpa_gear_reg_wo_fe[[2]], relevant_mpa_gear_reg[[4]][[3]]),
-             panel_labels = c("Panel A: All data (23 LMPA-gear combinations; 14 LMPAs)",
-                              "Panel B: Subsample (14 LMPA-gear combinations; 11 LMPAs)"),
+             panel_labels = c("Panel A: All data (23 LSMPA-gear combinations; 14 LSMPAs)",
+                              "Panel B: Subsample (14 LSMPA-gear combinations; 11 LSMPAs)"),
              stars = "econ",
              pretty_num = T,
              collapse_fe = T,
@@ -78,15 +78,14 @@ panelsummary(list(main_reg_wo_fe[[1]], main_reg[[4]][[2]],
                           "post:near" = "Post x Near"),
              gof_map = gm,
              format = "latex",
-             caption = "\\label{tab:dif_in_means_reg}Comparision of coefficinet estimates for models with and
+             caption = "\\label{tab:dif_in_means_reg}\\textbf{Comparison of coefficient estimates for models with and
              without fixed-effects when estimating the spillover effects of
              Large-Scale Marine Protected Areas on catch-per-unit effort of tuna
-             fisheries. Coefficients are difference-in-difference estimates for
-             change in CPUE. Columns 1 and 2 present models fit to purse
-             seine data only, and columns 5 and 6 present models fit to longline
+             fisheries.} Coefficients are difference-in-difference estimates for
+             the change in CPUE. Columns 1 and 2 present models fit to purse
+             seine data only, and columns 3 and 4 present models fit to longline
              data only. Models with fixed-effects (columns 2 and 4) are the same as the ones
-             presented in the main text. Note that AIC values are always lower
-             and R2 higher for models with fixed-effects.") %>%
+             presented in the main text. Note that R$^2$ values are always higher for models with fixed-effects.") %>%
   add_header_above(c(" " = 1,
                      "Purse seine" = 2,
                      "Longline" = 2)) %>%

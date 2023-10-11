@@ -65,13 +65,13 @@ modelsummary(abbr_names(gear_mpa_regs),
              output = here("results", "tab", "tab2_mpa_reg_table.tex"),
              stars = panelsummary:::econ_stars(),
              coef_map = c("post::1:near" = "Post x Near"),
-             caption = "\\label{tab:mpa_reg}Spillover effects by gear and Large-Scale Marine Protected Areas. Coefficients are
-             difference-in-difference estimates for change in CPUE. LL stands for Longline and PS for Purse Seine.")
+             caption = "\\label{tab:mpa_reg}\\textbf{Spillover effects by gear and Large-Scale Marine Protected Areas.} Coefficients are
+             difference-in-difference estimates for the change in CPUE. LL stands for Longline and PS for Purse Seine.")
 
 modelsummary(abbr_names(gear_spp_regs, caps = T),
              output = here("results", "tab", "tab3_spp_reg_table.tex"),
              stars = panelsummary:::econ_stars(),
              coef_map = c("post::1:near" = "Post x Near"),
              gof_map = gm,
-             caption = "\\label{tab:spp_reg}Spillover effects by gear and species. Coefficients are
-             difference-in-difference estimates for change in CPUE. LL stands for Longline and PS for Purse Seine. ALB = Albacore, BET = Bigeye, YFT = Yellowfin, SKJ = Skipjack.")
+             caption = "\\label{tab:spp_reg}\\textbf{Spillover effects by gear and species.} Coefficients are
+             difference-in-difference estimates for the change in CPUE. LL stands for Longline and PS for Purse Seine. ALB = Albacore, BET = Bigeye, YFT = Yellowfin, SKJ = Skipjack.")

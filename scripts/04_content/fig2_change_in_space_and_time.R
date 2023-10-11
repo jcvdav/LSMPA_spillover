@@ -350,7 +350,7 @@ p2 <- ggdraw() +
 startR::lazy_ggsave(
   plot = p,
   filename = "fig2_visual_change",
-  width = 18,
+  width = 19,
   height = 20
 )
 

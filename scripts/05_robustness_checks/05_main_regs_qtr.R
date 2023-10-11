@@ -111,8 +111,8 @@ panelsummary(relevant_mpa_gear_reg[[4]],
              colnames = c(" ", "Combined", "PS", "LL"),
              panel_labels = c("Panel A: Aggregating data to the year-flag level (form main text)",
                               "Panel B: Aggregating data to the year-quarter-flag level"),
-             caption = "Comparison of results when aggregating our main data set to the annual
-             level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).
+             caption = "\\textbf{Comparison of results when aggregating data to the annual vs quarterly level using the subsample of relevant LSMPA-gear combinations}.
+             Panel A uses the annual data as in the main text. Panel B uses data aggregated to the quarterly level.
              All specifications use Conley standard errors with a 200 km cutoff",
              format = "latex") %>%
   footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$.", escape = F) %>%
@@ -124,7 +124,7 @@ modelsummary(abbr_names(gear_mpa_regs_qtr),
              output = here("results", "tab", "tabS5_MPA_reg_quarterly.tex"),
              stars = panelsummary:::econ_stars(),
              coef_map = c("post::1:near" = "Post x Near"),
-             caption = "\\label{tab:mpa_reg}Spillover effects by gear and Large-Scale Marine Protected Areas using quarterly data. Coefficients are
+             caption = "\\label{tab:mpa_reg}\\textbf{Spillover effects by gear and Large-Scale Marine Protected Areas using quarterly data.} Coefficients are
              difference-in-difference estimates for change in CPUE. All specifications use Conley standard errors with a 200 km cutoff")
 
 
@@ -142,7 +142,7 @@ panelsummary(gear_spp_regs,
                               "Panel B: Aggregating data to the year-quarter-flag level"),
              coef_map = (c("post::1:near" = "Post x Near",
                            "post:near" = "Post X Near")),
-             caption = "Comparison of results when aggregating our main data set to the annual level (as in the main text, Panel A) vs. aggreating it to the quarterly level (Panel B).",
+             caption = "\\textbf{Comparison of species-level results when aggregating data to the annual vs quarterly level using the subsample of relevant LSMPA-gear combinations}. Panel A shows the same results as the main text. Panel B shows the results using quarterly data",
              format = "latex") %>%
   kableExtra::add_header_above(c(" " = 1,
                                  "LL" = 3,

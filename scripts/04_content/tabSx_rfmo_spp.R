@@ -1,3 +1,17 @@
+################################################################################
+# title
+################################################################################
+#
+# Juan Carlos Villaseñor-Derbez
+# juancvd@stanford.edu
+# date
+#
+# Description
+#
+################################################################################
+
+## SET UP ######################################################################
+
 # Load packages ----------------------------------------------------------------
 pacman::p_load(
   cowplot,
@@ -26,8 +40,13 @@ list(iattc = iattc,
          gear = str_to_sentence(str_replace(gear, "_", " "))) %>%
   mutate_at(.vars = c(3:9), ~ifelse(. == 0 | is.na(.), "-", "X")) %>%
   kbl(booktabs = T,
-      col.names = c("RFMO", "Gear", "Albacore", "Bigeye", "Bluefin", "Pacific bluefin", "Southern bluefin", "Skipjack", "Yellofin"),
-      caption = "List of relevant tuna species contained in the data reported by each RFMO. Note that Bluefin and Pacific bluefin are not include din our main analysis as no catch is reported near the MPAs analyzed here.",
+      linesep = F,
+      col.names = c("RFMO", "Gear", "Albacore", "Bigeye", "Bluefin", "Pacific bluefin", "Southern bluefin", "Skipjack", "Yellowfin"),
+      caption = "\\textbf{List of relevant tuna species contained in the data reported
+      by each Regional Fisheries Management Organization (RFMO).} IATTC stands for Inter-American Tropical Tuna Commission,
+      ICCAT stands for International Commission for the Conservation of Atlantic Tunas, IOTC stands for Indian Ocean Tuna
+      Commission and WCPFC stands for Western and Central Pacific Fisheries Commission.
+      Note that Bluefin and Pacific bluefin are not included in our main analysis as no catch is reported near the MPAs analyzed here.",
       label = "rfmo_spp",
       format = "latex"
       ) %>%

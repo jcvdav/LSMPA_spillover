@@ -39,6 +39,10 @@ alluvial_data <- most_relevant_panel %>%
   ungroup() %>%
   pivot_longer(cols = contains("mt"), names_to = "spp", values_to = "mt") %>%
   ungroup() %>%
+  filter(spp %in% c("skj_mt",
+                    "yft_mt",
+                    "bet_mt",
+                    "alb_mt")) %>%
   group_by(name, gear, flag, spp) %>%
   summarize(mt = sum(mt, na.rm = T)) %>%
   ungroup() %>%
@@ -63,8 +67,7 @@ grouped_alluvial_data <- alluvial_data %>%
          spp = case_when(spp == "skj" ~ "Skipjack",
                          spp == "yft" ~ "Yellowfin",
                          spp == "bet" ~ "Bigeye",
-                         spp == "alb" ~ "Albacore",
-                         T ~ "Others")) %>%
+                         spp == "alb" ~ "Albacore")) %>%
   mutate(name = fct_reorder(name, pct_mt, sum),
          spp = fct_reorder(spp, pct_mt, sum),
          gear = fct_reorder(gear, pct_mt, sum),
@@ -90,7 +93,7 @@ p <- ggplot(data = grouped_alluvial_data,
   geom_text(stat = "stratum",
             aes(label = after_stat(stratum)),
             size = 2) +
-  scale_x_discrete(limits = c("LMPA",
+  scale_x_discrete(limits = c("LSMPA",
                               "Fishing nation",
                               "Species"),
                    expand = c(0, 0)) +
@@ -118,4 +121,5 @@ grouped_alluvial_data %>%
 # X ----------------------------------------------------------------------------
 startR::lazy_ggsave(p,
                     filename = "fig5_tuna_flows",
-                    width = 18)
+                    width = 18,
+                    height = 10)

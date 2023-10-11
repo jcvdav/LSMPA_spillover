@@ -106,3 +106,9 @@ startR::lazy_ggsave(
   width = 18,
   height = 13.5
 )
+
+# Override to fix PAPA
+ggsave(filename = here("results", "img", "figSx_ll_baci_by_mpa.pdf"),
+       width = 18,
+       height = 13.5,
+       units = "cm", device = cairo_pdf)

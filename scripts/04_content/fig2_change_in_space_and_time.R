@@ -55,7 +55,7 @@ ps_baci_plot <- baci_plot(data = ps_data) +
   annotate(geom = "text",
            x = c(1.25, 1.75),
            y = c(31, 22),
-           label = c("Change in CPUE near: 22.9%",
+           label = c("Change in CPUE near: 22.85%",
                      "Change in CPUE far: 8.74%"),
            color = c(gear_palette["PS"], "gray50"))
 
@@ -97,7 +97,7 @@ ps_baci_pipa <- baci_plot(data = ps_pipa) +
            x =c(1.75, 1.25),
            y = c(30, 45),
            label = c("1.93%",
-                     "13.6%"),
+                     "13.61%"),
            color = c("gray50", gear_palette["PS"]))
 
 # Panel D: Bad example with longline data
@@ -116,8 +116,8 @@ ll_baci_motu <- baci_plot(data = ll_motu_data) +
   annotate(geom = "text",
            x =c(1.75, 1.25),
            y = c(200, 700),
-           label = c("15.7%",
-                     "16.1%"),
+           label = c("15.71%",
+                     "16.08%"),
            color = c("gray50", gear_palette["LL"]))
 
 # Panels E-H "spillover gradient" plots ----------------------------------------
@@ -160,7 +160,7 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
              fill = "#08519B",
              color = "black") +
   scale_size_continuous(labels = scales::percent) +
-  labs(x = "Distance from border (NM)",
+  labs(x = "Distance from border (nmi)",
        y = "Change in CPUE (MT / set)",
        title = "All purse seine")
 
@@ -201,7 +201,7 @@ all_ll_delta_cpue_dist_plot <- ll_delta_cpue_dist_data %>%
              fill = unname(gear_palette)[2],
              color = "black") +
   scale_size_continuous(labels = scales::percent) +
-  labs(x = "Distance from border (NM)",
+  labs(x = "Distance from border (nmi)",
        y = "Change in CPUE (Kg / 1000 hooks)",
        title = "All longline")
 
@@ -240,7 +240,7 @@ ps_delta_cpue_dist_plot <- most_relevant_panel %>%
              size = 2,
              fill = "#08519B",
              color = "black") +
-  labs(x = "Distance from border (NM)",
+  labs(x = "Distance from border (nmi)",
        y = "Change in CPUE",
        color = "LMPA",
        title = "PRI - Jarvis") +
@@ -289,7 +289,7 @@ ll_delta_cpue_dist_plot <- most_relevant_panel %>%
   guides(color = guide_legend(ncol = 1,
                               override.aes = list(fill = "transparent")),
          fill = "none") +
-  labs(x = "Distance from border (NM)",
+  labs(x = "Distance from border (nmi)",
        y = "Change in CPUE",
        color = "LMPA",
        title = "Papahanaumokuakea") +

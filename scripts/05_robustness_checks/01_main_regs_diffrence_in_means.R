@@ -38,20 +38,18 @@ relevant_mpa_gear_reg <- readRDS(file = here("data", "output", "relevant_mpa_gea
 
 # Fit simple difference-in-means estimations -----------------------------------
 # Now without fixed effects
-main_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | chagos,
+main_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,
                         panel.id = ~id + year,
                         vcov = "iid",
                         split = ~nice_gear,
-                        data = annual_panel %>%
-                          mutate(chagos = ifelse(nice_gear == "PS" & wdpaid == "555512151", 1, 0)))
+                        data = annual_panel)
 
 # Same, but without FEs
-relevant_mpa_gear_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near | chagos,
+relevant_mpa_gear_reg_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,
                                      panel.id = ~id + year,
                                      vcov = "iid",
                                      split = ~nice_gear,
-                                     data = most_relevant_panel %>%
-                                       mutate(chagos = ifelse(nice_gear == "PS" & wdpaid == "555512151", 1, 0)))
+                                     data = most_relevant_panel)
 
 ## VISUALIZE ###################################################################
 

@@ -70,8 +70,8 @@ p <- ggplot() +
 # X ----------------------------------------------------------------------------
 startR::lazy_ggsave(plot = p,
                     filename = "figS3_partially_fully_covered_pts_map",
-                    width = 12,
-                    height = 10)
+                    width = 15,
+                    height = 15)
 
 
 

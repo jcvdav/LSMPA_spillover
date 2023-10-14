@@ -174,15 +174,12 @@ saveRDS(object = most_relevant_qtr_panel,
 gear_with_most_landings_by_mpa %>%
   arrange(short_name) %>%
   mutate(gear = str_to_sentence(str_replace(gear, "_", " "))) %>%
-  kable(col.names = c("MPA", "wdpaid", "Gear", "Catch (mt)", "% of total catch", "N. Obs.", "BACI"),
-        caption = "\\textbf{MPA-gear combinations, contribution of each gear's catch to total
-        catch around each MPA, total number of observations, and Before-After-Control-Impact (BACI) compliance.}
-        The column wdpaid shows the unique identifier from the world database in protected areas.",
+  kable(col.names = c("MPA", "WDPAID", "Gear", "Catch (mt)", "% of total catch", "N. Obs.", "BACI"),
+        caption = "\\label{tab:relevant_mpa_gear_combinations}\\textbf{MPA-gear combinations, contribution of each gear's catch to total catch around each MPA, total number of observations, and Before-After-Control-Impact (BACI) compliance.} The column WDPA ID shows the unique shapefile identifier from the World Database on Protected Areas.",
         label = "relevant_mpa_gear_combinations",
         digits = 2,
         booktabs = T,
-        linesep = F,
+        linesep = "",
         format = "latex") %>%
   kable_styling() %>%
   save_kable(here("results", "tab", "relevant_mpa_gear_combinations.tex"))
-

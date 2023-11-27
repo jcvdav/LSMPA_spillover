@@ -37,7 +37,7 @@ pts_near <- data %>%
   distinct() %>%
   st_as_sf(coords = c("lon", "lat"), crs = "EPSG:4326") %>%
   mutate(dist = as.numeric(st_distance(., nazca))) %>%
-  filter(dist < 1112400) %>%
+  filter(dist < 370800) %>%
   st_as_sf(coords = c("lon", "lat"), crs = "EPSG:4326")
 
 

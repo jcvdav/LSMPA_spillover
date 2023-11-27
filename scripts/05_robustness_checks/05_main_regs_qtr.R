@@ -39,7 +39,7 @@ gear_spp_regs <- readRDS(file = here("data", "output", "gear_spp_regs.rds"))
 
 # Replicate main regressions using quarterly daggregations ata -----------------
 # Fit DiD
-relevant_mpa_gear_reg_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ gear + wdpaid ^ gear ^ year,
+relevant_mpa_gear_reg_qtr <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ gear + wdpaid ^ gear ^ year ,
                                    panel.id = ~id + year,
                                    vcov = conley(cutoff = 200),
                                    fsplit = ~nice_gear,

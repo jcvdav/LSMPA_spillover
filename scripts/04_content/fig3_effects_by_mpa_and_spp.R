@@ -56,15 +56,8 @@ panel_A <- ggplot(data = relevant_by_mpa_df,
                       xmax = estimate + std.error),
                   color = "black",
                   fatten = 6) +
-  geom_image(aes(x = -0.14,
-                 y = ifelse(gear == "Purse seine", 5, 7),
-                 image = here("data", "raw", "gear_fish_pics", paste0(gear, ".svg"))),
-             size = 0.75,
-             nudge_y = 0.25,
-             inherit.aes = F) +
   scale_shape_manual(values = gear_shapes) +
   scale_fill_manual(values = gear_palette) +
-  facet_wrap(~gear, ncol = 1, scales = "free_y") +
   labs(x = "Effect on CPUE") +
   theme(legend.position = "None",
         axis.title.y = element_blank(),
@@ -84,8 +77,7 @@ labeler <- function(x) {
 panel_B <- ggplot(data = gear_spp_df,
                   mapping = aes(x = estimate,
                                 y = sample,
-                                fill = spp,
-                                shape = gear)) +
+                                fill = spp)) +
   geom_vline(xintercept =  0) +
   geom_image(aes(x = estimate + std.error,
                  y = sample,
@@ -95,19 +87,14 @@ panel_B <- ggplot(data = gear_spp_df,
   geom_pointrange(aes(xmin = estimate - std.error,
                       xmax = estimate + std.error),
                   color = "black",
+                  shape = 21,
                   fatten = 6) +
-  guides(shape = guide_legend(title = "Gear",
-                              order = 1,
-                              override.aes = list(size = 1, fill = gear_palette[1:2])),
-         fill = guide_legend(title = "Species",
-                             order = 2,
-                             override.aes = list(shape = 21, size = 1))) +
   scale_shape_manual(values = gear_shapes) +
   scale_fill_manual(values = tuna_palette) +
   scale_y_discrete(labels = labeler) +
   scale_x_continuous(expand = expansion(0.11, 0)) +
-  facet_wrap(~gear, ncol = 1, scales = "free_y") +
-  labs(x = "Effect on CPUE") +
+  labs(x = "Effect on CPUE",
+       fill = "Species") +
   theme(axis.title.y = element_blank(),
         legend.position = "bottom",
         legend.box = "horizontal",
@@ -115,28 +102,23 @@ panel_B <- ggplot(data = gear_spp_df,
 
 # Build the plot ---------------------------------------------------------------
 # Combine both panels
-panels <- plot_grid(panel_A,
+final_plot <- plot_grid(panel_A,
                     panel_B + theme(legend.position = "None"),
                     labels = c("AUTO"),
                     align = "vh",
                     ncol = 2)
-
-# Add the legend at the bottom
-final_plot <- plot_grid(panels, get_legend(panel_B),
-                        ncol = 1,
-                        rel_heights = c(8, 1))
 
 ## EXPORT ######################################################################
 # Figure 3 for main text -------------------------------------------------------
 startR::lazy_ggsave(plot = final_plot,
                     filename = "fig4_effects_by_mpa_and_spp",
                     width = 18,
-                    height = 10)
+                    height = 7.5)
 
 ggsave(plot = final_plot,
        filename = here("results", "img", "fig4_effects_by_mpa_and_spp.pdf"),
        device = cairo_pdf,
        width = 18,
-       height = 10,
+       height = 7.5,
        units = "cm")
 

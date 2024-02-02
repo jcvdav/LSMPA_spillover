@@ -30,68 +30,85 @@ most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant
 # ## PROCESSING ##################################################################
 # Estimate DiD with all the data -----------------------------------------------
 # Step 1: no fixed effects whatsoever.
-step1 <- feols(log(cpue_tot) ~ post + near + i(post, near, 0),
+step1 <- feols(log(cpue_tot) ~ post + near + post:near,
                panel.id = ~id + year,
                data = annual_panel,
+               subset = ~gear == "purse_seine",
                vcov = "IID")
 
 # Step 2: Control for unobserved characteristics in space with grid-id fixed effects
-step2 <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id,
+step2 <- feols(log(cpue_tot) ~ post + near + post:near | id,
                panel.id = ~id + year,
                data = annual_panel,
+               subset = ~gear == "purse_seine",
                vcov = conley(cutoff = 200))
 
 # Step 3: Now add fixed effects by fleet to account for unobserved fleet-specific characteristics
-step3 <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ gear,
+step3 <- feols(log(cpue_tot) ~ post + near + post:near | id + flag,
                panel.id = ~id + year,
                data = annual_panel,
+               subset = ~gear == "purse_seine",
                vcov = conley(cutoff = 200))
 
 # Step4: Now add fixed effects effects by mpa-gear-year to account for time varying fishery-specific changes
-step4 <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ gear + wdpaid ^ gear ^ year,
+step4 <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid ^ year,
                panel.id = ~id + year,
                data = annual_panel,
-               vcov = conley(cutoff = 200),
-               fsplit = ~nice_gear)
+               subset = ~gear == "purse_seine",
+               vcov = conley(cutoff = 200))
+
+step5 <- feols(log(cpue_tot) ~ post + near + post:near + oni_avg:wdpaid + I(oni_avg ^ 2):wdpaid | id + flag + wdpaid,
+               panel.id = ~id + year,
+               data = annual_panel,
+               subset = ~gear == "purse_seine",
+               vcov = conley(cutoff = 200))
 
 # Estimate DiD with subsamples of relevant MPA-gear combinations ---------------
 # Main specification
 # Step 1: no fixed effects whatsoever.
-step1_r <- feols(log(cpue_tot) ~ post + near + i(post, near, 0),
+step1_r <- feols(log(cpue_tot) ~ post + near + post:near,
                  panel.id = ~id + year,
                  data = most_relevant_panel,
+                 subset = ~gear == "purse_seine",
                  vcov = "iid")
 
 # Step 2: Control for unobserved characteristics in space with grid-id fixed effects
-step2_r <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id,
+step2_r <- feols(log(cpue_tot) ~ post + near + post:near | id,
                  panel.id = ~id + year,
                  data = most_relevant_panel,
+                 subset = ~gear == "purse_seine",
                  vcov = conley(cutoff = 200))
 
 # Step 3: Now add fixed effects by fleet to account for unobserved fleet-specific characteristics
-step3_r <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ gear,
+step3_r <- feols(log(cpue_tot) ~ post + near + post:near | id + flag,
                  panel.id = ~id + year,
                  data = most_relevant_panel,
+                 subset = ~gear == "purse_seine",
                  vcov = conley(cutoff = 200))
 
 # Step4: Now add fixed effects effects by mpa-gear-year to account for time varying fishery-specific changes
-step4_r <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag ^ gear + wdpaid ^ gear ^ year,
+step4_r <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid ^ year,
                  panel.id = ~id + year,
                  data = most_relevant_panel,
-                 vcov = conley(cutoff = 200),
-                 fsplit = ~nice_gear)
+                 subset = ~gear == "purse_seine",
+                 vcov = conley(cutoff = 200))
+
+step5_r <- feols(log(cpue_tot) ~ post + near + post:near + wdpaid:oni_avg + wdpaid:I(oni_avg ^ 2) | id + flag + wdpaid,
+                 panel.id = ~id + year,
+                 data = most_relevant_panel,
+                 subset = ~gear == "purse_seine",
+                 vcov = conley(cutoff = 200))
 
 ## Extract gear-specific coefficients ------------------------------------------
 gear_stats <- step4_r %>%
-  map_dfr(broom::tidy, .id = "sample", conf.int = TRUE, conf.level = 0.95) %>%
+  broom::tidy(.id = "sample", conf.int = TRUE, conf.level = 0.95) %>%
   filter(str_detect(term, ":")) %>%
+  mutate(sample = "PS") %>%
   mutate(sample = str_remove(sample, ".+; sample: "),
          gear = str_sub(sample, 1, 2),
          mpa = str_remove(sample, "LL |PS "),
          mpa = fct_reorder(mpa, estimate, max),
-         gear = fct_relevel(gear, "PS", "LL"),
-         gear = ifelse(gear == "PS", "Purse seine", "Longline"),
-         gear = fct_relevel(gear, "Purse seine", "Longline")) %>%
+         gear = ifelse(gear == "PS", "Purse seine", "Longline")) %>%
   filter(!sample == "Full sample")
 
 
@@ -100,12 +117,14 @@ gear_stats <- step4_r %>%
 main_reg <- list(step1,
                  step2,
                  step3,
-                 step4)
+                 step4,
+                 step5)
 
 relevant_mpa_gear_reg <- list(step1_r,
                               step2_r,
                               step3_r,
-                              step4_r)
+                              step4_r,
+                              step5_r)
 
 # Export models ----------------------------------------------------------------
 # Main models

@@ -23,13 +23,18 @@ pacman::p_load(
 source(here("scripts/00_set_up.R"))
 
 # Load data --------------------------------------------------------------------
+# ENSO index to add
+oni <- readRDS(file = here("data", "raw", "oni", "annual_oni.rds"))
+oni_qtr <- readRDS(file = here("data", "raw", "oni", "quarterly_oni.rds"))
+# Filter to retain only daya within 200 nautical miles of an MPA,
+# and within 10 years of implementation
 annual_panel_raw <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
   filter(between(event, -10, 10),
-         dist <= 600)
+         dist <= 200)
 
 qtr_panel_raw <- readRDS(file = here("data", "processed", "rfmo_all_qtr_gear_flag.rds")) %>%
   filter(between(event, -10, 10),
-         dist <= 600)
+         dist <= 200)
 
 ## PROCESSING ##################################################################
 
@@ -37,7 +42,7 @@ qtr_panel_raw <- readRDS(file = here("data", "processed", "rfmo_all_qtr_gear_fla
 # Count the number of pixels that apear in each mpa-pre-dist combination
 # For purse seine
 ns_per_period_ps <- annual_panel_raw %>%
-  filter((gear == "purse_seine" & !is.na(near_100))) %>%
+  filter((gear == "purse_seine" & !is.na(near_100))) %>% # gear must be PS
   group_by(wdpaid, name, gear, post, near_100) %>%
   summarize(n_pixels = n_distinct(id),
             year = min(year_enforced)) %>%
@@ -48,8 +53,8 @@ ns_per_period_ps <- annual_panel_raw %>%
 
 # For longline
 ns_per_period_ll <- annual_panel_raw %>%
-  filter((gear == "longline" & !is.na(near_300))) %>%
-  group_by(wdpaid, name, gear, post, near_300) %>%
+  filter((gear == "longline" & !is.na(near_100))) %>% # Data must be longline
+  group_by(wdpaid, name, gear, post, near_100) %>%
   summarize(n_pixels = n_distinct(id),
             year = min(year_enforced)) %>%
   group_by(wdpaid, name, gear, year) %>%
@@ -84,7 +89,7 @@ keep <- enough %>%
 # of each MPA. # This doesn't mean we have enough for a BACI design, so we will
 # filter for that too.
 gear_with_most_landings_by_mpa <- annual_panel_raw %>%
-  filter(dist <= 600) %>%
+  filter(dist <= 200) %>%
   group_by(wdpaid, name, gear) %>%
   summarize(tot_mt = sum(tot_mt),
             n = n()) %>%
@@ -109,15 +114,16 @@ gear_with_most_landings_by_mpa <- annual_panel_raw %>%
   arrange(enough_for_baci, n, pct_mt, short_name)
 
 # # Build the panels -----------------------------------------------------------
-# Panel with ALL the data (PS is 0-200, LL is 0-600)
+# Panel with ALL the data (PS is 0-200, LL is 0-200)
 annual_panel <- annual_panel_raw %>%
-  mutate(near = ifelse(gear == "purse_seine", near_100, near_300),
+  mutate(near = near_100,
          nice_gear = case_when(gear == "purse_seine" ~ "PS",
                                gear == "longline" ~ "LL"),
          nice_gear = fct_relevel(nice_gear, "PS", "LL")) %>%
   drop_na(near) %>%
   filter(cpue_tot > 0) %>%
-  replace_na(replace = list(flag = "Missing"))
+  replace_na(replace = list(flag = "Missing")) %>%
+  left_join(oni, by = "year")
 
 # Panel with relevant MPA-gear combinations determined by full data,
 # but restricting PS is 0-200, LL is 0-600
@@ -142,9 +148,9 @@ most_relevant_panel_multiple_distances <- annual_panel_raw %>%
                select(short_name, wdpaid, gear),
              by = join_by(gear, wdpaid))
 
-# Monthly LL panel, for sensitivity
+# Quarterly LL panel, for sensitivity
 most_relevant_qtr_panel <- qtr_panel_raw  %>%
-  mutate(near = ifelse(gear == "purse_seine", near_100, near_300),
+  mutate(near = near_100,
          nice_gear = case_when(gear == "purse_seine" ~ "PS",
                                gear == "longline" ~ "LL"),
          nice_gear = fct_relevel(nice_gear, "PS", "LL")) %>%
@@ -155,7 +161,8 @@ most_relevant_qtr_panel <- qtr_panel_raw  %>%
                filter(pct_mt > 5,
                       enough_for_baci) %>%
                select(short_name, wdpaid, gear),
-             by = join_by(gear, wdpaid))
+             by = join_by(gear, wdpaid)) %>%
+  left_join(oni_qtr, by = c("year", "qtr"))
 
 ## EXPORT ######################################################################
 saveRDS(object = annual_panel,
@@ -173,7 +180,8 @@ saveRDS(object = most_relevant_qtr_panel,
 # Tables for text
 gear_with_most_landings_by_mpa %>%
   arrange(short_name) %>%
-  mutate(gear = str_to_sentence(str_replace(gear, "_", " "))) %>%
+  mutate(gear = str_to_sentence(str_replace(gear, "_", " ")),
+         enough_for_baci = ifelse(enough_for_baci, "Yes", "No")) %>%
   kable(col.names = c("MPA", "WDPAID", "Gear", "Catch (mt)", "% of total catch", "N. Obs.", "BACI"),
         caption = "\\label{tab:relevant_mpa_gear_combinations}\\textbf{MPA-gear combinations, contribution of each gear's catch to total catch around each MPA, total number of observations, and Before-After-Control-Impact (BACI) compliance.} The column WDPA ID shows the unique shapefile identifier from the World Database on Protected Areas.",
         label = "relevant_mpa_gear_combinations",

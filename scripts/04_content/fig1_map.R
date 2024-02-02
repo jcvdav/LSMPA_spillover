@@ -35,10 +35,27 @@ coast <- ne_countries(returnclass = "sf")
 coastline <- ne_coastline(returnclass = "sf") %>%
   st_wrap_dateline(option = "WRAPDATELINE=YES")
 
+mpas_with_ps <- readRDS(here("data", "processed", "annual_full_estimation_panel.rds")) %>%
+  select(wdpaid, gear) %>%
+  distinct() %>%
+  filter(gear == "purse_seine") %>%
+  pull(wdpaid)
+
 mpas <- st_read(here("data", "processed", "clean_lmpas.gpkg")) %>%
   mutate(lon = map_dbl(geom, ~st_coordinates(st_centroid(.x))[1])) %>%
   arrange(lon) %>%
-  mutate(labels = letters[(1:nrow(.)) + 1])
+  mutate(labels = ifelse(wdpaid %in% mpas_with_ps, letters[(1:length(mpas_with_ps)) + 1], ""))
+
+mpas_ps <- mpas %>%
+  filter(wdpaid %in% mpas_with_ps) %>%
+  mutate(lon = map_dbl(geom, ~st_coordinates(st_centroid(.x))[1])) %>%
+  arrange(lon) %>%
+  mutate(labels = letters[1:nrow(.) + 1])
+
+excluded_mpas <- mpas %>%
+  filter(!wdpaid %in% mpas_with_ps)
+
+mpas <- bind_rows(mpas_ps, excluded_mpas)
 
 ## PROCESSING ##################################################################
 
@@ -133,7 +150,9 @@ map <- ggplot() +
   theme(axis.title = element_blank(),
         panel.border = element_blank(),
         legend.position = "top",
-        legend.box.spacing = unit(0, "pt")) +
+        legend.box.spacing = unit(0, "pt"),
+        plot.background = element_blank(),
+        panel.background = element_blank()) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   coord_sf(crs = "ESRI:54009")
@@ -187,21 +206,27 @@ subplot <- function(mpa, wdpaid, dist = 250000) {
   return(plot)
 }
 
-subplots <- mpas %>%
+subplots <- mpas_ps %>%
+  drop_na(labels) %>%
   group_by(wdpaid) %>%
   nest() %$%
   map2(data, wdpaid, subplot)
 
 
-left <- plot_grid(plotlist = subplots[c(1, 3)], ncol = 1, align = "hv", labels = c("b", "d"))
-right <- plot_grid(plotlist = subplots[c(2, 4)], ncol = 1, align = "hv", labels = c("c", "e"))
-bottom <- plot_grid(plotlist = subplots[5:14], nrow = 2, align = "hv", labels = letters[(5:14) + 1])
+# left <- plot_grid(plotlist = subplots[c(1, 3)], ncol = 1, align = "hv", labels = c("b", "d"))
+right <- plot_grid(plotlist = subplots[c(1:3)], ncol = 1, align = "hv", labels = letters[(1:3) + 1])
+bottom <- plot_grid(plotlist = subplots[4:9], nrow = 2, align = "hv", labels = letters[(4:9) + 1])
+
+# bottom <- plot_grid(plotlist = subplots, nrow = 3, align = "hv", labels = letters[(1:12) + 1])
 
 panel <- plot_grid(
-  plot_grid(map, left, right, ncol = 3,
-            rel_widths = c(4, 1, 1),
-            align = "hv", axis = "t",
-            labels = "a", label_y = 0.9),
+  plot_grid(map, right, ncol = 2,
+            rel_widths = c(2, 1),
+            align = "hv",
+            axis = "t",
+            labels = "a",
+            label_y = 0.9),
+  # map,
   bottom,
   rel_heights = c(3, 2),
   ncol = 1,

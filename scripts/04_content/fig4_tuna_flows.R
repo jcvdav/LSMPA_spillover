@@ -21,7 +21,8 @@ pacman::p_load(
 
 # Load data --------------------------------------------------------------------
 most_relevant_panel <- readRDS(here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds")) %>%
-  mutate(name = short_name)
+  mutate(name = short_name) %>%
+  filter(gear == "purse_seine")
 
 ## PROCESSING ##################################################################
 
@@ -62,8 +63,8 @@ pct_flags <- alluvial_data %>%
   mutate(cumsum_pct = cumsum(pct))
 
 grouped_alluvial_data <- alluvial_data %>%
-  mutate(name = ifelse(name %in% head(pct_mpas$name, 5), name, "Other MPAs (N = 6)"),
-         flag = ifelse(flag %in% head(pct_flags$flag, 10), flag, "Other flags (N = 26)"),
+  mutate(#name = ifelse(name %in% head(pct_mpas$name, 5), name, "Other MPAs (N = 6)"),
+         flag = ifelse(flag %in% head(pct_flags$flag, 10), flag, "Other flags (N = 16)"),
          spp = case_when(spp == "skj" ~ "Skipjack",
                          spp == "yft" ~ "Yellowfin",
                          spp == "bet" ~ "Bigeye",
@@ -72,8 +73,8 @@ grouped_alluvial_data <- alluvial_data %>%
          spp = fct_reorder(spp, pct_mt, sum),
          gear = fct_reorder(gear, pct_mt, sum),
          flag = fct_reorder(flag, pct_mt, sum),
-         name = fct_relevel(name, "Other MPAs (N = 6)"),
-         flag = fct_relevel(flag, "Other flags (N = 26)"),
+         # name = fct_relevel(name, "Other MPAs (N = 6)"),
+         flag = fct_relevel(flag, "Other flags (N = 16)"),
          gear = str_to_sentence(str_replace(gear, "_", " "))) %>%
   group_by(name, gear, flag, spp) %>%
   summarize(mt = sum(mt),
@@ -88,7 +89,7 @@ p <- ggplot(data = grouped_alluvial_data,
                           axis2 = flag,
                           axis3 = spp,
                           fill = gear)) +
-  geom_alluvium(alpha = 0.75) +
+  geom_alluvium(alpha = 0.75, color = "black", linewidth = 0.1) +
   geom_stratum(fill = "white", width = 0.3, size = 0.3) +
   geom_text(stat = "stratum",
             aes(label = after_stat(stratum)),
@@ -103,8 +104,7 @@ p <- ggplot(data = grouped_alluvial_data,
   labs(x = "",
        y = "% Total tuna caught",
        fill = "Gear")+
-  theme(legend.position = "bottom",
-        legend.box.spacing = unit(0, 'cm'))
+  theme(legend.position = "None")
 
 # Stats for text
 grouped_alluvial_data %>%
@@ -122,4 +122,4 @@ grouped_alluvial_data %>%
 startR::lazy_ggsave(p,
                     filename = "fig5_tuna_flows",
                     width = 18,
-                    height = 10)
+                    height = 12)

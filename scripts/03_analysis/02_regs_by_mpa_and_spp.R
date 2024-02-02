@@ -38,18 +38,20 @@ panel_for_spp_regs <- most_relevant_panel %>%
 
 # MPA-level analysis -----------------------------------------------------------
 # Fit a model with fixed effects
-gear_mpa_regs <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) | id + flag + wdpaid^year,
+gear_mpa_regs <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid^year,
                        panel.id = ~id + year,
                        vcov = conley(cutoff = 200),
                        split = ~paste(nice_gear, short_name),
+                       subset = ~gear == "purse_seine",
                        data = most_relevant_panel)
 
 # Species-level analysis -------------------------------------------------------
-gear_spp_regs <- feols(log(cpue_tot) ~ post + near + i(post, near, 0) |  id + flag ^ nice_gear + wdpaid ^ nice_gear ^ year,
+gear_spp_regs <- feols(log(cpue_tot) ~ post + near + post:near |  id + flag + wdpaid ^ year,
                        panel.id = ~id + year,
                        vcov = conley(cutoff = 200),
-                       data = panel_for_spp_regs,
-                       split = ~paste(nice_gear, spp))
+                       split = ~paste(nice_gear, spp),
+                       subset = ~nice_gear == "PS",
+                       data = panel_for_spp_regs)
 
 ## Export models ###############################################################
 # For gear-mpa models ----------------------------------------------------------

@@ -4,38 +4,35 @@
              without fixed-effects when estimating the spillover effects of
              Large-Scale Marine Protected Areas on catch-per-unit effort of tuna
              fisheries.} Coefficients are difference-in-difference estimates for
-             the change in CPUE. Columns 1 and 2 present models fit to purse
-             seine data only, and columns 3 and 4 present models fit to longline
-             data only. Models with fixed-effects (columns 2 and 4) are the same as the ones
-             presented in the main text. Note that R$^2$ values are always higher for models with fixed-effects.}
+             the change in CPUE. Panel A shows results for all data, and panel B
+             shows results for relevant MPAs only. The first column shows coefficient
+             estimates with models that do not use fixed-effects. The second column
+             shows the same values as the main text, which uses fixed-effects.
+             Note that R$^2$ values are always higher for models with fixed-effects.}
 \centering
-\begin{tabular}[t]{lcccc}
+\begin{tabular}[t]{lcc}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Purse seine} & \multicolumn{2}{c}{Longline} \\
-\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
-  & (1) & (2) & (3) & (4)\\
+  & (1) & (2)\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{5}{l}{Panel A: All data (23 LSMPA-gear combinations; 14 LSMPAs)}\\
-\hspace{1em}Post x Near & 0.321*** & 0.117** & -0.019 & 0.012\\
-\hspace{1em} & (0.046) & (0.057) & (0.047) & (0.048)\\
-\hspace{1em}N & 10,424 & 10,424 & 6,722 & 6,722\\
-\hspace{1em}R2 Adj & 0.020 & 0.545 & 0.003 & 0.513\\
-\hspace{1em}SE & IID & Conley (200km) & IID & Conley \vphantom{1} (200km)\\
+\multicolumn{3}{l}{Panel A: All data (9 LSMPAs)}\\
+\hspace{1em}Post x Near & 0.321*** & 0.117**\\
+\hspace{1em} & (0.046) & (0.057)\\
+\hspace{1em}N & 10,424 & 10,424\\
+\hspace{1em}R2 Adj & 0.020 & 0.545\\
+\hspace{1em}SE & IID & Conley \vphantom{1} (200km)\\
 \addlinespace[0.5cm]
-\multicolumn{5}{l}{Panel B: Subsample (14 LSMPA-gear combinations; 11 LSMPAs)}\\
-\hspace{1em}Post x Near & 0.318*** & 0.117** & -0.020 & -0.007\\
-\hspace{1em} & (0.047) & (0.057) & (0.043) & (0.049)\\
-\hspace{1em}N & 10,290 & 10,290 & 5,682 & 5,682\\
-\hspace{1em}R2 Adj & 0.022 & 0.546 & 0.002 & 0.412\\
-\hspace{1em}SE & IID & Conley (200km) & IID & Conley (200km)\\
+\multicolumn{3}{l}{Panel B: Subsample (6 LSMPAs)}\\
+\hspace{1em}Post x Near & 0.318*** & 0.117**\\
+\hspace{1em} & (0.047) & (0.057)\\
+\hspace{1em}N & 10,290 & 10,290\\
+\hspace{1em}R2 Adj & 0.022 & 0.546\\
+\hspace{1em}SE & IID & Conley (200km)\\
 \midrule
-FE: Grid ID &  & X &  & X\\
-FE: Flag-Gear &  & X &  & X\\
-FE: MPA-Gear-Year &  & X &  & X\\
+FE: Grid ID &  & X\\
 \midrule
 \bottomrule
-\multicolumn{5}{l}{\rule{0pt}{1em}\textit{Note: }}\\
-\multicolumn{5}{l}{\rule{0pt}{1em}$* p < 0.1, ** p < 0.05, *** p < 0.01$}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}\textit{Note: }}\\
+\multicolumn{3}{l}{\rule{0pt}{1em}$* p < 0.1, ** p < 0.05, *** p < 0.01$}\\
 \end{tabular}
 \end{table}

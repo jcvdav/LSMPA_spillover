@@ -85,7 +85,7 @@ keep <- enough %>%
   pull(keep)
 
 # Now find the most relevant gear for each MPA ---------------------------------
-# First, find the relative contributiuon of each gear to all catch around 600 nm
+# First, find the relative contributiuon of each gear to all catch around 200 nm
 # of each MPA. # This doesn't mean we have enough for a BACI design, so we will
 # filter for that too.
 gear_with_most_landings_by_mpa <- annual_panel_raw %>%
@@ -179,15 +179,17 @@ saveRDS(object = most_relevant_qtr_panel,
 
 # Tables for text
 gear_with_most_landings_by_mpa %>%
-  arrange(short_name) %>%
+  arrange(-enough_for_baci, desc(gear), short_name) %>%
   mutate(gear = str_to_sentence(str_replace(gear, "_", " ")),
          enough_for_baci = ifelse(enough_for_baci, "Yes", "No")) %>%
-  kable(col.names = c("MPA", "WDPAID", "Gear", "Catch (mt)", "% of total catch", "N. Obs.", "BACI"),
+  select(enough_for_baci, everything()) %>%
+  kable(col.names = c("BACI", "MPA", "WDPAID", "Gear", "Catch (mt)", "% of total catch", "N. Obs."),
         caption = "\\label{tab:relevant_mpa_gear_combinations}\\textbf{MPA-gear combinations, contribution of each gear's catch to total catch around each MPA, total number of observations, and Before-After-Control-Impact (BACI) compliance.} The column WDPA ID shows the unique shapefile identifier from the World Database on Protected Areas.",
         label = "relevant_mpa_gear_combinations",
-        digits = 2,
+        digits = 4,
         booktabs = T,
         linesep = "",
         format = "latex") %>%
   kable_styling() %>%
+  collapse_rows(columns = c(1, 3, 7)) %>%
   save_kable(here("results", "tab", "relevant_mpa_gear_combinations.tex"))

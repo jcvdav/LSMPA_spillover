@@ -136,7 +136,8 @@ most_relevant_panel <- annual_panel %>%
 
 # This panel is for sensitivity analysis and to test for distance as continuous
 # with relevant MPA-gear combinations determined by the full data set
-most_relevant_panel_multiple_distances <- annual_panel_raw %>%
+most_relevant_panel_multiple_distances <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
+  filter(between(event, -10, 10)) %>%
   mutate(nice_gear = case_when(gear == "purse_seine" ~ "PS",
                                gear == "longline" ~ "LL"),
          nice_gear = fct_relevel(nice_gear, "PS", "LL")) %>%

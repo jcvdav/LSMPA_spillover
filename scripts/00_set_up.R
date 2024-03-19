@@ -148,25 +148,18 @@ extract_mpa_coefs <- function(model) {
     filter(str_detect(term, ":")) %>%
     mutate(sample = str_remove(sample, ".+; sample: "),
            sample = fct_reorder(sample, estimate),
-           gear = str_sub(sample, 1, 2),
            mpa = str_remove(sample, "LL |PS "),
-           gear = ifelse(gear == "PS", "Purse seine", "Longline"),
-           gear = fct_relevel(gear, "Purse seine", "Longline"),
            mpa = fct_relevel(mpa,
                              "Revillagigedo",
                              "Galápagos",
                              "PIPA",
-                             "Papahānaumokuākea",
-                             "PRI (Wake)",
                              "PRI (Jarvis)",
                              "Chagos",
-                             "Motu Motiro Hiva",
-                             "Coral Sea",
                              "Nazca-Desventuradas"),
            model = has_fes)
 }
 
-# A funciton to extract model info for gear-spp models
+
 extract_spp_coefs <- function(model) {
 
   has_fes <- ifelse(length(model[[1]]$fixef_vars) > 1 ,
@@ -178,16 +171,12 @@ extract_spp_coefs <- function(model) {
     filter(str_detect(term, ":")) %>%
     mutate(sample = str_remove(sample, ".+; sample: "),
            sample = fct_reorder(sample, estimate),
-           gear = str_sub(sample, 1, 2),
            spp = str_extract(sample, "cpue_.+"),
            spp = str_to_upper(str_remove(spp, "cpue_"))) %>%
-    mutate(gear = ifelse(gear == "PS", "Purse seine", "Longline"),
-           gear = fct_relevel(gear, "Purse seine", "Longline"),
-           spp = fct_relevel(spp,
+    mutate(spp = fct_relevel(spp,
                              "YFT",
                              "SKJ",
-                             "BET",
-                             "ALB"),
+                             "BET"),
            model = has_fes)
 }
 

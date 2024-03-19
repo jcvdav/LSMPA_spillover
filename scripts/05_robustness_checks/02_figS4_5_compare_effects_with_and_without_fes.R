@@ -28,10 +28,10 @@ gear_stats <- readRDS(file = here("data", "output", "relevant_mpa_gear_combinati
 
 # Now load the model objects (they are multifit or lists)
 # From MPA analysis
-gear_mpa_regs <- readRDS(file = here("data", "output", "gear_mpa_regs.rds"))
+mpa_regs <- readRDS(file = here("data", "output", "gear_mpa_regs.rds"))
 
 # And now spp models
-gear_spp_regs <- readRDS(file = here("data", "output", "gear_spp_regs.rds"))
+spp_regs <- readRDS(file = here("data", "output", "gear_spp_regs.rds"))
 
 ## PROCESSING ##################################################################
 # We will need this panel for the species-level regressions
@@ -44,63 +44,68 @@ panel_for_spp_regs <- most_relevant_panel %>%
 
 # MPA-level analysis -----------------------------------------------------------
 # Model without fixed effects
-gear_mpa_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,
-                             panel.id = ~id + year,
-                             vcov = conley(cutoff = 200),
-                             split = ~paste(nice_gear, short_name),
-                             data = most_relevant_panel)
+mpa_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,
+                        panel.id = ~id + year,
+                        vcov = conley(cutoff = 200),
+                        split = ~paste(nice_gear, short_name),
+                        subset = ~gear == "purse_seine",
+                        data = most_relevant_panel)
 
 # Species-level analysis -------------------------------------------------------
-gear_spp_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,# | chagos,
-                             panel.id = ~id + year,
-                             vcov = conley(cutoff = 200),
-                             data = panel_for_spp_regs %>%
-                               mutate(chagos = ifelse(wdpaid == "555512151" & nice_gear == "PS", 1, 0)),
-                             split = ~paste(nice_gear, spp))
+spp_regs_wo_fe <- feols(log(cpue_tot) ~ post + near + post:near,# | chagos,
+                        panel.id = ~id + year,
+                        vcov = conley(cutoff = 200),
+                        data = panel_for_spp_regs %>%
+                          mutate(chagos = ifelse(wdpaid == "555512151" & nice_gear == "PS", 1, 0)),
+                        subset = ~nice_gear == "PS",
+                        split = ~paste(nice_gear, spp))
 
 ## EXTRACT models ##############################################################
 # Extract coefficients into a data.frame ---------------------------------------
 # For MPA analysis
-relevant_by_mpa_df <- extract_mpa_coefs(gear_mpa_regs)                          # With fixed effects
-relevant_by_mpa_df_wo_fe <- extract_mpa_coefs(gear_mpa_regs_wo_fe)              # Without fixed effects
+relevant_by_mpa_df <- extract_mpa_coefs(mpa_regs)                          # With fixed effects
+relevant_by_mpa_df_wo_fe <- extract_mpa_coefs(mpa_regs_wo_fe)              # Without fixed effects
 
 # For Species analysis
-gear_spp_df <- extract_spp_coefs(gear_spp_regs)                                 # With fixed effects
-gear_spp_df_wo_fe <- extract_spp_coefs(gear_spp_regs_wo_fe)                     # Without fixed effects
+spp_df <- extract_spp_coefs(spp_regs)                                 # With fixed effects
+spp_df_wo_fe <- extract_spp_coefs(spp_regs_wo_fe)                     # Without fixed effects
 
 ## VISUALIZE ###################################################################
 # For MPA-level analysis ------------------------------------------------------
 mpa_compare_models <- bind_rows(relevant_by_mpa_df, relevant_by_mpa_df_wo_fe) %>%
-  mutate(mpa_gear = paste(mpa, gear)) %>%
-  ggplot(aes(x = gear, y = estimate, shape = gear, fill = model)) +
+  ggplot(aes(x = mpa, y = estimate, fill = model)) +
   geom_pointrange(aes(ymin = estimate - std.error,
                       ymax = estimate + std.error),
-                  position = position_dodge(width = 0.5)) +
+                  position = position_dodge(width = 0.5),
+                  shape = 21) +
   coord_flip() +
   scale_shape_manual(values = gear_shapes) +
   scale_fill_manual(values = fe_palette) +
   guides(fill = guide_legend(override.aes = list(shape = 21))) +
   geom_hline(yintercept = 0) +
-  facet_wrap(~mpa, ncol = 4) +
-  theme(legend.position = c(1, 0),
-        legend.justification = c(1, 0),
-        legend.box = "horizontal") +
+  theme(legend.position = c(0, 0),
+        legend.justification = c(0, 0),
+        legend.box = "horizontal",
+        axis.title.y = element_blank()) +
   labs(y = "Effect on CPUE",
        shape = "Gear",
        fill = "Model")
 
 # For species-level analysis
-spp_compare_models <- bind_rows(gear_spp_df, gear_spp_df_wo_fe) %>%
-  ggplot(aes(x = spp, y = estimate, shape = gear, fill = model)) +
+spp_compare_models <- bind_rows(spp_df, spp_df_wo_fe) %>%
+  ggplot(aes(x = spp, y = estimate, fill = model)) +
   geom_pointrange(aes(ymin = estimate - std.error,
                       ymax = estimate + std.error),
-                  position = position_dodge(width = 0.5)) +
+                  position = position_dodge(width = 0.5),
+                  shape = 21) +
   coord_flip() +
-  scale_shape_manual(values = gear_shapes) +
   scale_fill_manual(values = fe_palette) +
   guides(fill = guide_legend(override.aes = list(shape = 21))) +
   geom_hline(yintercept = 0) +
-  facet_wrap(~gear) +
+  theme(legend.position = c(1, 0),
+        legend.justification = c(1, 0),
+        legend.box = "horizontal",
+        axis.title.y = element_blank()) +
   labs(y = "Effect on CPUE",
        shape = "Gear",
        fill = "Model")
@@ -110,10 +115,11 @@ spp_compare_models <- bind_rows(gear_spp_df, gear_spp_df_wo_fe) %>%
 # Comparing FE and WOFE for MPAs
 startR::lazy_ggsave(plot = mpa_compare_models,
                     filename = "figS4_effects_by_mpa_with_and_without_fe",
-                    width = 15,
-                    height = 10)
+                    width = 12,
+                    height = 6)
+
 # Comparing FE and WOFE for spp
 startR::lazy_ggsave(plot = spp_compare_models,
                     filename = "figS5_effects_by_spp_with_and_without_fe",
-                    width = 12,
-                    height = 8)
+                    width = 10,
+                    height = 6)

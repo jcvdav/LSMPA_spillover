@@ -28,11 +28,10 @@ source(here("scripts/00_set_up.R"))
 annual_panel_raw <- readRDS(here("data", "processed", "annual_panel.rds")) %>%
   filter(between(event, -10, 10),
          cpue_tot > 0) %>%
-  mutate(nice_gear = case_when(gear == "purse_seine" ~ "PS",
-                               gear == "longline" ~ "LL"),
-         nice_gear = fct_relevel(nice_gear, "PS", "LL"))
+  filter(gear == "purse_seine")
 
-most_relevant_panel_multiple_distances <- readRDS(here("data", "processed", "annual_relevant_mpa_gears_and_distances_sensitivity_estimation_panel.rds"))
+most_relevant_panel_multiple_distances <- readRDS(here("data", "processed", "annual_relevant_mpa_gears_and_distances_sensitivity_estimation_panel.rds")) %>%
+  filter(gear == "purse_seine")
 
 
 
@@ -42,7 +41,6 @@ most_relevant_panel_multiple_distances <- readRDS(here("data", "processed", "ann
 main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | dist + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
                        vcov = conley(cutoff = 200),
-                       fsplit = ~nice_gear,
                        subset = ~!is.na(near_100),
                        data = annual_panel_raw %>%
                          mutate(dist = -1 * dist / 100))
@@ -50,7 +48,6 @@ main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | dist + flag
 main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
                        vcov = conley(cutoff = 200),
-                       fsplit = ~nice_gear,
                        subset = ~!is.na(near_200),
                        data = annual_panel_raw %>%
                          mutate(dist = -1 * (dist / 100)))
@@ -58,7 +55,6 @@ main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^
 main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                        panel.id = ~id + year,
                        vcov = conley(cutoff = 200),
-                       fsplit = ~nice_gear,
                        subset = ~!is.na(near_300),
                        data = annual_panel_raw %>%
                          mutate(dist = -1 * (dist / 100)))
@@ -67,7 +63,6 @@ main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^
 relevant_main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
                                     vcov = conley(cutoff = 200),
-                                    fsplit = ~nice_gear,
                                     subset = ~!is.na(near_100),
                                     data = most_relevant_panel_multiple_distances %>%
                                       mutate(dist = -1 * (dist / 100)))
@@ -75,7 +70,6 @@ relevant_main_cont_reg_100 <- feols(log(cpue_tot) ~ post + dist + post:dist | id
 relevant_main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
                                     vcov = conley(cutoff = 200),
-                                    fsplit = ~nice_gear,
                                     subset = ~!is.na(near_200),
                                     data = most_relevant_panel_multiple_distances %>%
                                       mutate(dist = -1 * (dist / 100)))
@@ -83,7 +77,6 @@ relevant_main_cont_reg_200 <- feols(log(cpue_tot) ~ post + dist + post:dist | id
 relevant_main_cont_reg_300 <- feols(log(cpue_tot) ~ post + dist + post:dist | id + flag ^ gear + wdpaid ^ gear ^ year,
                                     panel.id = ~id + year,
                                     vcov = conley(cutoff = 200),
-                                    fsplit = ~nice_gear,
                                     subset = ~!is.na(near_300),
                                     data = most_relevant_panel_multiple_distances %>%
                                       mutate(dist = -1 * (dist / 100)))
@@ -104,8 +97,7 @@ panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
              list(main_cont_reg_200, relevant_main_cont_reg_200),
              list(main_cont_reg_300, relevant_main_cont_reg_300),
              collapse_fe = T,
-             colnames = c("", "Combined", "Purse Seine", "Longline",
-                          "Combined", "Purse Seine", "Longline"),
+             colnames = c("", "All data", "Relevant MPAs"),
              panel_labels = c("Panel A: 0-200 nautical miles",
                               "Panel B: 0-400 nautical miles",
                               "Panel C: 0-600 nautical miles"),
@@ -121,9 +113,6 @@ panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
              LSMPA-gear combinations. The number of unique LSMPA-gear combinations is as follows: For columns 1-3 in Panel A: 23 LSMPA-gear combinations,
              Panel B: 25 LSMPA-gear combinations, Panel C: 26 LSMPA-gear combinations. For columns 4-6 all panels have 14 LSMPA-gear combinations. All
              columns use Conley standard errors with a 200 km cutoff.") %>%
-  add_header_above(c(" " = 1,
-                     "All data" = 3,
-                     "Relevant LSMPA-gear combinations" = 3)) %>%
   footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$.", escape = F) %>%
   cat(file = here("results", "tab", "tabS3_continuous_distance_reg_table.tex"))
 

@@ -93,6 +93,7 @@ step4_r <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid ^ 
                  subset = ~gear == "purse_seine",
                  vcov = conley(cutoff = 200))
 
+# Step 5: Add quadratic ENSO terms
 step5_r <- feols(log(cpue_tot) ~ post + near + post:near + wdpaid:oni_avg + wdpaid:I(oni_avg ^ 2) | id + flag + wdpaid,
                  panel.id = ~id + year,
                  data = most_relevant_panel,

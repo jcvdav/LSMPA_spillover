@@ -47,10 +47,10 @@ delta_cpue(ps_data)
 
 ps_baci_plot <- baci_plot(data = ps_data) +
   guides(color = "none") +
-  theme(legend.position = c(0, 0),
+  theme(legend.position = "inside",
+        legend.position.inside = c(0, 0),
         legend.justification = c(0, 0)) +
   labs(y = "CPUE (MT / set)",
-       title = "All purse seine",
        fill = "Distance") +
   annotate(geom = "text",
            x = c(1.25, 1.95),
@@ -140,8 +140,7 @@ all_ps_delta_cpue_dist_plot <- ps_delta_cpue_dist_data %>%
              color = "black") +
   scale_size_continuous(labels = scales::percent) +
   labs(x = "Distance from border (NM)",
-       y = "Change in CPUE (MT / set)",
-       title = "All purse seine")
+       y = "Change in CPUE (MT / set)")
 
 # Panel B - Example of specific PS data
 ps_delta_cpue_dist_plot_good <- most_relevant_panel %>%
@@ -252,16 +251,17 @@ dist_plots <- plot_grid(
   labels = "d"
 )
 
-## VISUALIZE ###################################################################
+## EXPORT ######################################################################
 
-p <- plot_grid(BACI_plots, dist_plots,
-               ncol = 2)
+p <- plot_grid(ps_baci_plot,
+               all_ps_delta_cpue_dist_plot,
+               labels = "auto")
 
 
 startR::lazy_ggsave(
   plot = p,
   filename = "fig2_visual_change",
   width = 19,
-  height = 14
+  height = 9
 )
 

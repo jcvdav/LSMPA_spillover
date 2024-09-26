@@ -1,21 +1,31 @@
 \begin{table}
-
-\caption{\label{tab:mpa_reg}\textbf{Spillover effects by Large-Scale Marine Protected Areas.} Coefficients are
-             difference-in-difference estimates for the change in CPUE. Numbers in parentheses are standard errors.}
 \centering
-\begin{tabular}[t]{lcc}
+\begin{talltblr}[         %% tabularray outer open
+caption={\label{tab:mpa_reg}\textbf{Spillover effects by Large-Scale Marine Protected Areas.} Coefficients are
+             difference-in-difference estimates for the change in CPUE. Numbers in parentheses are Conley standard errors accounting for spatial correlation using a 200 km cutoff.},
+entry=none,label=none,
+note{}={* p < 0.1, ** p < 0.05, *** p < 0.01},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]Q[]Q[]Q[]},
+column{1}={halign=l,},
+column{2}={halign=c,},
+column{3}={halign=c,},
+column{4}={halign=c,},
+column{5}={halign=c,},
+column{6}={halign=c,},
+column{7}={halign=c,},
+hline{4}={1,2,3,4,5,6,7}{solid, 0.05em, black},
+}                     %% tabularray inner close
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{2}{c}{Post x Near} \\
-\cmidrule(l{3pt}r{3pt}){2-3}
-  & Est. & S.E.\\
-\midrule
-Chagos & \num{0.026} & \num{0.082}\\
-Galápagos & \num{0.154} & \num{0.098}\\
-Nazca-Desventuradas & \num{0.213} & \num{0.172}\\
-PIPA & \num{0.126} & \num{0.082}\\
-PRI (Jarvis) & \num{-0.119} & \num{0.140}\\
-Revillagigedo & \num{0.076} & \num{0.061}\\
+& Chagos & Galápagos & Nazca-Desventuradas & PIPA & PRI (Jarvis) & Revillagigedo \\ \midrule %% TinyTableHeader
+Post x Near  & \num{0.026}   & \num{0.154}   & \num{0.213}   & \num{0.126}   & \num{-0.119}  & \num{0.076}   \\
+& (\num{0.082}) & (\num{0.098}) & (\num{0.172}) & (\num{0.082}) & (\num{0.140}) & (\num{0.061}) \\
+N            & \num{1390}    & \num{5300}    & \num{231}     & \num{1525}    & \num{495}     & \num{1349}    \\
+R2 Adj       & \num{0.111}   & \num{0.105}   & \num{0.073}   & \num{0.150}   & \num{0.335}   & \num{0.200}   \\
+FE: Grid ID  & X              & X              & X              & X              & X              & X              \\
+FE: Flag     & X              & X              & X              & X              & X              & X              \\
+FE: MPA-Year & X              & X              & X              & X              & X              & X              \\
 \bottomrule
-\multicolumn{3}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
-\end{tabular}
+\end{talltblr}
 \end{table}

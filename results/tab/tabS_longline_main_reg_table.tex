@@ -1,9 +1,9 @@
 \begin{table}
 
-\caption{\label{tab:main_reg}\textbf{Effect of Large-Scale Marine Protected Areas on catch-per-unit-effort (CPUE) of tuna longline fisheries}.
+\caption{\label{tab:main_reg_ll}\textbf{Effect of Large-Scale Marine Protected Areas on catch-per-unit-effort (CPUE) of tuna longline fisheries}.
              Coefficients are difference-in-difference estimates for change in CPUE. The top panel includes all longline data. The bottom panel
              only includes data for which longlines are the relevant fishery and ther eis enough data to conduct a BACI design.
-             N is number of observations, R2 Adj is Adjusted R$^2$, and SE is the method/assumption used to calculate standard errors. IID stands for independently and identically distributed. }}
+             N is number of observations, R2 Adj is Adjusted R$^2$, and SE is the method/assumption used to calculate standard errors. Conley (200km) are Conley standard errors accounting for spatial correlation using a 200 km cutoff.}
 \centering
 \begin{tabular}[t]{lc}
 \toprule
@@ -12,22 +12,22 @@
 \addlinespace[0.3em]
 \multicolumn{2}{l}{Panel A: All data (14 LSMPAs)}\\
 \hspace{1em}Post x Near & -0.062\\
-\hspace{1em} & (0.091)\\
+\hspace{1em} & (0.090)\\
 \hspace{1em}N & 1862\\
 \hspace{1em}R2 Adj & 0.646\\
-\hspace{1em}SE & by: \vphantom{1} id\\
+\hspace{1em}SE & Conley \vphantom{1} (200km)\\
 \addlinespace[0.5cm]
-\multicolumn{2}{l}{Panel B: Subsample of relevant LSMPAs (2 LSMPAs)}\\
+\multicolumn{2}{l}{Panel B: Subsample of LSMPAs with a balanced sample (2 LSMPAs)}\\
 \hspace{1em}Post x Near & -0.065\\
-\hspace{1em} & (0.162)\\
+\hspace{1em} & (0.159)\\
 \hspace{1em}N & 654\\
 \hspace{1em}R2 Adj & 0.478\\
-\hspace{1em}SE & by: id\\
+\hspace{1em}SE & Conley (200km)\\
 \midrule
 FE: Grid ID & X\\
 FE: Flag & X\\
 FE: MPA-Year & X\\
-\midrule
+\midrule\\
 \bottomrule
 \multicolumn{2}{l}{\rule{0pt}{1em}\textit{Note: }}\\
 \multicolumn{2}{l}{\rule{0pt}{1em}$* p < 0.1, ** p < 0.05, *** p < 0.01$}\\

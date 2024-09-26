@@ -40,7 +40,7 @@ list(iattc = iattc,
          gear = str_to_sentence(str_replace(gear, "_", " "))) %>%
   mutate_at(.vars = c(3:9), ~ifelse(. == 0 | is.na(.), "-", "X")) %>%
   kbl(booktabs = T,
-      linesep = F,
+      linesep = "",
       col.names = c("RFMO", "Gear", "Albacore", "Bigeye", "Bluefin", "Pacific bluefin", "Southern bluefin", "Skipjack", "Yellowfin"),
       caption = "\\textbf{List of relevant tuna species contained in the data reported
       by each Regional Fisheries Management Organization (RFMO).} IATTC stands for Inter-American Tropical Tuna Commission,

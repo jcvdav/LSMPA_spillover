@@ -63,7 +63,7 @@ pct_flags <- alluvial_data %>%
   mutate(cumsum_pct = cumsum(pct))
 
 grouped_alluvial_data <- alluvial_data %>%
-  mutate(#name = ifelse(name %in% head(pct_mpas$name, 5), name, "Other MPAs (N = 6)"),
+  mutate(name = ifelse(name %in% head(pct_mpas$name, 4), name, "Other MPAs (N = 2)"),
          flag = ifelse(flag %in% head(pct_flags$flag, 10), flag, "Other flags (N = 16)"),
          spp = case_when(spp == "skj" ~ "Skipjack",
                          spp == "yft" ~ "Yellowfin",
@@ -73,7 +73,7 @@ grouped_alluvial_data <- alluvial_data %>%
          spp = fct_reorder(spp, pct_mt, sum),
          gear = fct_reorder(gear, pct_mt, sum),
          flag = fct_reorder(flag, pct_mt, sum),
-         # name = fct_relevel(name, "Other MPAs (N = 6)"),
+         name = fct_relevel(name, "Other MPAs (N = 2)"),
          flag = fct_relevel(flag, "Other flags (N = 16)"),
          gear = str_to_sentence(str_replace(gear, "_", " "))) %>%
   group_by(name, gear, flag, spp) %>%

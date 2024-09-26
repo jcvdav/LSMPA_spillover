@@ -11,7 +11,7 @@
 # Information on ONI
 # Oceanic Niño Index: From NOAA Climate Prediction Center (CPC)
 # Three month running mean of NOAA ERSST.V5 SST anomalies in the Niño 3.4 region
-# (5N-5S, 120-170W), based on changing base period which onsist of multiple
+# (5N-5S, 120-170W), based on changing base period which consist of multiple
 # centered 30-year base periods. These 30-year base periods will be used to
 # calculate the anomalies for successive 5-year periods in the historical record.
 #

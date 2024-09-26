@@ -1,19 +1,28 @@
 \begin{table}
-
-\caption{\label{tab:spp_reg}\textbf{Spillover effects by species.} Coefficients are
-             difference-in-difference estimates for the change in CPUE. BET = Bigeye, YFT = Yellowfin, SKJ = Skipjack. Numbers in parentheses are standard errors.}
 \centering
-\begin{tabular}[t]{lccc}
+\begin{talltblr}[         %% tabularray outer open
+caption={\label{tab:spp_reg}\textbf{Spillover effects by species.} Coefficients are
+             difference-in-difference estimates for the change in CPUE. BET = Bigeye, YFT = Yellowfin, SKJ = Skipjack. Numbers in parentheses are Conley standard errors accounting for spatial correlation using a 200 km cutoff.},
+entry=none,label=none,
+note{}={* p < 0.1, ** p < 0.05, *** p < 0.01},
+]                     %% tabularray outer close
+{                     %% tabularray inner open
+colspec={Q[]Q[]Q[]Q[]},
+column{1}={halign=l,},
+column{2}={halign=c,},
+column{3}={halign=c,},
+column{4}={halign=c,},
+hline{4}={1,2,3,4}{solid, 0.05em, black},
+}                     %% tabularray inner close
 \toprule
-  & BET & SKJ & YFT\\
-\midrule
-Post x Near & \num{0.112} & \num{0.021} & \num{0.052}\\
- & (\num{0.128}) & (\num{0.058}) & (\num{0.075})\\
-\midrule
-N & \num{5176} & \num{7968} & \num{9221}\\
-R2 Adj & \num{0.522} & \num{0.638} & \num{0.475}\\
-FE: Grid ID & X & X & X\\
+& BET & SKJ & YFT \\ \midrule %% TinyTableHeader
+Post x Near  & \num{0.112}   & \num{0.021}   & \num{0.052}   \\
+& (\num{0.128}) & (\num{0.058}) & (\num{0.075}) \\
+N            & \num{5176}    & \num{7968}    & \num{9221}    \\
+R2 Adj       & \num{0.522}   & \num{0.638}   & \num{0.475}   \\
+FE: Grid ID  & X              & X              & X              \\
+FE: Flag     & X              & X              & X              \\
+FE: MPA-Year & X              & X              & X              \\
 \bottomrule
-\multicolumn{4}{l}{\rule{0pt}{1em}* p $<$ 0.1, ** p $<$ 0.05, *** p $<$ 0.01}\\
-\end{tabular}
+\end{talltblr}
 \end{table}

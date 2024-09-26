@@ -22,6 +22,8 @@ pacman::p_load(
   tidyverse
 )
 
+options("modelsummary_format_numeric_latex" = "plain")
+
 # Load data --------------------------------------------------------------------
 annual_panel <- readRDS(file = here("data", "processed", "annual_full_estimation_panel.rds"))
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
@@ -32,18 +34,21 @@ most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant
 full <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid ^ year,
               panel.id = ~id + year,
               data = annual_panel,
-              subset = ~gear == "longline")
+              subset = ~gear == "longline",
+              vcov = conley(cutoff = 200))
 
 relevant <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid ^ year,
                   panel.id = ~id + year,
                   data = most_relevant_panel,
-                  subset = ~gear == "longline")
+                  subset = ~gear == "longline",
+                  vcov = conley(cutoff = 200))
 
 by_mpa <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid^year,
                 panel.id = ~id + year,
                 split = ~paste(nice_gear, short_name),
                 subset = ~gear == "longline",
-                data = most_relevant_panel)
+                data = most_relevant_panel,
+                vcov = conley(cutoff = 200))
 
 ## VISUALIZE ###################################################################
 
@@ -62,25 +67,37 @@ panelsummary(full,
              relevant,
              stars = "econ",
              panel_labels = c("Panel A: All data (14 LSMPAs)",
-                              "Panel B: Subsample of relevant LSMPAs (2 LSMPAs)"),
+                              "Panel B: Subsample of LSMPAs with a balanced sample (2 LSMPAs)"),
              gof_map = gm,
              coef_map = c("post:near" = "Post x Near"),
              collapse_fe = T,
              format = "latex",
-             caption = "\\label{tab:main_reg}\\textbf{Effect of Large-Scale Marine Protected Areas on catch-per-unit-effort (CPUE) of tuna longline fisheries}.
+             caption = "\\label{tab:main_reg_ll}\\textbf{Effect of Large-Scale Marine Protected Areas on catch-per-unit-effort (CPUE) of tuna longline fisheries}.
              Coefficients are difference-in-difference estimates for change in CPUE. The top panel includes all longline data. The bottom panel
              only includes data for which longlines are the relevant fishery and ther eis enough data to conduct a BACI design.
-             N is number of observations, R2 Adj is Adjusted R$^2$, and SE is the method/assumption used to calculate standard errors. IID stands for independently and identically distributed. }") %>%
+             N is number of observations, R2 Adj is Adjusted R$^2$, and SE is the method/assumption used to calculate standard errors. Conley (200km) are Conley standard errors accounting for spatial correlation using a 200 km cutoff.") %>%
   footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$", escape = F) %>%
   cat(file = here("results", "tab", "tabS_longline_main_reg_table.tex"))
 
-modelsummary(by_mpa,
-             shape = model ~ term + statistic,
-             output = here("results", "tab", "tabS_longline_mpa_reg_table.tex"),
-             stars = panelsummary:::econ_stars(),
+panelsummary(by_mpa,
+             stars = "econ",
+             gof_map = gm,
              coef_map = c("post:near" = "Post x Near"),
-             caption = "\\label{tab:mpa_reg}\\textbf{Spillover effects by Large-Scale Marine Protected Areas on longline fisheries.} Coefficients are
-             difference-in-difference estimates for the change in CPUE. Numbers in parentheses are standard errors.")
+             format = "latex",
+             caption = "\\label{tab:ll_by_mpa_reg}\\textbf{Spillover effects by Large-Scale Marine Protected Areas on longline fisheries.}
+              Column 1 shows results for Chagos, column 2 shows results for Papahanaumokuakea. Coefficients are
+             difference-in-difference estimates for the change in CPUE. Conley (200km) are Conley standard errors accounting for spatial correlation using a 200 km cutoff.") %>%
+  footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$", escape = F) %>%
+  cat(file = here("results", "tab", "tabS_longline_mpa_reg_table.tex"))
+
+# modelsummary(by_mpa,
+#              # shape = model ~ term + statistic,
+#              gof_map = gm,
+#              output = here("results", "tab", "tabS_longline_mpa_reg_table.tex"),
+#              stars = panelsummary:::econ_stars(),
+#              coef_map = c("post:near" = "Post x Near"),
+#              title = "Spillover effects by Large-Scale Marine Protected Areas on longline fisheries. Coefficients are
+#              difference-in-difference estimates for the change in CPUE. Numbers in parentheses are standard errors.")
 
 ## EXPORT ######################################################################
 

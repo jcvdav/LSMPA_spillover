@@ -49,8 +49,8 @@ labeler <- function(x) {
 panel_A <- ggplot(data = relevant_by_mpa_df,
                   mapping = aes(y = sample,
                                 x = estimate,
-                                shape = gear,
-                                fill = gear)) +
+                                shape = "PS",
+                                fill = "PS")) +
   geom_vline(xintercept =  0) +
   geom_pointrange(aes(xmin = estimate - std.error,
                       xmax = estimate + std.error),

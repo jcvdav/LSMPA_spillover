@@ -25,6 +25,7 @@ source(here("scripts/00_set_up.R"))
 
 # Load data --------------------------------------------------------------------
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
+most_relevant_panel_full_post <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel_full_post.rds"))
 
 ## PROCESSING ##################################################################
 # We will need this panel for the species-level regressions
@@ -44,6 +45,12 @@ gear_mpa_regs <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdp
                        split = ~paste(nice_gear, short_name),
                        subset = ~gear == "purse_seine",
                        data = most_relevant_panel)
+gear_mpa_regs_full_post <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid^year,
+                                 panel.id = ~id + year,
+                                 vcov = conley(cutoff = 200),
+                                 split = ~paste(nice_gear, short_name),
+                                 subset = ~gear == "purse_seine",
+                                 data = most_relevant_panel_full_post)
 
 # Species-level analysis -------------------------------------------------------
 gear_spp_regs <- feols(log(cpue_tot) ~ post + near + post:near |  id + flag + wdpaid ^ year,
@@ -57,6 +64,8 @@ gear_spp_regs <- feols(log(cpue_tot) ~ post + near + post:near |  id + flag + wd
 # For gear-mpa models ----------------------------------------------------------
 saveRDS(object = gear_mpa_regs,
         file = here("data", "output", "gear_mpa_regs.rds"))
+saveRDS(object = gear_mpa_regs_full_post,
+        file = here("data", "output", "gear_mpa_regs_full_post.rds"))
 
 # And now gear-spp models ------------------------------------------------------
 saveRDS(object = gear_spp_regs,

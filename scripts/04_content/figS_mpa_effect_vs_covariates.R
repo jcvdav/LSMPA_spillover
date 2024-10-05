@@ -58,38 +58,11 @@ mpas <- mpas_sf %>%
   select(name, area, year_enforced)
 
 
-# # X ----------------------------------------------------------------------------
-# effort_100 <- annual_panel %>%
-#   filter(dist <= 100) %>%
-#   filter(between(year, year_enforced - 10, year_enforced -1)) %>%
-#   group_by(year, name, effort_measure) %>%
-#   summarize(effort = sum(effort, na.rm = T)) %>%
-#   group_by(name, effort_measure) %>%
-#   summarize(effort_100 = mean(effort, na.rm = T))
-#
-# effort <- annual_panel %>%
-#   filter(is.na(dist)) %>%
-#   select(year, lon, lat, effort, effort_measure) %>%
-#   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
-#   st_join(mpas_sf) %>%
-#   drop_na(name) %>%
-#   filter(between(year, year_enforced - 10, year_enforced -1)) %>%
-#   st_drop_geometry() %>%
-#   group_by(year, name, effort_measure) %>%
-#   summarize(effort = sum(effort, na.rm = T)) %>%
-#   group_by(name, effort_measure) %>%
-#   summarize(effort = mean(effort, na.rm = T)) %>%
-#   left_join(effort_100, by = c("name", "effort_measure")) %>%
-#   mutate(pct = (effort / (effort + effort_100)) * 100)
-
-
-
 # X ----------------------------------------------------------------------------
 coef_data_full_post <- map_dfr(.x = model_full_post, .f = tidy, .id = "name") %>%
   filter(str_detect(term, "post:near")) %>%
   mutate(name = str_remove(string = name, pattern = ".+PS ")) %>%
   left_join(mpas, by = "name") %>%
-  # left_join(effort, by = "name") %>%
   mutate(age = 2024 - year_enforced,
          displaced = ifelse(name %in% c("Chagos", "PRI (Jarvis)", "Nazca-Desventuradas"),
                             "Low effort displacement\nor not well enforced", "Displaced fishing effort\nand well enforced"))
@@ -99,7 +72,6 @@ coef_data <- map_dfr(.x = model, .f = tidy, .id = "name") %>%
   filter(str_detect(term, "post:near")) %>%
   mutate(name = str_remove(string = name, pattern = ".+PS ")) %>%
   left_join(mpas, by = "name") %>%
-  # left_join(effort, by = "name") %>%
   mutate(age = 2024 - year_enforced,
          displaced = ifelse(name %in% c("Chagos", "PRI (Jarvis)", "Nazca-Desventuradas"),
                             "Low effort displacement\nor not well enforced", "Displaced fishing effort\nand well enforced"))

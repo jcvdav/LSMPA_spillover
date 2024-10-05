@@ -48,16 +48,6 @@ abbr_names <- function(mod, caps = F) {
   return(mod)
 }
 
-# gm <- tribble(~raw, ~clean, ~fmt,
-#               "nobs", "N", 0,
-#               "adj.r.squared", "R2 Adj", 3,
-#               # "vcov.type", "SE", 0,
-#               "FE: id", "FE: Grid ID", 0,
-#               "FE: flag^gear", "FE: Flag-Gear", 0,
-#               "FE: flag^nice_gear", "FE: Flag-Gear", 0,
-#               "FE: wdpaid^gear^year", "FE: MPA-Gear-Year", 0,
-#               "FE: wdpaid^nice_gear^year", "FE: MPA-Gear-Year", 0
-# )
 
 gm <- tribble(~raw, ~clean, ~fmt,
               "nobs", "N", 0,

@@ -75,12 +75,18 @@ ns_per_period <- bind_rows(ns_per_period_ps,
                            ns_per_period_ll)
 
 # These don't conform
+# They have less than three "B, A, C, I" groups
+# Have less than four pixels per group
+# Were implemented on or after 2020
 not_enough <- ns_per_period %>%
   filter(n_baci <= 3 | n_pixels <= 4 | year >= 2020) %>%
   select(wdpaid, name, gear) %>%
   distinct()
 
 # These do
+# They have 4 BACI groups
+# They have more than 5 pixels per group
+# They were implemented on or before 2019
 enough <- filter(ns_per_period, n_baci == 4, n_pixels >= 5, year <= 2019) %>%
   select(wdpaid, name, gear) %>%
   distinct()
@@ -93,7 +99,7 @@ keep <- enough %>%
   pull(keep)
 
 # Now find the most relevant gear for each MPA ---------------------------------
-# First, find the relative contributiuon of each gear to all catch around 200 nm
+# First, find the relative contribution of each gear to all catch around 200 nm
 # of each MPA. # This doesn't mean we have enough for a BACI design, so we will
 # filter for that too.
 gear_with_most_landings_by_mpa <- annual_panel_raw %>%
@@ -221,7 +227,7 @@ gear_with_most_landings_by_mpa %>%
          enough_for_baci = ifelse(enough_for_baci, "Yes", "No")) %>%
   select(enough_for_baci, everything()) %>%
   kable(col.names = c("BACI", "MPA", "WDPAID", "Gear", "Catch (mt)", "% of total catch", "N. Obs."),
-        caption = "\\label{tab:relevant_mpa_gear_combinations}\\textbf{MPA-gear combinations, contribution of each gear's catch to total catch around each MPA, total number of observations, and Before-After-Control-Impact (BACI) compliance.} The column WDPA ID shows the unique shapefile identifier from the World Database on Protected Areas.",
+        caption = "\\label{tab:relevant_mpa_gear_combinations}\textbf{Before-After-Control-Impact (BACI) compliance indicator, MPA and fishing gear combinations, contribution of each gear's catch to total catch around each MPA, and total number of observations.} The column WDPA ID shows the unique shapefile identifier from the World Database on Protected Areas.",
         label = "relevant_mpa_gear_combinations",
         digits = 4,
         booktabs = T,

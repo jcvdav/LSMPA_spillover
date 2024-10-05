@@ -57,7 +57,7 @@ cells_1x1_within <-
   mutate(grid = "1x1") %>%
   select(grid, lon = x, lat = y, fraction)
 
-dim(cells_1x1_within) # There are 781 cells on the 1X1 grid that fall
+dim(cells_1x1_within) # There are 914 (781 without Johsnton) cells on the 1X1 grid that fall
 # within an MPA. Note that not all these cells may have data reported by
 # an RFMO and that not all are FULLY within an MPA... we'll get there
 
@@ -74,22 +74,29 @@ cells_5x5_within <-
   mutate(grid = "5x5") %>%
   select(grid, lon = x, lat = y, fraction)
 
-dim(cells_5x5_within) # There are 81 cells within an MPA using the 5x5 grid
+dim(cells_5x5_within) # There are 97 (81 without Johnston) cells within an MPA using the 5x5 grid
 
 
 cells_within <- bind_rows(cells_1x1_within,
                           cells_5x5_within) %>%
-  filter(fraction == 1) %>%
+  filter(fraction >= 1) %>%
   select(-fraction)
 
 # How many are fully within?
+# Without Johnston
 # count(cells_within, grid)
 # grid   n
 # 1  1x1 367
 # 2  5x5   1
+##
+# With Johnston
+# count(cells_within, grid)
+# grid   n
+# 1  1x1 397
+# 2  5x5   1
 
 # Build spatial grid -----------------------------------------------------------
-# THere are a few steps here:
+# There are a few steps here:
 # - First, build a grid of unique lat-lon combinations where RFMOs actually report
 # some data
 # - Then, remove cells that we've identified as being FULLY covered by an MPA

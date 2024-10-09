@@ -4,9 +4,9 @@ zenodo badge here
 
 Description here
 
-# One-line repdroduction
+# Reproducing the healdine results
 
-# To reproduce Table 1, Panel A, Column 1 (The "naive" regression):
+## To reproduce Table 1, Panel A, Column 1 (The "naive" regression):
 ```
 # Load data
 annual_panel <- readRDS(file = ("data/processed/annual_full_estimation_panel.rds"))
@@ -17,6 +17,7 @@ T1PAC1 <- lm(log(cpue_tot) ~ post + near + post:near,
   
 # Summary of the model
 summary(T1PAC1)
+
 # Call:
 # lm(formula = log(cpue_tot) ~ post + near + post:near, data = annual_panel[annual_panel$gear == 
 #     "purse_seine", ])
@@ -39,7 +40,7 @@ summary(T1PAC1)
 # F-statistic: 72.54 on 3 and 10403 DF,  p-value: < 2.2e-16
 ```
 
-# To reproduce Table 1, Panel B, Column 4 (The "preferred"" specification):
+## To reproduce Table 1, Panel B, Column 4 (The "preferred"" specification):
 ```
 if(!require("fixest")){install.packages("fixest")} # Install if not installed
 library(fixest)
@@ -56,6 +57,7 @@ T1PBC4 <- feols(log(cpue_tot) ~ post + near + post:near | id + flag + wdpaid ^ y
 
 # Summary of the model
 summary(T1PBC4)
+
 # OLS estimation, Dep. Var.: log(cpue_tot)
 # Observations: 10,273
 # Subset: gear == "purse_seine"

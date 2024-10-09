@@ -82,19 +82,6 @@ cells_within <- bind_rows(cells_1x1_within,
   filter(fraction >= 1) %>%
   select(-fraction)
 
-# How many are fully within?
-# Without Johnston
-# count(cells_within, grid)
-# grid   n
-# 1  1x1 367
-# 2  5x5   1
-##
-# With Johnston
-# count(cells_within, grid)
-# grid   n
-# 1  1x1 397
-# 2  5x5   1
-
 # Build spatial grid -----------------------------------------------------------
 # There are a few steps here:
 # - First, build a grid of unique lat-lon combinations where RFMOs actually report

@@ -26,6 +26,11 @@ source(here("scripts/00_set_up.R"))
 annual_panel <- readRDS(file = here("data", "processed", "annual_full_estimation_panel.rds"))
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
 
+# SOME CHECKS BEFORE PROCEEDING TO ANALYSIS
+# There should be 9 LSMPAS in the main regression panel for purse seine
+length(unique(annual_panel[annual_panel$gear == "purse_seine",]$name)) == 9
+# There should be 6 LMPSAS int he most relevant panel for purse seine
+length(unique(most_relevant_panel[most_relevant_panel$gear == "purse_seine",]$name)) == 6
 
 # ## PROCESSING ##################################################################
 # Estimate DiD with all the data -----------------------------------------------

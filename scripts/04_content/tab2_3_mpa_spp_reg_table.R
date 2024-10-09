@@ -66,8 +66,7 @@ modelsummary(abbr_names(gear_mpa_regs),
              coef_map = c("post:near" = "Post x Near"),
              gof_map = gm,
              escape = F,
-             title = "\\label{tab:mpa_reg}\\textbf{Spillover effects by Large-Scale Marine Protected Areas.} Coefficients are
-             difference-in-difference estimates for the change in CPUE. Numbers in parentheses are Conley standard errors accounting for spatial correlation using a 200 km cutoff.")
+             title = "\\label{tab:mpa_reg}\\textbf{Spillover effects by Large-Scale Marine Protected Areas.} Coefficients are difference-in-difference estimates for the change in CPUE. Numbers in parentheses are Conley standard errors accounting for spatial correlation using a 200 km cutoff.")
 
 modelsummary(abbr_names(gear_spp_regs, caps = T),
              output = here("results", "tab", "tab3_spp_reg_table.tex"),

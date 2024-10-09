@@ -1,5 +1,5 @@
 ################################################################################
-# title
+# Clean WCPFC data (quarterly by flag)
 ################################################################################
 #
 # Juan Carlos Villaseñor-Derbez
@@ -31,72 +31,6 @@ iso_codes <- countrycode::codelist %>%
   select(iso2c, iso3c) %>%
   distinct()
 
-# ps_tuna <-
-#   read_csv(
-#     file = here(
-#       "data",
-#       "raw",
-#       "RFMO_data",
-#       "WCPFC",
-#       "WCPFC_S_PUBLIC_BY_FLAG_YEAR_7",
-#       "WCPFC_S_PUBLIC_BY_FLAG_YEAR.csv"
-#     )
-#   ) %>%
-#   clean_names()
-
-# q_ps_tuna <-
-#   read_csv(
-#     file = here(
-#       "data",
-#       "raw",
-#       "RFMO_data",
-#       "WCPFC",
-#       "WCPFC_S_PUBLIC_BY_1x1_QTR_FLAG_3",
-#       "WCPFC_S_PUBLIC_BY_1x1_QTR_FLAG.csv"
-#     )
-#   ) %>%
-#   clean_names()
-
-# ll_tuna <-
-#   read_csv(
-#     file = here(
-#       "data",
-#       "raw",
-#       "RFMO_data",
-#       "WCPFC",
-#       "WCPFC_L_PUBLIC_BY_FLAG_YR_7",
-#       "WCPFC_L_PUBLIC_BY_FLAG_YR.csv"
-#     )
-#   ) %>%
-#   clean_names()
-
-# q_ll_tuna <-
-#   read_csv(
-#     file = here(
-#       "data",
-#       "raw",
-#       "RFMO_data",
-#       "WCPFC",
-#       "WCPFC_L_PUBLIC_BY_FLAG_QTR_8",
-#       "WCPFC_L_PUBLIC_BY_FLAG_QTR.csv"
-#     )
-#   ) %>%
-#   clean_names()
-#
-# m_ll_tuna <-
-#   read_csv(
-#     file = here(
-#       "data",
-#       "raw",
-#       "RFMO_data",
-#       "WCPFC",
-#       "WCPFC_L_PUBLIC_BY_FLAG_MON_5",
-#       "WCPFC_L_PUBLIC_BY_FLAG_MON.csv"
-#     )
-#   ) %>%
-#   clean_names()
-
-# FROM GH
 ps_tuna <-
   read_csv(
     file = here(
@@ -122,8 +56,6 @@ ll_tuna <-
     )
   ) %>%
   clean_names()
-
-### END FROM GH
 
 ## PROCESSING ##################################################################
 

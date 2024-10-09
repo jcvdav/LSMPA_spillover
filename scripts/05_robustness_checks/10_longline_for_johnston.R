@@ -8,6 +8,7 @@ pacman::p_load(
   janitor,
   tidyverse,
   terra,
+  fixest,
   units
 )
 
@@ -196,12 +197,67 @@ john_panel <- combined %>%
   rename(near = near_100)
 
 
-mod <- fixest::feols(log(cpue_tot) ~ post + near + post:near | csw(0, id, flag, wdpaid ^ year),,
+mod <- fixest::feols(log(cpue_tot) ~ post + near + post:near | csw(0, id, flag, wdpaid ^ year),
               panel.id = ~id + year,
               data = john_panel,
               vcov = conley(cutoff = 200))
 
-
 modelsummary::modelsummary(mod, coef_omit = "^(?!.*:)",
                            stars = panelsummary:::econ_stars(),
-                           gof_omit = "RMSE|IC|W")
+                           gof_omit = "RMSE|IC|W", output = "latex")
+
+modelsummary::modelsummary(mod[[4]], coef_omit = "^(?!.*:)",
+                           stars = panelsummary:::econ_stars(),
+                           gof_omit = "RMSE|IC|W", output = "latex")
+
+
+
+# \begin{table}
+# \centering
+# \begin{talltblr}[         %% tabularray outer open
+#                           entry=none,label=none,
+#                           note{}={* p < 0.1, ** p < 0.05, *** p < 0.01},
+# ]                     %% tabularray outer close
+# {                     %% tabularray inner open
+#   colspec={Q[]Q[]},
+#   column{1}={halign=l,},
+#   column{2}={halign=c,},
+#   hline{4}={1,2}{solid, 0.05em, black},
+# }                     %% tabularray inner close
+# \toprule
+# & (1) \\ \midrule %% TinyTableHeader
+# post × near                       & \num{0.199}   \\
+# & (\num{0.174}) \\
+# Num.Obs.                          & \num{140}     \\
+# R2                                & \num{0.534}   \\
+# R2 Adj.                           & \num{0.411}   \\
+# Std.Errors                        & Conley (200km) \\
+# FE: id                            & X              \\
+# FE: flag                          & X              \\
+# FE: wdpaid\textasciicircum{}year & X              \\
+# \bottomrule
+# \end{talltblr}
+# \end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

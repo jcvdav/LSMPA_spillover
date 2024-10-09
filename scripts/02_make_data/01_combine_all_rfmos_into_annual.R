@@ -121,6 +121,7 @@ annual_all_rfmos <- bind_rows(iattc_annual,
                              yft_mt = 0))
 
 ## BREIF PARENTHRESES TO LOOK AT DUPLICATE DATA ################################
+# Skip until like ~281 if you don't need to look at overlapping cells !!!!!!!!!!!!!!!!!!!!!!!!!!!
 cells_with_dupes <- annual_all_rfmos %>%
   group_by(lat, lon) %>%
   mutate(n = n_distinct(rfmo)) %>%
@@ -166,9 +167,10 @@ map_of_all_overlaps <- cells_with_dupes %>%
           inherit.aes = F) +
   geom_sf(data = mpas,
           inherit.aes = F, fill = "blue") +
-  geom_point(size = 1, color = "red")
+  geom_point(size = 1, color = "red") +
+  labs(title = "Map of all overlapping cells")
 
-map_of_overlaps_IATTC_IATC <-
+map_of_overlaps_IATTC_ICCAT <-
   cells_with_dupes %>%
   filter(rfmo == "iattc, iccat") %>%
   select(lat, lon) %>%
@@ -178,14 +180,15 @@ map_of_overlaps_IATTC_IATC <-
   geom_sf(data = gal_300, fill = "blue", linetype = "dashed") +
   geom_sf(data = gal_600, fill = "blue") +
   geom_point(aes(x = lon, y = lat), color = "red") +
-  geom_point(x = -82.5, y = 7.5, shape = 21, size = 5, color = "gray")
+  geom_point(x = -82.5, y = 7.5, shape = 21, size = 5, color = "gray") +
+  labs(title = "Map of overlaps between IATTC and ICCAT")
 
 map_of_overlaps <- plot_grid(map_of_all_overlaps,
-                             map_of_overlaps_IATTC_IATC,
+                             map_of_overlaps_IATTC_ICCAT,
                              ncol = 1,
                              labels = "AUTO")
 
-
+ #Export the map of overlaps
 startR::lazy_ggsave(
   plot = map_of_overlaps,
   filename = "figS1_map_of_overlaps",
@@ -215,7 +218,7 @@ unique_cells %>%
   filter(n > 1) %>%
   summarize_all(max)
 
-# Overlaping df
+# Overlaping dataframe
 overlaps <- annual_all_rfmos %>%
   filter(year > yr,
          rfmo %in% c("wcpfc", "iattc")) %>%

@@ -90,15 +90,6 @@ panelsummary(by_mpa,
   footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$", escape = F) %>%
   cat(file = here("results", "tab", "tabS_longline_mpa_reg_table.tex"))
 
-# modelsummary(by_mpa,
-#              # shape = model ~ term + statistic,
-#              gof_map = gm,
-#              output = here("results", "tab", "tabS_longline_mpa_reg_table.tex"),
-#              stars = panelsummary:::econ_stars(),
-#              coef_map = c("post:near" = "Post x Near"),
-#              title = "Spillover effects by Large-Scale Marine Protected Areas on longline fisheries. Coefficients are
-#              difference-in-difference estimates for the change in CPUE. Numbers in parentheses are standard errors.")
-
 ## EXPORT ######################################################################
 
 # X ----------------------------------------------------------------------------

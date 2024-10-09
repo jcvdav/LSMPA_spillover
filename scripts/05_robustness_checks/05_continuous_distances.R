@@ -109,9 +109,8 @@ panelsummary(list(main_cont_reg_100, relevant_main_cont_reg_100),
              hline_after = T,
              caption = "\\label{tab:cont_treat}\\textbf{Effect of LSMPAs on CPUE using distance as a continuous variable}.
              Coefficient estimates show the effect of moving 100 nautical miles closer to the border of an LSMPA.
-             Columns 1-3 show coefficients estimated using the entire data set. Columns 4-6 show coefficients estimated using a subsample of relevant
-             LSMPA-gear combinations. The number of unique LSMPA-gear combinations is as follows: For columns 1-3 in Panel A: 23 LSMPA-gear combinations,
-             Panel B: 25 LSMPA-gear combinations, Panel C: 26 LSMPA-gear combinations. For columns 4-6 all panels have 14 LSMPA-gear combinations. All
+             Column 1 shows coefficients estimated using all 9 LSMPAs. Column 2 shows coefficients estimated using the 6
+             LSMPAs in our main analysis. All
              columns use Conley standard errors with a 200 km cutoff.") %>%
   footnote("$* p < 0.1, ** p < 0.05, *** p < 0.01$.", escape = F) %>%
   cat(file = here("results", "tab", "tabS3_continuous_distance_reg_table.tex"))

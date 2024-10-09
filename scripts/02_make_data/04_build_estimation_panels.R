@@ -220,14 +220,17 @@ saveRDS(object = annual_panel_full_post,
 saveRDS(object = most_relevant_panel_full_post,
         file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel_full_post.rds"))
 
-# Tables for text
+# Table for SM
+# NOTE THAT PAPAHANAOMOKUAKEA IS MANUALLY MOVED TO NON-BACI COMPLIANCE DUE TO OVERLAPS WITH JOHNSTON, WHICH ARE NOT CONSIDERED ABOVE
+# JOHNSTON IS NOT INCLUDED THUS FAR, BUT WILL BE ADDED MANUALLY IN THE TEXT
 gear_with_most_landings_by_mpa %>%
+  mutate(enough_for_baci = ifelse(wdpaid == "220201", FALSE, enough_for_baci)) %>%
   arrange(-enough_for_baci, desc(gear), short_name) %>%
   mutate(gear = str_to_sentence(str_replace(gear, "_", " ")),
          enough_for_baci = ifelse(enough_for_baci, "Yes", "No")) %>%
   select(enough_for_baci, everything()) %>%
   kable(col.names = c("BACI", "MPA", "WDPAID", "Gear", "Catch (mt)", "% of total catch", "N. Obs."),
-        caption = "\\label{tab:relevant_mpa_gear_combinations}\textbf{Before-After-Control-Impact (BACI) compliance indicator, MPA and fishing gear combinations, contribution of each gear's catch to total catch around each MPA, and total number of observations.} The column WDPA ID shows the unique shapefile identifier from the World Database on Protected Areas.",
+        caption = "\\label{tab:relevant_mpa_gear_combinations}\\textbf{Before-After-Control-Impact (BACI) compliance indicator, MPA and fishing gear combinations, contribution of each gear's catch to total catch around each MPA, and total number of observations.} The column WDPA ID shows the unique shapefile identifier from the World Database on Protected Areas.",
         label = "relevant_mpa_gear_combinations",
         digits = 4,
         booktabs = T,

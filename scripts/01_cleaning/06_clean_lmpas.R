@@ -33,10 +33,9 @@ mpas <- list.files(path =  here("data", "raw", "WDPA_WDOECM_Feb2023_Public_marin
   st_as_sf() %>%
   clean_names()
 
-list_LSMPAs <- read_excel(path = here("data", "list_LSMPAs.xlsx"), sheet = "Table for Paper") %>%
+list_LSMPAs <- read_excel(path = here("data", "list_LSMPAs_100824.xlsx"), sheet = "Table for Paper") %>%
   clean_names() %>%
   filter(!included == "No",
-         !wdpa_id == "555577562", # I am manually removing this on August 16, waiting for John to send the updated excel file
          !wdpa_id == "") %>%
   mutate(wdpa_id = str_replace(wdpa_id, "\\\\textunderscore ", "_"),
          year_enforced = as.numeric(str_extract(month_year_enforced, "[:digit:]{4}")),
@@ -64,6 +63,7 @@ clean_lmpas <- mpas %>%
   select(-a) %>%
   st_remove_holes()
 
+# Split PRI polygons and remove Johnston (for now) because it overlaps with Papahanaumokuakea
 sf_use_s2(T)
 pri <- clean_lmpas %>%
   filter(wdpaid == "400011") %>%
@@ -80,6 +80,7 @@ pri <- clean_lmpas %>%
   select(-poly) %>%
   filter(!name == "PRI (Johnston)")
 
+# Get the NTZ part of coral sea
 coral_sea <- clean_lmpas %>%
   filter(wdpaid == "555556875") %>%
   st_cast("POLYGON") %>%
@@ -92,6 +93,7 @@ coral_sea <- clean_lmpas %>%
          name = "Coral Sea - NPZ")%>%
   select(-poly)
 
+# Union the Papahanaumokuakea polygon
 papa <- clean_lmpas %>%
   filter(wdpaid == "220201") %>%
   st_cast("POLYGON") %>%
@@ -105,7 +107,7 @@ papa <- clean_lmpas %>%
   select(-a)
 
 final_mpas <- clean_lmpas %>%
-  filter(!wdpaid %in% c("400011", "555556875", "220201")) %>%
+  filter(!wdpaid %in% c("400011", "555556875", "220201")) %>% # Remove the ones that need to be added manually
   bind_rows(pri, coral_sea, papa) %>%
   mutate(area = st_area(.),
          area = units::set_units(area, "km^2")) %>%

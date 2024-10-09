@@ -7,7 +7,7 @@
 # date
 #
 # Description
-# Build a map od Nazca showing points partially covered that we keep
+# Build a map of Nazca showing points partially covered that we keep
 # and points fully covered that we drop
 #
 ################################################################################

@@ -26,13 +26,9 @@ source(here("scripts/00_set_up.R"))
 img <- function(pic) {here("data", "raw", "gear_fish_pics", paste0(pic, ".svg"))}
 
 # Load data --------------------------------------------------------------------
-most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds")) %>%
-  filter(dist > 0)
-
-## PROCESSING ##################################################################
+most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
 
 ## VISUALIZE ###################################################################
-
 # BACI plots (Panels A-D) ------------------------------------------------------
 # We first build BACI plots showing the mean CPUE for each of the before, after,
 # control, impact groups. There is one main plot for each gear, and then a plot
@@ -56,8 +52,8 @@ ps_baci_plot <- baci_plot(data = ps_data) +
   annotate(geom = "text",
            x = c(1.25, 1.95),
            y = c(31, 25),
-           label = c("Change in CPUE near: 23.85%",
-                     "Change in CPUE far: 8.74%"),
+           label = c("Change in CPUE near: 22.5%",
+                     "Change in CPUE far: 8.7%"),
            color = c(gear_palette["PS"], "gray50"))
 
 # Panel B "spillover gradient" -------------------------------------------------

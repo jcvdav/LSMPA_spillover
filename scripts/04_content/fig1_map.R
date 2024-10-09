@@ -24,7 +24,7 @@ pacman::p_load(
   tidyverse
 )
 
-# Source custom funcions -------------------------------------------------------
+# Source custom functions -------------------------------------------------------
 source(here("scripts/00_set_up.R"))
 
 # Load data --------------------------------------------------------------------
@@ -55,7 +55,33 @@ mpas_ps <- mpas %>%
 excluded_mpas <- mpas %>%
   filter(!wdpaid %in% mpas_with_ps)
 
-mpas <- bind_rows(mpas_ps, excluded_mpas)
+# Johnston was excluded from main shapefile because it's buffer overlaps with Pahanaomokuakea
+# so here we add it manually for visualization
+johnston <- list.files(path =  here("data", "raw", "WDPA_WDOECM_Feb2023_Public_marine_shp"),
+                       pattern = "polygons.shp",
+                       full.names = T,
+                       recursive = T) %>%
+  map_dfr(st_read) %>%
+  st_as_sf() %>%
+  janitor::clean_names() %>%
+  filter(wdpaid == "400011") %>%
+  head(1) %>%
+  st_cast("POLYGON") %>%
+  mutate(area = st_area(.),
+         area = units::set_units(area, "km^2")) %>%
+  filter(area > units::set_units(1e5, "km^2")) %>%
+  mutate(area = as.numeric(area),
+         poly = LETTERS[1:nrow(.)]) %>%
+  mutate(name = case_when(poly == "A" ~ "PRI (Wake)",
+                          poly == "B" ~ "PRI (Jarvis)",
+                          poly == "C" ~ "PRI (Johnston)"),
+         wdpaid = paste(wdpaid, poly, sep = "_")) %>%
+  select(-poly) %>%
+  filter(name == "PRI (Johnston)") %>%
+  mutate(labels = "") %>%
+  select(wdpaid, name, area, geom = geometry)
+
+mpas <- bind_rows(mpas_ps, excluded_mpas, johnston)
 
 ## PROCESSING ##################################################################
 

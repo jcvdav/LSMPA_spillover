@@ -1,10 +1,9 @@
 ################################################################################
-# title
+# Clean IATTC data
 ################################################################################
 #
 # Juan Carlos Villaseñor-Derbez
 # juancvd@stanford.edu
-# date
 #
 # Description - From PDF that came with the data
 #

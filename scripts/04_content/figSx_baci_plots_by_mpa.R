@@ -36,7 +36,8 @@ ps_data <- most_relevant_panel %>%
 ll_data <- most_relevant_panel %>%
   filter(gear == "longline") %>%
   bind_rows(johnston_panel) %>%
-  rename(cpue = cpue_tot)
+  rename(cpue = cpue_tot) %>%
+  mutate(short_name = coalesce(short_name, name))
 
 # Build Delta cpue dfs ---------------------------------------------------------
 ps_delta_cpue <- ps_data %>%
@@ -86,13 +87,13 @@ startR::lazy_ggsave(
 startR::lazy_ggsave(
   plot = ll_baci_plot,
   filename = "figSx_ll_baci_by_mpa",
-  width = 12,
-  height = 4.5
+  width = 18,
+  height = 5
 )
 
 # Override to fix PAPA
 ggsave(filename = here("results", "img", "figSx_ll_baci_by_mpa.pdf"),
-       width = 12,
-       height = 4.5,
+       width = 18,
+       height = 5,
        units = "cm",
        device = cairo_pdf)

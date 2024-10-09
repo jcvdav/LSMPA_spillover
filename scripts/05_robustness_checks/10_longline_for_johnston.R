@@ -196,6 +196,9 @@ john_panel <- combined %>%
          between(event, -10, 10)) %>%
   rename(near = near_100)
 
+saveRDS(john_panel,
+        file = here("data", "processed", "johnston_panel.rds"))
+
 
 mod <- fixest::feols(log(cpue_tot) ~ post + near + post:near | csw(0, id, flag, wdpaid ^ year),
               panel.id = ~id + year,

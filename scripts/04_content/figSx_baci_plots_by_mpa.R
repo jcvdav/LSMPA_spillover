@@ -26,6 +26,7 @@ img <- function(pic) {here("data", "raw", "gear_fish_pics", paste0(pic, ".svg"))
 
 # Load data --------------------------------------------------------------------
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
+johnston_panel <- readRDS(file = here("data", "processed", "johnston_panel.rds"))
 
 ## PROCESSING ##################################################################
 ps_data <- most_relevant_panel %>%
@@ -34,6 +35,7 @@ ps_data <- most_relevant_panel %>%
 
 ll_data <- most_relevant_panel %>%
   filter(gear == "longline") %>%
+  bind_rows(johnston_panel) %>%
   rename(cpue = cpue_tot)
 
 # Build Delta cpue dfs ---------------------------------------------------------

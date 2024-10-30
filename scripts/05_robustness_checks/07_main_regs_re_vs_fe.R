@@ -74,7 +74,7 @@ panelsummary(list(step2, step3, step4),
              format = "latex",
              caption = "\\label{tab:fe_vs_re}\\textbf{Comparing coefficient estimates using fixed effects vs random effects models.}
              Coefficients are difference-in-difference estimates for change in CPUE.
-             Panel A uses fixed effects and Panel uses random effects.
+             Panel A uses fixed effects and Panel B uses random effects.
              Column 1 includes fixed or random effects by grid cell. Column 2 includes fixed or random
              effects by grid and by flag. Column 3 shows a full specification with fixed and random effects by grid, by
              flag, and by MPA-year. Results in Panel A are the same as main-text Table 1, Panel A, Columns 2 to 4.") %>%

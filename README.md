@@ -73,3 +73,38 @@ summary(T1PBC4)
 #                  Within R2: 0.001196
 ```
 
+## To explore an event-study approach
+
+```
+if(!require("fixest")){install.packages("fixest")} # Install if not installed
+if(!require("ggfixest")){install.packages("fixest")} # Install if not installed
+library(fixest)
+library(ggfixest)
+
+# Load data
+most_relevant_panel <- readRDS(file = "data/processed/annual_relevant_mpa_gears_estimation_panel.rds")
+
+# First one with no fixed effects ----------------------------------------------
+# Estimate the model
+base <- feols(log(cpue_tot) ~ event_fct + near + i(event, near, -1),
+              data = most_relevant_panel %>%
+                mutate(event_fct = as.factor(event),
+                       event_fct = fct_relevel(event_fct, "-1")), # The last year pre-enforcementis the reference year
+              vcov = "iid",
+              subset = ~gear == "purse_seine")
+# Plot it
+ggfixest::ggiplot(base, aggr_eff = "both")
+```
+![](base_es.png)
+
+```
+# Now with full FE's -----------------------------------------------------------
+# Fit the model
+mod_fe <- feols(log(cpue_tot) ~ i(event, near, -1) | id + event + flag +  year ^ wdpaid,
+                data = most_relevant_panel,
+                vcov = vcov_conley(cutoff = 200),
+                subset = ~gear == "purse_seine")
+# Plot it
+ggfixest::ggiplot(mod_fe, aggr_eff = "both")
+```
+![](full_fe_es.png)

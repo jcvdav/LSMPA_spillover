@@ -86,7 +86,7 @@ p <- ggplot(data = all_coefs,
   theme_linedraw() +
   theme(legend.position = "bottom") +
   labs(x = "Time-to-treatment (0 is year of enforcement)",
-       y = "Estimate ± 95% CI (black)",
+       y = "Estimate ± 95% CI",
        color = "Specification",
        shape = "Specification")
 

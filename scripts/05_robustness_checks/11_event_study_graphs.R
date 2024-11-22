@@ -60,7 +60,7 @@ all_coefs <- bind_rows(base_coefs,
 
 ## VISUALIZE ###################################################################
 # Build the figure -------------------------------------------------------------
-ggplot(data = all_coefs,
+p <- ggplot(data = all_coefs,
        aes(x = x,
            y = y,
            group = fixef,
@@ -75,24 +75,25 @@ ggplot(data = all_coefs,
                   position = position_dodge(width = 0.75),
                   linewidth = 0.5,
                   alpha = 0.75) +
-  geom_line(data = . %>% filter(fixef %in% c("none", "id + event + flag + year-by-mpa")),
+  geom_line(#data = . %>% filter(fixef %in% c("none", "id + event + flag + year-by-mpa")),
             aes(x = x, y = aggr_eff),
             linewidth = 1) +
   guides(color = guide_legend(override.aes = list(fatten = 0,
-                                                  size = 1))) +
-  scale_color_manual(values = c("black",
-                                "#FC8D62",
-                                "#8DA0CB",
-                                scales::muted("red"))) +
+                                                  size = 1),
+                              nrow = 2)) +
+  scale_color_brewer(palette = "Set2") +
   scale_shape_manual(values = c(16, 1, 2, 15)) +
   theme_linedraw() +
   theme(legend.position = "bottom") +
   labs(x = "Time-to-treatment (0 is year of enforcement)",
        y = "Estimate ± 95% CI (black)",
        color = "Specification",
-       shape = "Specification",
-       title = "Event-study plot",
-       subtitle = "Data for 6 LSMPAs; each color indicates a different FE specification. Horizontal lines shows aggregate effects.")
+       shape = "Specification")
 
+
+startR::lazy_ggsave(plot = p,
+                    filename = "figS_event_study",
+                    width = 15,
+                    height = 10)
 
 

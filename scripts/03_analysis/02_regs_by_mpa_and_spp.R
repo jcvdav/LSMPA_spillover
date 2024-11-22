@@ -71,3 +71,24 @@ saveRDS(object = gear_mpa_regs_full_post,
 saveRDS(object = gear_spp_regs,
         file = here("data", "output", "gear_spp_regs.rds"))
 
+## Additional testing with different FE specifications for MPA-level stuff
+feols(log(cpue_tot) ~ post + near + post:near | csw(0, id, flag, wdpaid^year),
+      panel.id = ~id + year,
+      vcov = conley(cutoff = 200),
+      split = ~short_name,
+      subset = ~gear == "purse_seine",
+      data = most_relevant_panel) %>%
+  ggfixest::ggcoefplot(keep = "%:", col = colors()[c(10:13, 20:23, 30:33, 40:43, 50:53, 60:63)], pt.pch = 21) +
+  labs(subtitle = "Giving preference to main effects instead of FE's to avoid dropping colinear variables
+does not change our estimates for real MPAS: (Galapagos, Pipa, end Revilla)")
+
+
+feols(log(cpue_tot) ~ post + near + post:near |  csw(0, id, flag, wdpaid ^ year),
+      panel.id = ~id + year,
+      vcov = conley(cutoff = 200),
+      split = ~spp,
+      subset = ~nice_gear == "PS",
+      data = panel_for_spp_regs) %>%
+  ggfixest::ggcoefplot(keep = "%:", col = colors()[c(20:23, 30:33, 40:43)], pt.pch = 21) +
+  labs(subtitle = "Giving preference to main effects instead of FE's to avoid dropping colinear variables
+inflates our estimates. We report the conservatiive ones anyway.")

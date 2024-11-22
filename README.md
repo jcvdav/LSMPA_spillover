@@ -1,8 +1,6 @@
 # Data and code for: "Evidence of Spillover Benefits from Large-Scale Marine Protected Areas to Purse Seine Fisheries"
 
-zenodo badge here
-
-Description here
+[![DOI](https://zenodo.org/badge/601712826.svg)](https://doi.org/10.5281/zenodo.14207429)
 
 # Reproducing the healdine results
 

@@ -20,6 +20,9 @@ pacman::p_load(
   ggfixest
 )
 
+# Source custom functions ------------------------------------------------------
+source(here("scripts/00_set_up.R"))
+
 # Load data --------------------------------------------------------------------
 most_relevant_panel <- readRDS(file = here("data", "processed", "annual_relevant_mpa_gears_estimation_panel.rds"))
 
@@ -33,60 +36,85 @@ base <- feols(log(cpue_tot) ~ event_fct + near + i(event, near, -1),
               subset = ~gear == "purse_seine")
 
 # Stepwise adding FEs
-mod_sw <- feols(log(cpue_tot) ~ i(event, near, -1) | csw(id + event, flag,  year ^ wdpaid),
+mod_fe <- feols(log(cpue_tot) ~ i(event, near, -1) | id + event + flag + year ^ wdpaid,
                 data = most_relevant_panel,
                 vcov = vcov_conley(cutoff = 200),
                 subset = ~gear == "purse_seine")
 
 # Manually build a data frame of coefficients-----------------------------------
-# First for the base approach
-base_coefs <- base %>%
-  ggfixest:::iplot_data(object = ., .aggr_es = "both") %>%
-  mutate(fixef = "none")
+# Fundction to add the reference category
+add_ref <- function(x) {
+  x %>%
+    select(model) %>%
+    distinct() %>%
+    mutate(x = -1,
+           y = 0,
+           std.error = 0,
+           aggr_eff = 0)
+}
 
-# Now for the ones we build step-wise
-sw_coefs <- mod_sw %>%
-  map_dfr(~ggfixest:::iplot_data(object = ., .aggr_es = "both"), .id = "fixef") %>%
-  mutate(fixef = str_remove_all(fixef, "fixef: "))
+# First, get aggregate effects for each model
+base_agg <- base %>%
+  ggfixest:::aggr_es(period = "both") %>%
+  select(period = term, aggr_eff = estimate)
+
+fe_agg <- mod_fe %>%
+  ggfixest:::aggr_es(period = "both") %>%
+  select(period = term, aggr_eff = estimate)
+
+# Now the coefficients
+base_coefs <- base %>%
+  broom::tidy() %>%
+  filter(str_detect(term, ":")) %>%
+  mutate(x = as.numeric(str_extract(term, "-?[:digit:]+")),
+         period = ifelse(x < 0, "pre-treatment (mean)", "post-treatment (mean)"),
+         y = estimate,
+         model = "Without FEs") %>%
+  left_join(base_agg, by = join_by(period)) %>% # add the agg effects
+  bind_rows(add_ref(.))
+
+# Now for the full FE specification
+
+fe_coefs <- mod_fe %>%
+  broom::tidy() %>%
+  filter(str_detect(term, ":")) %>%
+  mutate(x = as.numeric(str_extract(term, "-?[:digit:]+")),
+         period = ifelse(x < 0, "pre-treatment (mean)", "post-treatment (mean)"),
+         y = estimate,
+         model = "With FEs") %>%
+  left_join(fe_agg, by = join_by(period)) %>% # add the gg effects
+  bind_rows(add_ref(.))
 
 # combine them all
 all_coefs <- bind_rows(base_coefs,
-                       sw_coefs) %>%
-  mutate(fixef = str_replace(fixef, "\\^", "-by-"),
-         fixef = str_replace(fixef, "(wdpaid)", "mpa"),
-         fixef = as_factor(fixef),
-         fixef = fct_relevel(fixef,
-                             "none"))
+                       fe_coefs)
 
-## VISUALIZE ###################################################################
-# Build the figure -------------------------------------------------------------
+# ## VISUALIZE ###################################################################
+# # Build the figure -------------------------------------------------------------
 p <- ggplot(data = all_coefs,
-       aes(x = x,
-           y = y,
-           group = fixef,
-           color = fixef)) +
+             aes(x = x,
+                 y = y,
+                 group = model,
+                 color = model)) +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = -1, linetype = "dashed") +
-  geom_pointrange(aes(ymin = ci_low,
-                      ymax = ci_high,
-                      shape = fixef),
-                  fatten = 1,
-                  size = 2,
-                  position = position_dodge(width = 0.75),
-                  linewidth = 0.5,
-                  alpha = 0.75) +
-  geom_line(#data = . %>% filter(fixef %in% c("none", "id + event + flag + year-by-mpa")),
-            aes(x = x, y = aggr_eff),
+  geom_line(aes(y = aggr_eff),
             linewidth = 1) +
+  geom_pointrange(aes(ymin = y - std.error,
+                      ymax = y + std.error,
+                      fill = model),
+                  color = "black",
+                  position = position_dodge(width = 0.25),
+                  shape = 21) +
   guides(color = guide_legend(override.aes = list(fatten = 0,
-                                                  size = 1),
-                              nrow = 2)) +
-  scale_color_brewer(palette = "Set2") +
-  scale_shape_manual(values = c(16, 1, 2, 15)) +
-  theme_linedraw() +
+                                                  size = 1))) +
+  scale_fill_manual(values = fe_palette) +
+  scale_color_manual(values = fe_palette) +
+  guides(fill = guide_legend(override.aes = list(shape = 21))) +
   theme(legend.position = "bottom") +
   labs(x = "Time-to-treatment (0 is year of enforcement)",
-       y = "Estimate ± 95% CI",
+       y = "Effect on CPUE",
+       fill = "Specification",
        color = "Specification",
        shape = "Specification")
 

@@ -44,13 +44,13 @@ mpas_with_ps <- readRDS(here("data", "processed", "annual_full_estimation_panel.
 mpas <- st_read(here("data", "processed", "clean_lmpas.gpkg")) %>%
   mutate(lon = map_dbl(geom, ~st_coordinates(st_centroid(.x))[1])) %>%
   arrange(lon) %>%
-  mutate(labels = ifelse(wdpaid %in% mpas_with_ps, letters[(1:length(mpas_with_ps)) + 1], ""))
+  mutate(labels = ifelse(wdpaid %in% mpas_with_ps, LETTERS[(1:length(mpas_with_ps)) + 1], ""))
 
 mpas_ps <- mpas %>%
   filter(wdpaid %in% mpas_with_ps) %>%
   mutate(lon = map_dbl(geom, ~st_coordinates(st_centroid(.x))[1])) %>%
   arrange(lon) %>%
-  mutate(labels = letters[1:nrow(.) + 1])
+  mutate(labels = LETTERS[1:nrow(.) + 1])
 
 excluded_mpas <- mpas %>%
   filter(!wdpaid %in% mpas_with_ps)
@@ -79,7 +79,7 @@ johnston <- list.files(path =  here("data", "raw", "WDPA_WDOECM_Feb2023_Public_m
   select(-poly) %>%
   filter(name == "PRI (Johnston)") %>%
   mutate(labels = "") %>%
-  select(wdpaid, name, area, geom = geometry)
+  select(wdpaid, name, area, labels, geom = geometry)
 
 mpas <- bind_rows(mpas_ps, excluded_mpas, johnston)
 
@@ -166,16 +166,16 @@ map <- ggplot() +
                color = "black") +
   scale_fill_gradientn(colors = blues,
                        na.value = "transparent") +
-  guides(fill = guide_colorbar(title = "Tuna catch, log-transformed (MT)",
+  guides(fill = guide_colorbar(title = "TUNA CATCH, LOG-TRANSFORMED (MT)",
                                title.position = "top",
                                title.vjust = 0.5,
-                               barwidth = 9,
+                               barwidth = 10,
                                barheight = 0.5,
                                ticks.colour = "black",
                                frame.colour = "black")) +
   theme(axis.title = element_blank(),
         panel.border = element_blank(),
-        legend.position = "top",
+        legend.position = "top",legend.title = element_text(hjust = 0.5),
         legend.box.spacing = unit(0, "pt"),
         plot.background = element_blank(),
         panel.background = element_blank()) +
@@ -239,18 +239,15 @@ subplots <- mpas_ps %>%
   map2(data, wdpaid, subplot)
 
 
-# left <- plot_grid(plotlist = subplots[c(1, 3)], ncol = 1, align = "hv", labels = c("b", "d"))
-right <- plot_grid(plotlist = subplots[c(1:3)], ncol = 1, align = "hv", labels = letters[(1:3) + 1])
-bottom <- plot_grid(plotlist = subplots[4:9], nrow = 2, align = "hv", labels = letters[(4:9) + 1])
-
-# bottom <- plot_grid(plotlist = subplots, nrow = 3, align = "hv", labels = letters[(1:12) + 1])
+right <- plot_grid(plotlist = subplots[c(1:3)], ncol = 1, align = "hv", labels = LETTERS[(1:3) + 1])
+bottom <- plot_grid(plotlist = subplots[4:9], nrow = 2, align = "hv", labels = LETTERS[(4:9) + 1])
 
 panel <- plot_grid(
   plot_grid(map, right, ncol = 2,
             rel_widths = c(2, 1),
             align = "hv",
             axis = "t",
-            labels = "a",
+            labels = "A",
             label_y = 0.9),
   # map,
   bottom,
